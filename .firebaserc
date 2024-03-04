@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "divubdu"
-  }
+    "default": "nkurenkuru-36978",
+    "staging": "nkurenkuru-36978"
+  },
+  "targets": {},
+  "etags": {}
 }

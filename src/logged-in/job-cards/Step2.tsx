@@ -48,7 +48,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
     // Additional validation or processing can be done here
     handleNext();
   };
-  const { jobId } = useParams();
+  //const { jobId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
@@ -70,9 +70,15 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
     ...defaultOtherExpense,
   });
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
+const selectedJobacrd=store.jobcard.jobcard.selected
 
+console.log("selected jobvard",selectedJobacrd.id);
+const jobId = selectedJobacrd.id;
   //handle  tasks removal, addition,updating
 
+
+  console.log("job",jobId);
+  
   const handleTaskInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: string
@@ -84,9 +90,10 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
     try {
       // Create a new task on the server
       await api.jobcard.task.create(task, jobId);
+     console.log("Tasks",task);
 
       // Clear the form
-      setTask({ ...defaultTask });
+      // setTask({ ...defaultTask });
     } catch (error) {
       console.error("Error creating task:", error);
     }
@@ -391,11 +398,13 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
     try {
     
       // navigate(`/c/job-cards/review/${jobId}`);
+      console.log("jobcard",jobCard);
+      
     } catch (error) {
       // Handle errors appropriately
       console.error("Error submitting form:", error);
     } finally {
-         handleNext();
+        //  handleNext();
       setLoading(false);
     }
   };
@@ -883,12 +892,12 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
            <div
              className="uk-width-1-1 uk-text-right"
              style={{ marginTop: "10px" }}>
-             <button onClick={handleNextClick}>Next</button>
+             {/* <button >Next</button> */}
              <button
                className="btn btn-primary"
                type="submit"
                disabled={loading}>
-               Next Step {loading && <div data-uk-spinner="ratio: .5"></div>}
+               submit {loading && <div data-uk-spinner="ratio: .5"></div>}
              </button>
            </div>
          </div>
