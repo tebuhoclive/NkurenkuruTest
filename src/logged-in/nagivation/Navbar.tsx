@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Dropdown from "../../shared/components/dropdown/Dropdown";
 import { useAppContext } from "../../shared/functions/Context";
 
