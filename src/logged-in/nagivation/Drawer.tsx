@@ -1775,6 +1775,46 @@ const EMPLOYEE_USER_DRAWER = () => {
             Portfolio of evidence
           </NavLink>
         </li>
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+            {/* <li>
+              <NavLink to="job-cards/update" className="navlink">
+                {" "}
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Update Job Card
+              </NavLink>
+            </li> */}
+          </ul>
+        </li>
       </ul>
     </div>
   );

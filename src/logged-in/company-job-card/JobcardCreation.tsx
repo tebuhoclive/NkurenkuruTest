@@ -106,10 +106,10 @@ const ReviewStep: React.FC<IReviewStepProps> = ({ steps }) => {
 const JobcardCreation: React.FC<{ onNextStep: () => void }> = observer(
   ({ onNextStep }) => {
     const [loading, setLoading] = useState(false);
-    const { api, store } = useAppContext();
+    const { api, store, ui } = useAppContext();
     const [jobCard, setJobCard] = useState<IJobCard>();
     const [client, setClient] = useState<IClient>();
-
+    const navigate = useNavigate();
     // const [createdJobCard,setCraetedJobCard]= useState(false)
     //new codes
     const [selectedJobCardFile, setSelectedJobCardFile] = useState<File | null>(
@@ -227,7 +227,13 @@ const JobcardCreation: React.FC<{ onNextStep: () => void }> = observer(
           await create(updatedJobCard);
           store.jobcard.jobcard.select(updatedJobCard);
           // await create(client);
-
+          ui.snackbar.load({
+            id: Date.now(),
+            type: "success",
+            message: `Created Successfully`,
+            timeoutInMs: 10000,
+          });
+          navigate("/c/job-cards/dashboard");
           onNextStep();
         } else {
           swal({
