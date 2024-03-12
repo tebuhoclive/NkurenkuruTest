@@ -245,7 +245,7 @@ const DEV_MODE_DRAWER = () => {
             Portfolio of evidence
           </NavLink>
         </li>
-        {/* <li className="list-item uk-parent">
+        <li className="list-item uk-parent">
           <NavLink to={"company-job-card"} className="navlink">
             <FontAwesomeIcon
               icon={faBriefcase}
@@ -287,7 +287,7 @@ const DEV_MODE_DRAWER = () => {
               </li>
             </li>
           </ul>
-        </li> */}
+        </li>
 
         <li className="list-item uk-parent">
           <NavLink to="job-cards" className="navlink">
@@ -317,16 +317,7 @@ const DEV_MODE_DRAWER = () => {
                 Create Job Card
               </NavLink>
             </li>
-            {/* <li>
-              <NavLink to="job-cards/update" className="navlink">
-                {" "}
-                <FontAwesomeIcon
-                  icon={faAngleRight}
-                  className="icon uk-margin-small-right"
-                />
-                Update Job Card
-              </NavLink>
-            </li> */}
+         
           </ul>
         </li>
 
@@ -412,7 +403,36 @@ const DIRECTOR_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
-
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
         <li className="list-item uk-parent">
           <NavLink to={"strategy"} className="navlink">
             <FontAwesomeIcon
@@ -478,6 +498,36 @@ const MD_USER_DRAWER = () => {
                   className="icon uk-margin-small-right"
                 />
                 Strategy Map
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
               </NavLink>
             </li>
           </ul>
@@ -624,7 +674,36 @@ const SUPER_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
-
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
         <li className="list-item uk-parent">
           <NavLink to={"strategy"} className="navlink">
             <FontAwesomeIcon
@@ -884,7 +963,36 @@ const EXECUTIVE_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
-
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
         <li className="list-item uk-parent">
           <NavLink to={"strategy"} className="navlink">
             <FontAwesomeIcon
@@ -1026,7 +1134,36 @@ const ADMIN_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
-
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
         <li className="list-item uk-parent">
           <NavLink to={"strategy"} className="navlink">
             <FontAwesomeIcon
@@ -1258,6 +1395,36 @@ const MANAGER_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
 
         <li className="list-item uk-parent">
           <NavLink to={"scorecards"} className="navlink">
@@ -1351,6 +1518,36 @@ const SUPERVISOR_USER_DRAWER = () => {
                   className="icon uk-margin-small-right"
                 />
                 Strategy Map
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
               </NavLink>
             </li>
           </ul>
@@ -1484,6 +1681,36 @@ const EMPLOYEE_USER_DRAWER = () => {
             </li>
           </ul>
         </li>
+        <li className="list-item uk-parent">
+          <NavLink to="job-cards" className="navlink">
+            <FontAwesomeIcon
+              icon={faBriefcase}
+              className="icon uk-margin-small-right"
+            />
+            Job Cards
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to="job-cards/dashboard" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="job-cards/create" className="navlink">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="icon uk-margin-small-right"
+                />
+                Create Job Card
+              </NavLink>
+            </li>
+          </ul>
+        </li>
 
         <li className="list-item uk-parent">
           <NavLink to={"strategy"} className="navlink">
@@ -1587,6 +1814,36 @@ const GUEST_USER_DRAWER = () => {
           </ul>
         </li>
       </ul>
+      <li className="list-item uk-parent">
+        <NavLink to="job-cards" className="navlink">
+          <FontAwesomeIcon
+            icon={faBriefcase}
+            className="icon uk-margin-small-right"
+          />
+          Job Cards
+          <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+        </NavLink>
+        <ul className="uk-nav-sub">
+          <li>
+            <NavLink to="job-cards/dashboard" className="navlink">
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                className="icon uk-margin-small-right"
+              />
+              Dashboard
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="job-cards/create" className="navlink">
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                className="icon uk-margin-small-right"
+              />
+              Create Job Card
+            </NavLink>
+          </li>
+        </ul>
+      </li>
     </div>
   );
 };

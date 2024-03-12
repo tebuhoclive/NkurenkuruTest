@@ -174,30 +174,8 @@ const CompanyJobCard = observer(() => {
               cardColour={{ background: "#F97A53" }}
             />
           </div>
-          <div className="">
-            <DashboardCard
-              cardValue={0}
-              cardTitle="Acknowledged "
-              cardLink="/members/archived"
-              cardColour={{ background: "#5CC858" }}
-            />
-          </div>
-          <div className="">
-            <DashboardCard
-              cardValue={0}
-              cardTitle="Monthly Contribution"
-              cardLink="/members"
-              cardColour={{ background: "#FF326E" }}
-            />
-          </div>
-          <div className="">
-            <DashboardCard
-              cardValue={0}
-              cardTitle="Recruitment Rate"
-              cardLink="/members"
-              cardColour={{ background: "#F97A53" }}
-            />
-          </div>
+        
+        
         </div>
         <div className="uk-width-1-2">
           <div className="display-label">

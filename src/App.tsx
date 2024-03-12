@@ -672,6 +672,23 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="scorecards/my/:id"
             element={<IndividualScorecardDraftObjective />}
           />
+          <Route
+            path="company-job-card/overview"
+            element={<JobcardDashboard />}
+          />
+
+          <Route
+            path="company-job-card/configurations/"
+            element={<ConfigurationsDashboard />}
+          />
+          <Route
+            path="company-job-card/configurations"
+            element={<ConfigurationsDashboard />}
+          />
+          <Route path="job-cards/dashboard" element={<JobDashboard />} />
+          <Route path="job-cards/create" element={<JobCardOverview />} />
+          <Route path="job-cards/update/:jobId" element={<Allocate />} />
+          <Route path="job-cards/review/:jobId" element={<ReviewJobCard />} />
 
           {/* PORTFOLIO OF EVIDENCE */}
           <Route path="drive" element={<Drive />} />
