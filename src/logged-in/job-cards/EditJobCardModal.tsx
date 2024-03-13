@@ -30,14 +30,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import MODAL_NAMES from "../dialogs/ModalName";
 import { hideModalFromId } from "../../shared/functions/ModalShow";
 import { IClient, defaultClient } from "../../shared/models/job-card-model/Client";
-import Required from "./Required";
-import TextAreaWithRequired from "./Required";
-import IsRequiredTextArea from "./Required";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import "./TableStyles.css"; // Import the CSS file
+
+
 
 const EditJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
-  const { api, store, ui } = useAppContext();
+  const { api, store} = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
   const { jobId } = useParams();

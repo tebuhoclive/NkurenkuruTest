@@ -70,9 +70,27 @@ const CompanyJobCard = observer(() => {
   // };
 
   // Define a function to handle search text input
-   const Jobcards = store.jobcard.jobcard.all.map((job) => {
+  const Jobcards = store.jobcard.jobcard.all.map((job) => {
      return job.asJson;
    });
+//stats
+   const totalJobcards=store.jobcard.jobcard.all.length
+
+ const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
+   return job.asJson.status === "Not Started";
+ });
+  const totalPendingJobcards = pendingJobcards.length;
+
+
+
+
+  const completedJobcards = store.jobcard.jobcard.all.filter((job) => {
+    return job.asJson.status === "Completed";
+  });
+ const totalCompletedJobcards = completedJobcards.length;
+
+
+
 
 
     const handleAcknowledge = async (jobCard: IJobCard) => {
@@ -127,7 +145,7 @@ const CompanyJobCard = observer(() => {
         <div className="uk-child-width-expand" data-uk-grid>
           <div className="uk-child-width-expand">
             <DashboardCard
-              cardValue={0}
+              cardValue={totalJobcards}
               cardTitle="Total Job Cards"
               cardLink="/members"
               cardColour={{ background: "#5CC858" }}
@@ -135,7 +153,7 @@ const CompanyJobCard = observer(() => {
           </div>
           <div className="">
             <DashboardCard
-              cardValue={0}
+              cardValue={totalPendingJobcards}
               cardTitle="Pending Job Cards"
               cardLink="/members/terminated"
               cardColour={{ background: "#FF326E" }}
@@ -143,7 +161,7 @@ const CompanyJobCard = observer(() => {
           </div>
           <div className="">
             <DashboardCard
-              cardValue={0}
+              cardValue={totalCompletedJobcards}
               cardTitle=" Completed Job Cards"
               cardLink="/members"
               cardColour={{ background: "#F97A53" }}

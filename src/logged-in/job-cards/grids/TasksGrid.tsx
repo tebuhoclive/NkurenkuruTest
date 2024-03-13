@@ -14,10 +14,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ViewJobCardModal from "../ViewJobCardModal";
 import { IJobCard } from "../../../shared/models/job-card-model/Jobcard";
-import { ITask } from "../../../shared/models/job-card-model/Task";
+import Task, { ITask } from "../../../shared/models/job-card-model/Task";
 
 interface IProp {
-  data: ITask[];
+  data: Task[];
 }
 
 const DashboardGrid = observer(({ data }: IProp) => {

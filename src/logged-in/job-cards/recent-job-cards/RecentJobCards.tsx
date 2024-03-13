@@ -6,7 +6,7 @@ import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 
 interface IProps {
   jobcards: IJobCard[];
-  onAcknowledge: (jobCard: IJobCard) => Promise<void>; // Updated function signature
+  onAcknowledge: (jobCard: IJobCard) => Promise<void>;
 }
 
 const DeductionSubmissionCard: React.FC<IProps> = ({
@@ -46,8 +46,10 @@ const DeductionSubmissionCard: React.FC<IProps> = ({
                   </h4>
                   <button
                     className="btn btn-primary"
-                    onClick={() => onAcknowledge(jobcard)}>
-                    Acknowledge
+                    onClick={() => onAcknowledge(jobcard)}
+                    disabled={jobcard.acknowledged} // Disable button if acknowledged is true
+                  >
+                    {jobcard.acknowledged ? "Acknowledged" : "Acknowledge"}
                   </button>
                 </div>
               </div>
