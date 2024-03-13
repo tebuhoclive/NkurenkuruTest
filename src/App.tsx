@@ -52,17 +52,10 @@ import Statistics from "./logged-in/project-management/Statistics";
 import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinate-scorecards/SubordinateScorecaard";
 // import CompanyJobCard from "./logged-in/company-job-card/CompanyJobCard";
 // import JobCardOverview from "./logged-in/company-job-card/JobCardOverview";
-import JobcardDashboard from "./logged-in/company-job-card/JobcardDashboard";
-import ConfigurationsDashboard from "./logged-in/company-job-card/configurations/ConfigurationsDashboard";
-
-
-import UpdateJobCard from "./logged-in/job-cards/Allocate";
 
 import JobDashboard from "./logged-in/job-cards/dashboard/JobDashboard";
 import JobCardOverview from "./logged-in/job-cards/JobCardOverview";
-import ReviewJobCard from "./logged-in/job-cards/ReviewJobCard";
-import Allocate from "./logged-in/job-cards/Allocate";
-import CreateJobCard from "./logged-in/job-cards/CreateJobCard";
+
 
 // Lazy load components
 const LoggedIn = lazy(() => import("./logged-in/LoggedIn"));
@@ -100,6 +93,9 @@ const DEV_MODE_ROUTES = () => {
             path="strategy/company-review/:fyid"
             element={<CompanyScorecardReviewView />}
           />
+          {/*JOBCARD*/}
+          <Route path="job-cards/dashboard" element={<JobDashboard />} />
+          <Route path="job-cards/create" element={<JobCardOverview />} />
 
           <Route
             path="strategy/department"
@@ -170,30 +166,6 @@ const DEV_MODE_ROUTES = () => {
           {/* PORTFOLIO OF EVIDENCE */}
           <Route path="drive" element={<Drive />} />
           <Route path="drive/:id" element={<Drive />} />
-          <Route
-            path="company-job-card/overview"
-            element={<JobcardDashboard />}
-          />
-
-          <Route
-            path="company-job-card/configurations/"
-            element={<ConfigurationsDashboard />}
-          />
-          <Route
-            path="company-job-card/configurations"
-            element={<ConfigurationsDashboard />}
-          />
-          <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<JobCardOverview/>} />
-          <Route path="job-cards/update/:jobId" element={<Allocate />} />
-          <Route path="job-cards/review/:jobId" element={<ReviewJobCard />} />
-          
-
-          {/* <Route path="company-job-card/configurations/sub-contractors" element={<Contractors/>} />
-          <Route path="company-job-card/configurations/materials" element={<Materials/>} />
-          <Route path="company-job-card/configurations/tools" element={<Tools/>} />
-          <Route path="company-job-card/configurations/job-types" element={<JobTypes/>} />
-          <Route path="company-job-card/configurations/team-types" element={<TeamTypes/>} /> */}
 
           {/* REPORTS */}
           <Route path="reports/kpis" element={<Reports />} />
@@ -744,25 +716,9 @@ const EMPLOYEE_USER_ROUTES = () => {
           <Route path="drive/:id" element={<Drive />} />
 
           {/*JOBCARD*/}
-          <Route
-            path="company-job-card/overview"
-            element={<JobcardDashboard />}
-          />
-
-          <Route
-            path="company-job-card/configurations/"
-            element={<ConfigurationsDashboard />}
-          />
-          <Route
-            path="company-job-card/configurations"
-            element={<ConfigurationsDashboard />}
-          />
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
           <Route path="job-cards/create" element={<JobCardOverview/>} />
-          <Route path="job-cards/update/:jobId" element={<Allocate />} />
-          <Route path="job-cards/review/:jobId" element={<ReviewJobCard />} />
-          
-
+      
 
           {/* SCORECARDS */}
           {/* Executive & MD don't have personal/individual scorecard */}
@@ -771,24 +727,7 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="scorecards/my/:id"
             element={<IndividualScorecardDraftObjective />}
           />
-          <Route
-            path="company-job-card/overview"
-            element={<JobcardDashboard />}
-          />
-
-          <Route
-            path="company-job-card/configurations/"
-            element={<ConfigurationsDashboard />}
-          />
-          <Route
-            path="company-job-card/configurations"
-            element={<ConfigurationsDashboard />}
-          />
-          <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<JobCardOverview />} />
-          <Route path="job-cards/update/:jobId" element={<Allocate />} />
-          <Route path="job-cards/review/:jobId" element={<ReviewJobCard />} />
-
+      
           {/* PORTFOLIO OF EVIDENCE */}
           <Route path="drive" element={<Drive />} />
           <Route path="drive" element={<Drive />} />

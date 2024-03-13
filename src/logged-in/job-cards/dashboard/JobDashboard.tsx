@@ -82,7 +82,7 @@ const CompanyJobCard = observer(() => {
             ...jobCard,
             acknowledged: true,
           };
-
+          
           // Assuming that `api.jobcard.jobcard.update` method accepts the job card ID and the updated data
           await api.jobcard.jobcard.update(updatedJobCard);
 
@@ -123,32 +123,7 @@ const CompanyJobCard = observer(() => {
         {/* <h1>Job Card Dashboard</h1> */}
 
         {/* Job Cards Statistics */}
-        {/* <div className="uk-flex uk-flex-center uk-child-width-1-3@s">
-          <div>
-            <div className="uk-card uk-card-default uk-card-body ">
-              <h3 className="uk-card-title">
-                <FontAwesomeIcon icon={faTasks} /> Total Job Cards
-              </h3>
-              <p className="dashboard-stat">10</p>
-            </div>
-          </div>
-          <div>
-            <div className="uk-card uk-card-default uk-card-body uk-background-warning">
-              <h3 className="uk-card-title">
-                <FontAwesomeIcon icon={faClock} /> Pending Job Cards
-              </h3>
-              <p className="dashboard-stat">5</p>
-            </div>
-          </div>
-          <div>
-            <div className="uk-card uk-card-default uk-card-body uk-background-success">
-              <h3 className="uk-card-title">
-                <FontAwesomeIcon icon={faCheckCircle} /> Completed Job Cards
-              </h3>
-              <p className="dashboard-stat">5</p>
-            </div>
-          </div>
-        </div> */}
+
         <div className="uk-child-width-expand" data-uk-grid>
           <div className="uk-child-width-expand">
             <DashboardCard
@@ -174,14 +149,15 @@ const CompanyJobCard = observer(() => {
               cardColour={{ background: "#F97A53" }}
             />
           </div>
-        
-        
         </div>
-        <div className="uk-width-1-2">
+        <div className="uk-width-1-1">
           <div className="display-label">
             <h4 className="main-title-alt">Recent Job Card List Submissions</h4>
             <div>
-              <DeductionSubmissionCard jobcards={Jobcards} />
+              <DeductionSubmissionCard
+                jobcards={Jobcards}
+                onAcknowledge={handleAcknowledge}
+              />
             </div>
           </div>
         </div>

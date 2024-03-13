@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ViewJobCardModal from "../ViewJobCardModal";
 import { IJobCard } from "../../../shared/models/job-card-model/Jobcard";
-
+import swal from "sweetalert";
 interface IProp {
   data: IJobCard[];
 }
@@ -40,9 +40,38 @@ const DashboardGrid = observer(({ data }: IProp) => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
   };
 
-  const onDelete = (jobCard: IJobCard) => {
-    deleteJobCard(jobCard); // Call the Delete function
-  };
+const onDelete = (jobCard: IJobCard) => {
+  // Show a confirmation dialog
+  swal({
+    title: "Are you sure?",
+    text: "Once deleted, you will not be able to recover this job card!",
+    icon: "warning",
+    buttons: ["Cancel", "Delete"], // Define buttons as an array of strings
+    dangerMode: true,
+  })
+  .then((willDelete) => {
+    if (willDelete) {
+      // User confirmed deletion, proceed with deletion
+      try {
+        deleteJobCard(jobCard); // Call the Delete function
+
+        // Call any additional logic or UI updates as needed after successful deletion
+
+        // Show a success message
+        swal({
+          title: "Job Card Deleted!",
+          icon: "success",
+        });
+      } catch (error) {
+        console.log("Error: " + error);
+        // Handle error appropriately
+      }
+    } else {
+      // User canceled deletion
+      swal("Cancelled!");
+    }
+  });
+};
 
   const deleteJobCard = async (jobCard: IJobCard) => {
     try {
