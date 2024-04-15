@@ -183,7 +183,7 @@ const CompanyJobCard = observer(() => {
           <ul className="uk-tab" data-uk-tab="true">
             <li className={activeTab === 0 ? "uk-active" : ""}>
               <a href="#" onClick={() => handleTabChange(0)}>
-                All Job Cards
+                Job Cards waiting Allocation
               </a>
             </li>
             <li className={activeTab === 1 ? "uk-active" : ""}>

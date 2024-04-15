@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -15,6 +15,8 @@ import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ViewJobCardModal from "../ViewJobCardModal";
 import { IJobCard } from "../../../shared/models/job-card-model/Jobcard";
 import swal from "sweetalert";
+
+import { DeleteForever, OpenInNew, Visibility } from "@mui/icons-material";
 interface IProp {
   data: IJobCard[];
 }
@@ -40,38 +42,37 @@ const DashboardGrid = observer(({ data }: IProp) => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
   };
 
-const onDelete = (jobCard: IJobCard) => {
-  // Show a confirmation dialog
-  swal({
-    title: "Are you sure?",
-    text: "Once deleted, you will not be able to recover this job card!",
-    icon: "warning",
-    buttons: ["Cancel", "Delete"], // Define buttons as an array of strings
-    dangerMode: true,
-  })
-  .then((willDelete) => {
-    if (willDelete) {
-      // User confirmed deletion, proceed with deletion
-      try {
-        deleteJobCard(jobCard); // Call the Delete function
+  const onDelete = (jobCard: IJobCard) => {
+    // Show a confirmation dialog
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this job card!",
+      icon: "warning",
+      buttons: ["Cancel", "Delete"], // Define buttons as an array of strings
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        // User confirmed deletion, proceed with deletion
+        try {
+          deleteJobCard(jobCard); // Call the Delete function
 
-        // Call any additional logic or UI updates as needed after successful deletion
+          // Call any additional logic or UI updates as needed after successful deletion
 
-        // Show a success message
-        swal({
-          title: "Job Card Deleted!",
-          icon: "success",
-        });
-      } catch (error) {
-        console.log("Error: " + error);
-        // Handle error appropriately
+          // Show a success message
+          swal({
+            title: "Job Card Deleted!",
+            icon: "success",
+          });
+        } catch (error) {
+          console.log("Error: " + error);
+          // Handle error appropriately
+        }
+      } else {
+        // User canceled deletion
+        swal("Cancelled!");
       }
-    } else {
-      // User canceled deletion
-      swal("Cancelled!");
-    }
-  });
-};
+    });
+  };
 
   const deleteJobCard = async (jobCard: IJobCard) => {
     try {
@@ -99,13 +100,13 @@ const onDelete = (jobCard: IJobCard) => {
 
   const columns: GridColDef[] = [
     {
-      field: "jobDescription",
-      headerName: "Descrption",
+      field: "division",
+      headerName: "Division",
       flex: 1,
     },
     {
-      field: "objectives",
-      headerName: "Objective",
+      field: "section",
+      headerName: "Section",
       flex: 1,
     },
     {
@@ -213,29 +214,26 @@ const onDelete = (jobCard: IJobCard) => {
       renderCell: (params) => {
         return (
           <div>
-            <button
-              className="uk-margin-right uk-icon"
-              onClick={() => onUpdate(params.row)}>
-              {" "}
-              <FontAwesomeIcon icon={faEdit} />
-            </button>
-            <button
-              className="uk-margin-right uk-icon"
-            
-              onClick={() => onDelete(params.row)}>
-              {" "}
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-            <button
-              className="uk-margin-right uk-icon"
-            
-              onClick={() => onView(params.row)}>
-              {" "}
-              <FontAwesomeIcon icon={faEye} />
-            </button>
+            <IconButton
+              onClick={() => onUpdate(params.row)}
+              aria-label="allocate"
+              data-uk-tooltip="Allocate Job Card">
+              <OpenInNew />
+            </IconButton>
 
-           
-           
+            <IconButton
+              onClick={() => onDelete(params.row)}
+              aria-label="delete"
+              data-uk-tooltip="Delete">
+              <DeleteForever />
+            </IconButton>
+
+            <IconButton
+              onClick={() => onView(params.row)}
+              aria-label="view"
+              data-uk-tooltip="View">
+              <Visibility />
+            </IconButton>
           </div>
         );
       },
@@ -253,9 +251,9 @@ const onDelete = (jobCard: IJobCard) => {
           className="uk-card uk-card-default uk-card-body uk-card-small "
         />
       </Box>
-      <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
-        <EditJobCardModal />
-      </Modal>
+      {/* <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
+        <AllocateJobCardModal />
+      </Modal> */}
       <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
         <ViewJobCardModal />
       </Modal>

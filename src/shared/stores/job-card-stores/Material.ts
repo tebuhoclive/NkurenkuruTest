@@ -1,13 +1,11 @@
-import { makeObservable, runInAction, toJS } from "mobx";
+import { runInAction } from "mobx";
 import AppStore from "../AppStore";
 import Store from "../Store";
-import Material, { IMaterial } from "../../models/job-card-model/Material";
+import { IMaterial } from "../../models/job-card-model/Material";
 
-export default class MaterialStore extends Store<
-IMaterial,
-Material
-> {
-  items = new Map<string, Material>();
+
+export default class MaterialStore extends Store<IMaterial, IMaterial> {
+  items = new Map<string, IMaterial>();
 
   constructor(store: AppStore) {
     super(store);
@@ -16,10 +14,7 @@ Material
 
   load(items: IMaterial[] = []) {
     runInAction(() => {
-      items.forEach((item) =>
-        this.items.set(item.id, new Material(this.store, item))
-      );
+      items.forEach((item) => this.items.set(item.id, item));
     });
   }
 }
-

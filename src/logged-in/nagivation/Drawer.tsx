@@ -1650,6 +1650,15 @@ const EMPLOYEE_USER_DRAWER = () => {
 
           <ul className="uk-nav-sub">
             <li>
+              <NavLink to={"strategy/themes"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Themes
+              </NavLink>
+            </li>
+            <li>
               <NavLink to={"strategy/company"} className="navlink">
                 <FontAwesomeIcon
                   icon={faAnglesRight}
@@ -1659,12 +1668,30 @@ const EMPLOYEE_USER_DRAWER = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink to={"strategy/company-review"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Company Reviews
+              </NavLink>
+            </li>
+            <li>
               <NavLink to={"strategy/department"} className="navlink">
                 <FontAwesomeIcon
                   icon={faAnglesRight}
                   className="icon uk-margin-small-right"
                 />
                 Departments
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"strategy/department-review"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Departments Reviews
               </NavLink>
             </li>
           </ul>
@@ -1689,9 +1716,101 @@ const EMPLOYEE_USER_DRAWER = () => {
                 Individual Scorecard
               </NavLink>
             </li>
+            <li>
+              <NavLink to={"scorecards/supervision"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Employee Scorecard
+              </NavLink>
+            </li>
+            {/* <li>
+              <NavLink to={"scorecards/subordinate"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Subordinate Scorecard
+              </NavLink>
+            </li> */}
+            <li>
+              <NavLink to={"scorecards/people"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Performance Overview
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"scorecards/reviews"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Performance Reviews
+              </NavLink>
+            </li>
           </ul>
         </li>
-
+        <li className="list-item uk-parent">
+          <NavLink to={"execution"} className="navlink">
+            <FontAwesomeIcon
+              icon={faChessBoard}
+              className="icon uk-margin-small-right"
+            />
+            Execution
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={"statistics"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Charts & Reports
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"portfolio"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Portfolios
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"projects"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Projects
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"tasks"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Other Tasks
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"checkin"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faAnglesRight}
+                  className="icon uk-margin-small-right"
+                />
+                Check In
+              </NavLink>
+            </li>
+          </ul>
+        </li>
         <li className="list-item">
           <NavLink to={"drive"} className="navlink">
             <FontAwesomeIcon
@@ -1701,7 +1820,8 @@ const EMPLOYEE_USER_DRAWER = () => {
             Portfolio of evidence
           </NavLink>
         </li>
-        {/* <li className="list-item uk-parent">
+
+        <li className="list-item uk-parent">
           <NavLink to="job-cards" className="navlink">
             <FontAwesomeIcon
               icon={faBriefcase}
@@ -1729,9 +1849,52 @@ const EMPLOYEE_USER_DRAWER = () => {
                 Create Job Card
               </NavLink>
             </li>
-           
           </ul>
-        </li> */}
+        </li>
+
+        <li className="list-item uk-parent">
+          <NavLink to={"reports"} className="navlink">
+            <FontAwesomeIcon
+              icon={faChartSimple}
+              className="icon uk-margin-small-right"
+            />
+            Charts and Reports
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={"reports/kpis"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faChartColumn}
+                  className="icon uk-margin-small-right"
+                />
+                Performance Reports
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+
+        <li className="list-item uk-parent">
+          <NavLink to={"admin"} className="navlink">
+            <FontAwesomeIcon
+              icon={faShield}
+              className="icon uk-margin-small-right"
+            />
+            Admin
+            <FontAwesomeIcon icon={faCaretDown} className="down-arrow" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={"admin/settings"} className="navlink">
+                <FontAwesomeIcon
+                  icon={faGears}
+                  className="icon uk-margin-small-right"
+                />
+                Settings
+              </NavLink>
+            </li>
+          </ul>
+        </li>
       </ul>
     </div>
   );

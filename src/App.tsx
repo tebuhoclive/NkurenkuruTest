@@ -618,6 +618,7 @@ const EMPLOYEE_USER_ROUTES = () => {
           <Route path="home/strategy-map" element={<StrategyMapPage />} />
 
           {/* STRATEGY */}
+          <Route path="strategy/themes" element={<StrategyThemes />} />
           <Route path="strategy/company" element={<CompanyScorecards />} />
           <Route path="strategy/company/:fyid" element={<CompanyScorecard />} />
           <Route
@@ -625,18 +626,6 @@ const EMPLOYEE_USER_ROUTES = () => {
             element={<CompanyScorecardObjective />}
           />
           <Route
-            path="strategy/department"
-            element={<DepartmentScorecards />}
-          />
-          <Route
-            path="strategy/department/:fyid/:departmentId"
-            element={<DepartmentScorecard />}
-          />
-          <Route
-            path="strategy/department/:fyid/:departmentId/:objectiveId"
-            element={<DepartmentScorecardObjective />}
-          />
-            <Route
             path="strategy/company-review"
             element={<CompanyScorecardReviews />}
           />
@@ -644,6 +633,9 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="strategy/company-review/:fyid"
             element={<CompanyScorecardReviewView />}
           />
+          {/*JOBCARD*/}
+          <Route path="job-cards/dashboard" element={<JobDashboard />} />
+          <Route path="job-cards/create" element={<JobCardOverview />} />
 
           <Route
             path="strategy/department"
@@ -715,24 +707,11 @@ const EMPLOYEE_USER_ROUTES = () => {
           <Route path="drive" element={<Drive />} />
           <Route path="drive/:id" element={<Drive />} />
 
-          {/*JOBCARD*/}
-          <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<JobCardOverview/>} />
-      
+          {/* REPORTS */}
+          <Route path="reports/kpis" element={<Reports />} />
 
-          {/* SCORECARDS */}
-          {/* Executive & MD don't have personal/individual scorecard */}
-          <Route path="scorecards/my" element={<IndividualScorecard />} />
-          <Route
-            path="scorecards/my/:id"
-            element={<IndividualScorecardDraftObjective />}
-          />
-      
-          {/* PORTFOLIO OF EVIDENCE */}
-          <Route path="drive" element={<Drive />} />
-          <Route path="drive" element={<Drive />} />
-          <Route path="drive/:id" element={<Drive />} />
-
+          {/* ADMIN */}
+          <Route path="admin/settings" element={<AdminSettings />} />
           <Route path="*" element={<Navigate to="home/dashboard" />} />
         </Route>
 

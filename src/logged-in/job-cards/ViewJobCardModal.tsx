@@ -3,6 +3,7 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../shared/functions/Context";
 import { ITask, defaultTask } from "../../shared/models/job-card-model/Task";
 import { ITool, defaultTool } from "../../shared/models/job-card-model/Tool";
+import logo from "../job-cards/images/logo512.png";
 import {
   IMaterial,
   defaultMaterial,
@@ -34,6 +35,9 @@ import {
   defaultClient,
 } from "../../shared/models/job-card-model/Client";
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import { brandLogo } from "../../shared/functions/scorecard-pdf/ImageLoader";
 
 const ViewJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
@@ -50,7 +54,6 @@ const ViewJobCardModal = observer(() => {
   const [precaution, setPrecaution] = useState<IPrecaution>({
     ...defaultPrecaution,
   });
-
 
   const [createdJobCardId, setCreatedJobCardId] = useState(null);
   const [showClientDetails, setShowClientDetails] = useState(false);
@@ -86,6 +89,32 @@ const ViewJobCardModal = observer(() => {
     }
   };
 
+  // Function to get base64 image from URL
+  const getBase64ImageFromURL = (url: string) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+
+        const dataURL = canvas.toDataURL("image/png");
+
+        resolve(dataURL);
+      };
+
+      img.onerror = (error) => {
+        reject(error);
+      };
+
+      img.src = url;
+    });
+  };
   const onDeleteTask = async (task: ITask) => {
     try {
       // Delete from the server
@@ -117,14 +146,11 @@ const ViewJobCardModal = observer(() => {
   const labourList = store.jobcard.labour.all;
   const expensesList = store.jobcard.otherExpense.all;
   const toolList = store.jobcard.tool.all;
-  const currentClient =store.jobcard.client.all
+  const currentClient = store.jobcard.client.all;
 
+  const [client, setClient] = useState<IClient>({ ...defaultClient });
 
-const [client, setClient] = useState<IClient>({ ...defaultClient });
-
-const allClients = store.jobcard.client.all;
-
-
+  const allClients = store.jobcard.client.all;
 
   //Handle tools
   const handleToolInputChange = (
@@ -169,6 +195,164 @@ const allClients = store.jobcard.client.all;
     }
   };
 
+  // Register fonts with pdfMake
+  pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+  const exportToPDF = async () => {
+    const dataURL = await getBase64ImageFromURL(logo);
+    // Definition object for PDF content
+    const title = "Nkurenkuru Town Cancel Job Card"; // Adjust the title as needed
+    const docDefinition: any = {
+      content: [
+        {
+          columns: [
+            {
+              image: dataURL,
+              fit: [100, 100], // Adjust fit as needed
+              alignment: "center",
+            },
+          ],
+        },
+        {
+          text: title,
+          alignment: "center",
+          margin: [0, 0, 20, 0], // Adjust margins as needed
+        },
+        {
+          layout: "noBorders",
+          margin: [0, 20, 0, 0], // Add top margin to the table
+          table: {
+            body: [
+              ["Date Issued:", jobCard.dateIssued],
+              ["Due Date:", jobCard.dueDate],
+              ["Expected Outcomes:", jobCard.expectedOutcomes],
+            ],
+          },
+        },
+        {
+          text: "Client Details (Optional)",
+          style: "header",
+        },
+        {
+          layout: "noBorders",
+          table: {
+            body: [
+              ["Client Name:", client.name],
+              ["Telephone Number:", client.telephone],
+              ["Mobile Number:", client.mobileNumber],
+              ["Email:", client.email],
+              ["Address:", client.address],
+              ["City:", client.city],
+              ["Location:", client.location],
+            ],
+          },
+        },
+        {
+          text: "Allocation Section",
+          style: "header",
+        },
+        {
+          text: "Task List",
+          style: "subheader",
+        },
+        {
+          layout: "lightHorizontalLines",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*", "*"],
+            body: [
+              [
+                { text: "Description", bold: true },
+                { text: "Assigned To", bold: true },
+                { text: "Estimated Time", bold: true },
+              ],
+              ...taskList.map((task) => [
+                task.asJson.description,
+                task.asJson.assignedTo,
+                task.asJson.estimatedTime,
+              ]),
+            ],
+          },
+        },
+        {
+          text: "Tool Description",
+          style: "subheader",
+        },
+        // Add your code for toolList here
+        {
+          text: "Material Description",
+          style: "subheader",
+        },
+        // Add your code for materialList here
+        {
+          text: "Precaution Description",
+          style: "subheader",
+        },
+        {
+          text: precaution.description,
+        },
+        {
+          text: "Standard Description",
+          style: "subheader",
+        },
+        {
+          text: standard.description,
+        },
+        {
+          text: "Labour Assigned",
+          style: "subheader",
+        },
+        {
+          layout: "lightHorizontalLines",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*"],
+            body: [
+              ["Description", "Cost"],
+              ...labourList.map((labour) => [
+                labour.asJson.description,
+                labour.asJson.cost,
+              ]),
+            ],
+          },
+        },
+        {
+          text: "Expenses",
+          style: "subheader",
+        },
+        {
+          layout: "lightHorizontalLines",
+          table: {
+            headerRows: 1,
+            widths: ["*", "*"],
+            body: [
+              ["Description", "Cost"],
+              ...expensesList.map((expense) => [
+                expense.asJson.description,
+                expense.asJson.cost,
+              ]),
+            ],
+          },
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 14,
+          bold: false,
+          margin: [0, 0, 0, 10],
+        },
+        subheader: {
+          fontSize: 10,
+          bold: false,
+          margin: [0, 10, 0, 5],
+        },
+      },
+    };
+
+    // Create PDF
+    pdfMake.createPdf(docDefinition).download("job_card_details.pdf");
+  };
+
   const handleUpdateTool = async () => {
     try {
       // Update the tool on the server
@@ -186,7 +370,6 @@ const allClients = store.jobcard.client.all;
 
   //handle materials
 
-  
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();
     setJobCard({ ...defaultJobCard });
@@ -228,7 +411,20 @@ const allClients = store.jobcard.client.all;
 
       loadData();
     }
-  }, [api.jobcard.jobcard, api.jobcard.task, api.jobcard.client, api.jobcard.labour, jobId, store.jobcard.jobcard.selected, api.jobcard.tool, api.jobcard.material, api.jobcard.otherExpense, api.jobcard.standard, api.jobcard.precaution, jobCard.id]);
+  }, [
+    api.jobcard.jobcard,
+    api.jobcard.task,
+    api.jobcard.client,
+    api.jobcard.labour,
+    jobId,
+    store.jobcard.jobcard.selected,
+    api.jobcard.tool,
+    api.jobcard.material,
+    api.jobcard.otherExpense,
+    api.jobcard.standard,
+    api.jobcard.precaution,
+    jobCard.id,
+  ]);
 
   return (
     <div
@@ -238,7 +434,10 @@ const allClients = store.jobcard.client.all;
         className="uk-modal-close-default"
         type="button"
         data-uk-close></button>
-      <h3 className="uk-modal-title text-to-break">View{jobCard.id} {client.name}</h3>
+      <button onClick={exportToPDF}>Export to PDF</button>
+      <h3 className="uk-modal-title text-to-break">
+        View{jobCard.id} {client.name}
+      </h3>
       <div className="dialog-content uk-position-relative">
         {/* Add create Section */}
         <div className="dialog-content uk-position-relative ">
@@ -298,46 +497,45 @@ const allClients = store.jobcard.client.all;
             {/*Client Details */}
             <div>
               <h3>Client Details (Optional)</h3>
-            
-                <div className="uk-flex-column">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Client Name:</label>
-                    <div className="uk-form-controls">{client.name}</div>
+
+              <div className="uk-flex-column">
+                <div className="uk-margin">
+                  <label className="uk-form-label">Client Name:</label>
+                  <div className="uk-form-controls">{client.name}</div>
+                </div>
+                <div className="uk-flex">
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">Telephone Number:</label>
+                    <div className="uk-form-controls">{}</div>
                   </div>
-                  <div className="uk-flex">
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">Telephone Number:</label>
-                      <div className="uk-form-controls">{}</div>
-                    </div>
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">Mobile Number:</label>
-                      <div className="uk-form-controls">
-                        {client.mobileNumber}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="uk-flex">
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">Email:</label>
-                      <div className="uk-form-controls">{client.email}</div>
-                    </div>
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">Address:</label>
-                      <div className="uk-form-controls">{client.address}</div>
-                    </div>
-                  </div>
-                  <div className="uk-flex">
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">City:</label>
-                      <div className="uk-form-controls">{client.city}</div>
-                    </div>
-                    <div className="uk-margin" style={{ width: "50%" }}>
-                      <label className="uk-form-label">Location:</label>
-                      <div className="uk-form-controls">{client.location}</div>
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">Mobile Number:</label>
+                    <div className="uk-form-controls">
+                      {client.mobileNumber}
                     </div>
                   </div>
                 </div>
-            
+                <div className="uk-flex">
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">Email:</label>
+                    <div className="uk-form-controls">{client.email}</div>
+                  </div>
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">Address:</label>
+                    <div className="uk-form-controls">{client.address}</div>
+                  </div>
+                </div>
+                <div className="uk-flex">
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">City:</label>
+                    <div className="uk-form-controls">{client.city}</div>
+                  </div>
+                  <div className="uk-margin" style={{ width: "50%" }}>
+                    <label className="uk-form-label">Location:</label>
+                    <div className="uk-form-controls">{client.location}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -421,10 +619,10 @@ const allClients = store.jobcard.client.all;
             </thead>
             <tbody>
               {materialList.map((material) => (
-                <tr key={material.asJson.id}>
-                  <td>{material.asJson.name}</td>
-                  <td>{material.asJson.quantity}</td>
-                  <td>{material.asJson.unitCost}</td>
+                <tr key={material.id}>
+                  <td>{material.name}</td>
+                  <td>{material.quantity}</td>
+                  <td>{material.unitCost}</td>
                 </tr>
               ))}
             </tbody>

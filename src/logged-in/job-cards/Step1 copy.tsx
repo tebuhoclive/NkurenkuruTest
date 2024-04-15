@@ -1,6 +1,12 @@
+// Step1.tsx
+
+// CreateJobCard.jsx
+
 import { observer } from "mobx-react-lite";
 import React, { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../shared/functions/Context";
+
+import "../company-job-card/styles/ReviewStep.scss";
 import "datatables.net";
 import "datatables.net-buttons-bs4";
 import "datatables.net-buttons/js/buttons.print.mjs";
@@ -29,14 +35,16 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-  const [selectUserId, setSelectedUserId] = useState("");
+ const [selectUserId,setSelectedUserId]=useState("")
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
 
-  const users = store.user.all;
+    const users = store.user.all;
+
 
   const generateUniqueId = () => {
     const existingUid = store.jobcard.jobcard.all;
+
 
     // Extract the unique IDs from the existing job cards
     const existingUniqueIds = existingUid.map(
@@ -62,7 +70,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
       const updatedJobCard = {
         ...jobCard,
         uniqueId: uniqueId,
-        dateIssued: dateTimeLogged,
+        dateIssued: dateTimeLogged
       };
       setJobCard(updatedJobCard);
       await api.jobcard.jobcard.create(updatedJobCard);
@@ -78,11 +86,11 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
     }
   };
 
-  const handleUserChange = (event) => {
-    const selectedUserId = event.target.value;
-    setSelectedUser(selectedUserId);
-    // Perform additional actions if needed, such as updating jobCard state
-  };
+   const handleUserChange = (event) => {
+     const selectedUserId = event.target.value;
+     setSelectedUser(selectedUserId);
+     // Perform additional actions if needed, such as updating jobCard state
+   };
   const uniqueId = generateUniqueId();
   useEffect(() => {
     if (store.jobcard.jobcard.selected) {
@@ -100,6 +108,8 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
     };
     loadData();
   }, [api.user, api.jobcard, api.department]);
+
+
 
   const handleUrgencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setJobCard({

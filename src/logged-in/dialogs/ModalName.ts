@@ -78,6 +78,7 @@ const MODAL_NAMES = {
     VIEWJOBCARD_MODAL: "view-jobcard-modal",
     EDITJOBCARD_MODAL: "edit-jobcard-modal",
     JOBCARDFEEDBACK_MODAL: "jobcard-feedback--modal",
+    ADDJOBCARDMATERIAL_MODAL: "add-material-modal",
   },
   PERFORMANCE_REVIEW: {
     REVIEW_MODAL: "performance-review-modal",
@@ -122,21 +123,21 @@ const MODAL_NAMES = {
     CHECK_IN_WEEK_TASK: "check-in-week-task-modal",
   },
 
-  JOBCARD:{
-    CREATE_TASK:"add-task",
-    EDIT_TASK:"edit-task",
+  JOBCARD: {
+    CREATE_TASK: "add-task",
+    EDIT_TASK: "edit-task",
 
-    CREATE_EXPENSE:"add-expense",
-    EDIT_EXPENSE:"edit-expense",
+    CREATE_EXPENSE: "add-expense",
+    EDIT_EXPENSE: "edit-expense",
 
-    CREATE_MATERIAL:"add-material",
-    EDIT_MATERIAL:"edit-material",
+    CREATE_MATERIAL: "add-material",
+    EDIT_MATERIAL: "edit-material",
 
-    CREATE_TOOL:"add-tool",
-    EDIT_TOOL:"edit-tool",
+    CREATE_TOOL: "add-tool",
+    EDIT_TOOL: "edit-tool",
 
-    CREATE_LABOUR:"add-labour",
-    EDIT_LABOUR:"edit-labour",
+    CREATE_LABOUR: "add-labour",
+    EDIT_LABOUR: "edit-labour",
   },
 
   DOCUMENT_VIEWER: {
