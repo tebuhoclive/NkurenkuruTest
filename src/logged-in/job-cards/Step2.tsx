@@ -14,7 +14,6 @@ import {
 } from "../../shared/models/job-card-model/Jobcard";
 import { ITask, defaultTask } from "../../shared/models/job-card-model/Task";
 import { ITool, defaultTool } from "../../shared/models/job-card-model/Tool";
-import IsRequiredInput from "./Required";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -48,9 +47,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
 
-  // const [tool, setTool] = useState<ITool>({ ...defaultTool });
-  // const [search, setSearch] = useState("");
-  // const onSearch = (value: string) => setSearch(value);
+
 
   const handleArtesianChange = (value) => {
     setArtesianValue(value);
@@ -69,7 +66,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
   };
 
 
-  // const jobId = "H1nqblNC2XYFZWLzbR2IH";
+ 
   const uid = "1wszJRRvmDRcr3fw8L9VQl64qfh1";
   const measure = store.measure.getByUid(uid);
   console.log("all me in measures", measure);
@@ -90,63 +87,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
   // const taskList = store.jobcard.task.all;
   const materialList = store.jobcard.material.all;
 
-  //Handle tools
-  // const handleToolInputChange = (
-  //   e: React.ChangeEvent<HTMLInputElement>,
-  //   fieldName: string
-  // ) => {
-  //   const { value } = e.target;
-  //   // Exclude 'id' property from being updated
-  //   setTool((prevTool) => ({ ...prevTool, [fieldName]: value }));
-  // };
 
-  // const handleCreateTool = async () => {
-  //   try {
-  //     // Create the tool on the server
-  //     await api.jobcard.tool.create(tool, jobId);
-
-  //     // Clear the form
-  //     setTool({ ...defaultTool });
-  //   } catch (error) {
-  //     console.error("Error creating tool:", error);
-  //   }
-  // };
-
-  // const onDeleteTool = async (tool: ITool) => {
-  //   try {
-  //     // Delete the tool on the server
-  //     await api.jobcard.tool.delete(tool.id, jobId);
-  //   } catch (error) {
-  //     console.error("Error deleting tool:", error);
-  //   }
-  // };
-
-  // const onUpdateTool = (updatedTool: ITool) => {
-  //   setRender(true);
-  //   // Assuming store.jobcard.tool.select() is available
-  //   store.jobcard.tool.select(updatedTool);
-
-  //   const selectedTool = store.jobcard.tool.selected;
-  //   if (selectedTool) {
-  //     setTool(selectedTool);
-  //     setCreateMode(false);
-  //   }
-  // };
-
-  // const handleUpdateTool = async () => {
-  //   try {
-  //     // Update the tool on the server
-  //     await api.jobcard.tool.update(tool, jobId);
-
-  //     // Clear the form and revert to create mode
-  //     setTool({ ...defaultTool });
-  //     setCreateMode(true);
-  //   } catch (error) {
-  //     console.error("Error updating tool:", error);
-  //   } finally {
-  //     setRender(false);
-  //   }
-  // };
 
   const onView = () => {
     store.jobcard.jobcard.select(jobCard);
@@ -199,7 +140,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
           <div className="uk-grid">
             <div className="uk-width-1-4">
               <div className="uk-margin">
-                <IsRequiredInput
+                <input
                   placeholder="Start Date"
                   id="issuedDate"
                   type="date"
@@ -212,7 +153,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
             </div>
             <div className="uk-width-1-4">
               <div className="uk-margin">
-                <IsRequiredInput
+               <input
                   placeholder="Issued Time"
                   id="issuedTime"
                   type="time"
@@ -220,7 +161,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
                   onChange={(e) =>
                     setJobCard({ ...jobCard, dueDate: e.target.value })
                   }
-                />
+               />
               </div>
             </div>
           </div>
@@ -301,7 +242,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
               </button>
 
               <h3>Material List</h3>
-              <MaterialsGrid data={materialList} />
+              <MaterialsGrid data={materialList} jobCard={jobCard} />
             </div>
           </div>
           <div className="uk-margin">

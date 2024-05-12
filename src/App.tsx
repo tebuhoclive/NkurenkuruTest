@@ -51,10 +51,12 @@ import CheckInMonthUserView from "./logged-in/check-in-month-user-view/CheckInMo
 import Statistics from "./logged-in/project-management/Statistics";
 import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinate-scorecards/SubordinateScorecaard";
 // import CompanyJobCard from "./logged-in/company-job-card/CompanyJobCard";
-// import JobCardOverview from "./logged-in/company-job-card/JobCardOverview";
+
 
 import JobDashboard from "./logged-in/job-cards/dashboard/JobDashboard";
-import JobCardOverview from "./logged-in/job-cards/JobCardOverview";
+import CreateJobCard from "./logged-in/job-cards/CreateJobCard";
+
+
 
 
 // Lazy load components
@@ -95,7 +97,7 @@ const DEV_MODE_ROUTES = () => {
           />
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<JobCardOverview />} />
+          <Route path="job-cards/create" element={<CreateJobCard />} />
 
           <Route
             path="strategy/department"
@@ -635,7 +637,7 @@ const EMPLOYEE_USER_ROUTES = () => {
           />
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<JobCardOverview />} />
+          <Route path="job-cards/create" element={<CreateJobCard />} />
 
           <Route
             path="strategy/department"

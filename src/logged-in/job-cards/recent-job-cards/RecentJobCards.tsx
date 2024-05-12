@@ -42,7 +42,7 @@ const DeductionSubmissionCard: React.FC<IProps> = ({
                 <div className="uk-card-body">
                   <span>Description:</span>
                   <h4 className="main-title-small uk-margin-small-left">
-                    {jobcard.jobDescription}
+                    {/* {jobcard.jobDescription} */}
                   </h4>
                   <button
                     className="btn btn-primary"

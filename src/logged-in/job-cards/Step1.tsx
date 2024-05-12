@@ -8,29 +8,22 @@ import "datatables.net-responsive-bs4";
 import "datatables.net-searchbuilder-bs4";
 import "datatables.net-searchpanes-bs4";
 import "datatables.net-staterestore-bs4";
-import { useNavigate } from "react-router-dom";
 import {
   IJobCard,
   IUrgency,
   defaultJobCard,
 } from "../../shared/models/job-card-model/Jobcard";
-import {
-  IClient,
-  defaultClient,
-} from "../../shared/models/job-card-model/Client";
-import IsRequiredInput from "./Required";
+
 
 interface Step1Props {
   handleNext: () => void;
 }
 
 // Wrap the component with observer
-const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
+const Create: React.FC<Step1Props> = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-  const [selectUserId, setSelectedUserId] = useState("");
-  const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
 
   const users = store.user.all;
@@ -73,7 +66,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
       store.jobcard.jobcard.select(updatedJobCard);
     } catch (error) {
     } finally {
-      handleNext();
+   
       setLoading(false);
     }
   };
@@ -101,18 +94,17 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
     loadData();
   }, [api.user, api.jobcard, api.department]);
 
+
   const handleUrgencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setJobCard({
       ...jobCard,
       urgency: e.target.value as IUrgency,
     });
   };
+
   // Get the current date and time
   const dateTimeLogged = new Date().toLocaleString();
-  const handleNextClick = () => {
-    // Additional validation or processing can be done here
-    handleNext();
-  };
+
 
   return (
     <>
@@ -136,7 +128,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
           <div className="uk-grid uk-child-width-1-2@s" data-uk-grid>
             <div>
               <div className="uk-margin">
-                <IsRequiredInput
+                <input
                   type="text"
                   id="objectives"
                   placeholder="Division"
@@ -173,7 +165,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
             </div>
             <div>
               <div className="uk-margin">
-                <IsRequiredInput
+                <input
                   type="text"
                   id="objectives"
                   placeholder="Section"
@@ -215,7 +207,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
               {/* Content for the first column */}
 
               <div className="uk-margin">
-                <IsRequiredInput
+                <input
                   type="text"
                   id="objectives"
                   placeholder="Full Names"
@@ -237,12 +229,12 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
                     className="uk-input uk-form-small"
                     type="text"
                     id="client-location"
-                    placeholder="Address"
+                    placeholder="email"
                     value={jobCard.clientEmail}
                     onChange={(e) =>
                       setJobCard({
                         ...jobCard,
-                        clientAddress: e.target.value,
+                        clientEmail: e.target.value,
                       })
                     }
                   />
@@ -270,7 +262,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
               </div>
             </div>
             <div>
-              <div className="uk-margin">
+              {/* <div className="uk-margin">
                 <label className="uk-form-label" htmlFor="client-location">
                   Email:
                 </label>
@@ -289,7 +281,7 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
                     }
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="uk-margin">
                 <label className="uk-form-label" htmlFor="client-location">
                   Erf:
@@ -374,4 +366,4 @@ const Step1: React.FC<Step1Props> = observer(({ handleNext }) => {
   );
 });
 
-export default Step1;
+export default Create;

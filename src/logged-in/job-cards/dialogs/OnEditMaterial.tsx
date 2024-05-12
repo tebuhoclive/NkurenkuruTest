@@ -15,7 +15,7 @@ import {
 import { hideModalFromId } from "../../../shared/functions/ModalShow";
 import MODAL_NAMES from "../../dialogs/ModalName";
 
-const AddNewMaterialModal = observer(() => {
+const OnEditMaterial = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -27,83 +27,25 @@ const AddNewMaterialModal = observer(() => {
 
   //handle  tasks removal, addition,updating
 
+  const onUpdateMaterial = (updatedMaterial: IMaterial) => {
+    setRender(true);
+    // Assuming store.jobcard.material.select() is available
+    store.jobcard.material.select(updatedMaterial);
 
-  //Handle tools
-  const handleToolInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-    // Exclude 'id' property from being updated
-    setTool((prevTool) => ({ ...prevTool, [fieldName]: value }));
+    const selectedMaterial = store.jobcard.material.selected;
+    if (selectedMaterial) {
+      setMaterial(selectedMaterial);
+      setCreateMode(false);
+    }
   };
-
-  //handle materials
-  const handleMaterialInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-
-    // Exclude 'id' property from being updated
-    setMaterial((prevMaterial) => ({ ...prevMaterial, [fieldName]: value }));
-  };
-  //   const handleCreateMaterial = async () => {
-  //     try {
-  //       // Create the material on the server
-  //       await api.jobcard.material.create(material, jobCard.id);
-
-  //       // Clear the form
-  //       setMaterial({ ...defaultMaterial });
-  //     } catch (error) {
-  //       console.error("Error creating material:", error);
-  //     }
-  //   };
-  //   const onDeleteMaterial = async (material: IMaterial) => {
-  //     try {
-  //       // Delete the material on the server
-  //       await api.jobcard.material.delete(material.id, jobCard.id);
-  //     } catch (error) {
-  //       console.error("Error deleting material:", error);
-  //     }
-  //   };
-
-    const onUpdateMaterial = (updatedMaterial: IMaterial) => {
-      setRender(true);
-      // Assuming store.jobcard.material.select() is available
-      store.jobcard.material.select(updatedMaterial);
-
-      const selectedMaterial = store.jobcard.material.selected;
-      if (selectedMaterial) {
-        setMaterial(selectedMaterial);
-        setCreateMode(false);
-      }
-    };
-
-  //   const handleUpdateMaterial = async () => {
-  //     try {
-  //       // Update the material on the server
-  //       await api.jobcard.material.update(material, jobCard.id);
-
-  //       // Clear the form and revert to create mode
-  //       setMaterial({ ...defaultMaterial });
-  //       setCreateMode(true);
-  //     } catch (error) {
-  //       console.error("Error updating material:", error);
-  //     } finally {
-  //       setRender(false);
-  //     }
-  //   };
+console.log("material selected ", material);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Create the material on the server
-      const id = "1nqblNC2XYFZWLzbR2IH";
-      await api.jobcard.material.create(
-        material,
-        id
+     
+      await api.jobcard.material.update( material, jobCard.id
         // jobCard.id
       );
 
@@ -114,42 +56,42 @@ const AddNewMaterialModal = observer(() => {
       console.error("Error submitting form:", error);
     } finally {
       setLoading(false); // Make sure to reset loading state regardless of success or failure
-      onCancel()
+      onCancel();
     }
   };
 
   const onCancel = () => {
-    store.jobcard.jobcard.clearSelected();
-    setJobCard({ ...defaultJobCard });
-    hideModalFromId(MODAL_NAMES.EXECUTION.ADDJOBCARDMATERIAL_MODAL);
+    store.jobcard.material.clearSelected();
+    setMaterial({ ...defaultMaterial });
+    hideModalFromId(MODAL_NAMES.EXECUTION.ONEDITMATERIAL_MODAL);
   };
 
   useEffect(() => {
-    if (store.jobcard.jobcard.selected) {
-      setJobCard(store.jobcard.jobcard.selected);
+    if (store.jobcard.material.selected) {
+      setMaterial(store.jobcard.material.selected);
+
     }
-  }, [store.jobcard.client, store.jobcard.jobcard.selected]);
+    if(store.jobcard.jobcard.selected){
+      setJobCard(store.jobcard.jobcard.selected)
+    }
+  }, [store.jobcard.jobcard.selected, store.jobcard.material.selected]);
 
   useEffect(() => {
-    if (store.jobcard.jobcard.selected) {
+    if (store.jobcard.material.selected) {
       const loadData = async () => {
         try {
           // Fetch job card details
-          const jobCardDetails = await api.jobcard.jobcard.getAll();
-          // Assuming jobCardDetails is an array of job card objects, choose one based on your logic
+     
           const selectedJobCard = store.jobcard.jobcard.selected;
 
           if (selectedJobCard) {
             // Fetch data for subcollections
-            await api.jobcard.task.getAll(selectedJobCard.id);
-            await api.jobcard.client.getAll(selectedJobCard.id);
-            await api.jobcard.tool.getAll(selectedJobCard.id);
-            await api.jobcard.labour.getAll(selectedJobCard.id);
+  
             await api.jobcard.material.getAll(selectedJobCard.id);
-            await api.jobcard.otherExpense.getAll(selectedJobCard.id);
-            await api.jobcard.standard.getAll(selectedJobCard.id);
-            await api.jobcard.precaution.getAll(selectedJobCard.id);
-            await api.jobcard.client.getAll(selectedJobCard.id);
+          
+          
+           
+       
           } else {
             console.error("Job card not found.");
           }
@@ -160,18 +102,7 @@ const AddNewMaterialModal = observer(() => {
 
       loadData();
     }
-  }, [
-    api.jobcard.jobcard,
-    api.jobcard.task,
-    api.jobcard.client,
-    api.jobcard.labour,
-    store.jobcard.jobcard.selected,
-    api.jobcard.tool,
-    api.jobcard.material,
-    api.jobcard.otherExpense,
-    api.jobcard.standard,
-    api.jobcard.precaution,
-  ]);
+  }, [api.jobcard.jobcard, api.jobcard.material, store.jobcard.jobcard.selected, store.jobcard.material.selected]);
 
   return (
     <div
@@ -188,7 +119,7 @@ const AddNewMaterialModal = observer(() => {
           style={{ justifyContent: "center" }}
           uk-grid
           onSubmit={handleSubmit}>
-          <p>Please Add the material for your job card</p>
+          <p>Please Add the material for your job card </p>
 
           <div>
             <div>
@@ -252,7 +183,7 @@ const AddNewMaterialModal = observer(() => {
                 className="btn btn-primary"
                 type="submit"
                 disabled={loading}>
-                Add Material{" "}
+                Save{" "}
                 {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
             </div>
@@ -263,4 +194,4 @@ const AddNewMaterialModal = observer(() => {
   );
 });
 
-export default AddNewMaterialModal;
+export default OnEditMaterial;

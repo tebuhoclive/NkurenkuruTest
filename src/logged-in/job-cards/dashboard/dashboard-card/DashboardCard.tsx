@@ -15,7 +15,7 @@ const DashboardCard = (props: DashboardCardProps) => {
   return (
     <div className="dashboard-card uk-card-hover">
       <div className="dashboard-card-body">
-        <p>{props.cardTitle}</p>
+        <p className=" uk-text-bold">{props.cardTitle}</p>
         <h3 className="main-title-alt uk-text-bold">{props.cardValue}</h3>
       </div>
       <div className="dashboard-card-footer">

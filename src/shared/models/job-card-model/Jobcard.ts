@@ -1,7 +1,15 @@
 import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
-export type IStatus = "Not Started" | "In Progress" | "Completed" | "Assigned" | "Closed"
+export type IStatus =
+  | "Not Started"
+  | "In Progress"
+  | "Completed"
+  | "Assigned"
+  | "Closed"
+  | "Pending"
+  | "Cancelled";
+
 export type IUrgency = "Normal" | "Urgent" | "Very Urgent"
 export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
 
@@ -9,16 +17,14 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
   export const defaultJobCard: IJobCard = {
     id: "",
     uniqueId: "",
-    jobDescription: "",
+    taskDescription: "",
     jobcardType: "General",
     jobcardCost: 0,
     dueDate: "",
     dateIssued: "",
     urgency: "Normal",
     status: "Not Started",
-    acknowledged: false,
-    overallTime: 0,
-    scope: "",
+
     objectives: "",
     expectedOutcomes: "",
     division: "",
@@ -34,13 +40,15 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     artesian: "",
     teamLeader: "",
     teamMember: "",
-    remark: ""
+    remark: "",
+    measure: "",
+    acknowledged: false
   };
 export interface IJobCard {
   id: string;
   assignedTo: string;
   uniqueId: string;
-  jobDescription: string;
+  taskDescription: string;
   jobcardType: IJobCardType;
   jobcardCost: number;
   dueDate: string;
@@ -48,8 +56,7 @@ export interface IJobCard {
   urgency: IUrgency;
   status: IStatus;
   acknowledged: boolean;
-  overallTime: number;
-  scope: string;
+  // scope: string;
   objectives: string;
   expectedOutcomes: string;
   division: string;
@@ -65,6 +72,9 @@ export interface IJobCard {
   teamLeader:string;
   teamMember:string;
   remark:string;
+  measure:string;
+  isAllocated?:boolean
+  comment?:string
 }
   export default class JobCardModel {
     private JobCard: IJobCard;

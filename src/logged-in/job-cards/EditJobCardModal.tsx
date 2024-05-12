@@ -1,26 +1,6 @@
 import { observer } from "mobx-react-lite";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../shared/functions/Context";
-import { ITask, defaultTask } from "../../shared/models/job-card-model/Task";
-import { ITool, defaultTool } from "../../shared/models/job-card-model/Tool";
-import {
-  IMaterial,
-  defaultMaterial,
-} from "../../shared/models/job-card-model/Material";
-import {
-  IPrecaution,
-  IStandard,
-  defaultPrecaution,
-  defaultStandard,
-} from "../../shared/models/job-card-model/PrecautionAndStandard";
-import {
-  ILabour,
-  defaultLabour,
-} from "../../shared/models/job-card-model/Labour";
-import {
-  IOtherExpense,
-  defaultOtherExpense,
-} from "../../shared/models/job-card-model/OtherExpense";
 import {
   IJobCard,
   IUrgency,
@@ -28,355 +8,61 @@ import {
 } from "../../shared/models/job-card-model/Jobcard";
 import { useNavigate, useParams } from "react-router-dom";
 import MODAL_NAMES from "../dialogs/ModalName";
-import { hideModalFromId } from "../../shared/functions/ModalShow";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../shared/functions/ModalShow";
 import {
   IClient,
   defaultClient,
 } from "../../shared/models/job-card-model/Client";
+
+import SingleSelect, {
+  IOption,
+} from "../../shared/components/single-select/SingleSelect";
+import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
+
 
 const EditJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
-  const { jobId } = useParams();
   const navigate = useNavigate();
-  const [task, setTask] = useState<ITask>({ ...defaultTask });
-  const [createMode, setCreateMode] = useState(true);
-  const [render, setRender] = useState(false);
-  const [tool, setTool] = useState<ITool>({ ...defaultTool });
-  const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
-  const [precaution, setPrecaution] = useState<IPrecaution>({
-    ...defaultPrecaution,
-  });
+  const [artesianValue, setArtesianValue] = useState(""); // State for Artesian input
+  const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
+  const [teamMemberValue, setTeamMemberValue] = useState(""); // State for Team Member input
 
-  const [client, setClient] = useState<IClient>({ ...defaultClient });
-  const [createdJobCardId, setCreatedJobCardId] = useState(null);
-  const [showClientDetails, setShowClientDetails] = useState(false);
+  // Additional state or logic specific to Step 2
 
-  const [standard, setStandard] = useState<IStandard>({
-    ...defaultStandard,
-  });
-  const [labour, setLabour] = useState<ILabour>({
-    ...defaultLabour,
-  });
-  const [otherExpense, setOtherExpense] = useState<IOtherExpense>({
-    ...defaultOtherExpense,
-  });
 
   //handle  tasks removal, addition,updating
+  const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
 
-  const handleTaskInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-    setTask((prevTask) => ({ ...prevTask, [fieldName]: value }));
-  };
-  const handleCreateTask = async () => {
-    try {
-      // Create a new task on the server
-      await api.jobcard.task.create(task, jobCard.id);
-
-      // Clear the form
-      setTask({ ...defaultTask });
-    } catch (error) {
-      console.error("Error creating task:", error);
-    }
-  };
-
-  const onDeleteTask = async (task: ITask) => {
-    try {
-      // Delete from the server
-      await api.jobcard.task.delete(task.id, jobId);
-    } catch (error) {
-      console.error("Error deleting task:", error);
-    }
-  };
-
-  const onUpdateTask = (updatedTask: ITask) => {
-    setCreateMode(false);
-    setTask(updatedTask);
-  };
-
-  const handleUpdateTask = async () => {
-    try {
-      // Update the task on the server
-      await api.jobcard.task.update(task, jobCard.id);
-      // Clear the form and revert to create mode
-      setTask({ ...defaultTask });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
-  const taskList = store.jobcard.task.all;
   const materialList = store.jobcard.material.all;
-  const labourList = store.jobcard.labour.all;
-  const expensesList = store.jobcard.otherExpense.all;
-  const toolList = store.jobcard.tool.all;
+  const measure = store.measure.getByUid(teamLeaderValue);
+  console.log("all me in measures", measure);
 
-  //Handle tools
-  const handleToolInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-    // Exclude 'id' property from being updated
-    setTool((prevTool) => ({ ...prevTool, [fieldName]: value }));
+  const measuresOptions = measure.map((item) => ({
+    label: item.asJson.description, // Assuming each measure object has a 'name' property
+    value: item.asJson.id, // Assuming each measure object has a 'uid' property
+  }));
+
+  const users = store.user.all;
+  const options: IOption[] = useMemo(
+    () =>
+      users.map((user) => {
+        return {
+          label: user.asJson.displayName || "",
+          value: user.asJson.uid,
+        };
+      }),
+    [users]
+  );
+  const handleUserChange = (event) => {
+    const selectedUserId = event.target.value;
+    setSelectedUser(selectedUserId);
+    // Perform additional actions if needed, such as updating jobCard state
   };
-
-  const handleCreateTool = async () => {
-    try {
-      // Create the tool on the server
-      await api.jobcard.tool.create(tool, jobCard.id);
-
-      // Clear the form
-      setTool({ ...defaultTool });
-    } catch (error) {
-      console.error("Error creating tool:", error);
-    }
-  };
-
-  const onDeleteTool = async (tool: ITool) => {
-    try {
-      // Delete the tool on the server
-      await api.jobcard.tool.delete(tool.id, jobCard.id);
-    } catch (error) {
-      console.error("Error deleting tool:", error);
-    }
-  };
-
-  const onUpdateTool = (updatedTool: ITool) => {
-    setRender(true);
-    // Assuming store.jobcard.tool.select() is available
-    store.jobcard.tool.select(updatedTool);
-
-    const selectedTool = store.jobcard.tool.selected;
-    if (selectedTool) {
-      setTool(selectedTool);
-      setCreateMode(false);
-    }
-  };
-
-  const handleUpdateTool = async () => {
-    try {
-      // Update the tool on the server
-      await api.jobcard.tool.update(tool, jobCard.id);
-
-      // Clear the form and revert to create mode
-      setTool({ ...defaultTool });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating tool:", error);
-    } finally {
-      setRender(false);
-    }
-  };
-
-  //handle materials
-  const handleMaterialInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-
-    // Exclude 'id' property from being updated
-    setMaterial((prevMaterial) => ({ ...prevMaterial, [fieldName]: value }));
-  };
-  const handleCreateMaterial = async () => {
-    try {
-      // Create the material on the server
-      await api.jobcard.material.create(material, jobCard.id);
-
-      // Clear the form
-      setMaterial({ ...defaultMaterial });
-    } catch (error) {
-      console.error("Error creating material:", error);
-    }
-  };
-  const onDeleteMaterial = async (material: IMaterial) => {
-    try {
-      // Delete the material on the server
-      await api.jobcard.material.delete(material.id, jobCard.id);
-    } catch (error) {
-      console.error("Error deleting material:", error);
-    }
-  };
-
-  const onUpdateMaterial = (updatedMaterial: IMaterial) => {
-    setRender(true);
-    // Assuming store.jobcard.material.select() is available
-    store.jobcard.material.select(updatedMaterial);
-
-    const selectedMaterial = store.jobcard.material.selected;
-    if (selectedMaterial) {
-      setMaterial(selectedMaterial);
-      setCreateMode(false);
-    }
-  };
-
-  const handleUpdateMaterial = async () => {
-    try {
-      // Update the material on the server
-      await api.jobcard.material.update(material, jobCard.id);
-
-      // Clear the form and revert to create mode
-      setMaterial({ ...defaultMaterial });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating material:", error);
-    } finally {
-      setRender(false);
-    }
-  };
-
-  //handle precautions
-  const handlePrecautionInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setPrecaution({
-      ...precaution,
-      [name]: value,
-    });
-  };
-  const handleStandardInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setStandard({
-      ...standard,
-      [name]: value,
-    });
-  };
-
-  //handle Labor actions
-  const handleLabourInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-
-    // Exclude 'id' property from being updated
-    if (fieldName !== "id") {
-      setLabour((prevLabour) => ({ ...prevLabour, [fieldName]: value }));
-    }
-  };
-
-  const handleCreateLabour = async () => {
-    try {
-      // Create the labor on the server
-      await api.jobcard.labour.create(labour, jobCard.id);
-      // Clear the form
-      setLabour({ ...defaultLabour });
-    } catch (error) {
-      console.error("Error creating labor:", error);
-    }
-  };
-
-  const onDeleteLabour = async (labour: ILabour) => {
-    try {
-      // Delete the labor on the server
-      await api.jobcard.labour.delete(labour.id, jobCard.id);
-
-      // Update the local state by removing the deleted labor
-    } catch (error) {
-      console.error("Error deleting labor:", error);
-    }
-  };
-
-  const onUpdateLabour = (updatedLabour: ILabour) => {
-    setRender(true);
-    // Assuming store.jobcard.labour.select() is available
-    store.jobcard.labour.select(updatedLabour);
-    const selectedLabour = store.jobcard.labour.selected;
-    if (selectedLabour) {
-      setLabour(selectedLabour);
-      setCreateMode(false);
-    }
-  };
-
-  const handleUpdateLabour = async () => {
-    try {
-      // Update the labor on the server
-      await api.jobcard.labour.update(labour, jobCard.id);
-
-      // Clear the form and revert to create mode
-      setLabour({ ...defaultLabour });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating labor:", error);
-    } finally {
-      setRender(false);
-    }
-  };
-
-  //handle other expense
-  const handleOtherExpenseInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-
-    // Exclude 'id' property from being updated
-    if (fieldName !== "id") {
-      setOtherExpense((prevOtherExpense) => ({
-        ...prevOtherExpense,
-        [fieldName]: value,
-      }));
-    }
-  };
-
-  const handleCreateOtherExpense = async () => {
-    try {
-      // Create the other expense on the server
-      await api.jobcard.otherExpense.create(otherExpense, jobCard.id);
-
-      // Clear the form
-      setOtherExpense({ ...defaultOtherExpense });
-    } catch (error) {
-      console.error("Error creating other expense:", error);
-    }
-  };
-
-  const onDeleteOtherExpense = async (otherExpense: IOtherExpense) => {
-    try {
-      // Delete the other expense on the server
-      await api.jobcard.otherExpense.delete(otherExpense.id, jobCard.id);
-    } catch (error) {
-      console.error("Error deleting other expense:", error);
-    }
-  };
-
-  const onUpdateOtherExpense = (updatedOtherExpense: IOtherExpense) => {
-    setRender(true);
-    // Assuming store.jobcard.otherExpense.select() is available
-    store.jobcard.otherExpense.select(updatedOtherExpense);
-
-    const selectedOtherExpense = store.jobcard.otherExpense.selected;
-    if (selectedOtherExpense) {
-      setOtherExpense(selectedOtherExpense);
-      setCreateMode(false);
-    }
-  };
-
-  const handleUpdateOtherExpense = async () => {
-    try {
-      // Update the other expense on the server
-      await api.jobcard.otherExpense.update(otherExpense, jobCard.id);
-
-      // Clear the form and revert to create mode
-      setOtherExpense({ ...defaultOtherExpense });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating other expense:", error);
-    } finally {
-      setRender(false);
-    }
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -384,15 +70,13 @@ const EditJobCardModal = observer(() => {
       setLoading(true);
       await api.jobcard.jobcard.update(jobCard);
 
-      const id = jobCard.id;
-      await api.jobcard.client.update(client, id);
-
       // navigate(`/c/job-cards/update/${id}`);
     } catch (error) {
       // Handle error appropriately
       console.error("Error submitting form:", error);
     } finally {
       setLoading(false); // Make sure to reset loading state regardless of success or failure
+      onCancel();
     }
   };
   const handleUrgencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -401,179 +85,1141 @@ const EditJobCardModal = observer(() => {
       urgency: e.target.value as IUrgency,
     });
   };
+  const onView = () => {
+    store.jobcard.jobcard.select(jobCard);
 
+    showModalFromId(MODAL_NAMES.EXECUTION.ADDJOBCARDMATERIAL_MODAL);
+  };
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();
     setJobCard({ ...defaultJobCard });
     hideModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
   };
 
+  const handleMeasureChange = (event) => {
+    const selectedMeasureId = event.target.value;
+    setJobCard({ ...jobCard, measure: selectedMeasureId });
+    // Perform additional actions if needed
+  };
+
+  const handleArtesianChange = (value) => {
+    setArtesianValue(value);
+    setJobCard({ ...jobCard, artesian: value });
+    // Additional logic if needed
+  };
+  const handleTeamLeaderChange = (value) => {
+    setTeamLeaderValue(value);
+    setJobCard({ ...jobCard, teamLeader: value });
+    // Additional logic if needed
+  };
+  const handleTeamMemberChange = (value) => {
+    setTeamMemberValue(value);
+    setJobCard({ ...jobCard, teamMember: value });
+    // Additional logic if needed
+  };
+
   useEffect(() => {
     if (store.jobcard.jobcard.selected) {
-      store.jobcard.client.select(client);
+   
 
       setJobCard(store.jobcard.jobcard.selected);
     }
-  }, [client, store.jobcard.client, store.jobcard.jobcard.selected]);
-
-  const currentClient = store.jobcard.client.all;
+  }, [store.jobcard.client, store.jobcard.jobcard.selected]);
 
   useEffect(() => {
     if (store.jobcard.jobcard.selected) {
       const loadData = async () => {
-        try {
-          // Fetch job card details
-          const jobCardDetails = await api.jobcard.jobcard.getAll();
-          // Assuming jobCardDetails is an array of job card objects, choose one based on your logic
-          const selectedJobCard = store.jobcard.jobcard.selected;
-
-          if (selectedJobCard) {
-            // Fetch data for subcollections
-            await api.jobcard.task.getAll(selectedJobCard.id);
-            await api.jobcard.client.getAll(selectedJobCard.id);
-            await api.jobcard.tool.getAll(selectedJobCard.id);
-            await api.jobcard.labour.getAll(selectedJobCard.id);
-            await api.jobcard.material.getAll(selectedJobCard.id);
-            await api.jobcard.otherExpense.getAll(selectedJobCard.id);
-            await api.jobcard.standard.getAll(selectedJobCard.id);
-            await api.jobcard.precaution.getAll(selectedJobCard.id);
-            await api.jobcard.client.getAll(selectedJobCard.id);
-          } else {
-            console.error("Job card not found.");
-          }
-        } catch (error) {
-          console.error("Error loading data:", error);
-        }
+        await api.user.getAll();
+        await api.measure.getAll();
       };
 
       loadData();
     }
   }, [
     api.jobcard.jobcard,
-    api.jobcard.task,
-    api.jobcard.client,
-    api.jobcard.labour,
-    jobId,
     store.jobcard.jobcard.selected,
-    api.jobcard.tool,
     api.jobcard.material,
-    api.jobcard.otherExpense,
-    api.jobcard.standard,
-    api.jobcard.precaution,
+    api.user,
+    api.measure,
   ]);
 
   return (
-    <div
-      className="custom-modal-style uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
-      style={{ width: "60%" }}>
-      <button
-        className="uk-modal-close-default"
-        type="button"
-        data-uk-close></button>
-      <h3 className="uk-modal-title text-to-break">
-        Edit Job Card : {jobCard.uniqueId}
-      </h3>
-      <div className="dialog-content uk-position-relative">
-        <form
-          className="review-info uk-card uk-card-default uk-card-body uk-card-small"
-          style={{ justifyContent: "center" }}
-          uk-grid
-          onSubmit={handleSubmit}>
-         
+    // <ErrorBoundary>
+    //   <div
+    //     className="custom-modal-style uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+    //     style={{ width: "60%" }}>
+    //     {" "}
+    //     <button
+    //       className="uk-modal-close-default"
+    //       type="button"
+    //       data-uk-close></button>
+    //     <div className="uk-flex" style={{ justifyContent: "center" }}>
+    //       <form
+    //         className="review-info uk-card uk-card-default uk-card-body uk-card-small "
+    //         style={{ width: "100%", justifyContent: "center" }}
+    //         onSubmit={handleSubmit}>
+    //         {/*Heading*/}
+    //         <div style={{ textAlign: "center" }}>
+    //           <h2>JOB CARD FOR MUNICIPAL SERVICES</h2>
+    //           <p style={{ fontStyle: "italic" }}>
+    //             (E.g Roads, water, sewerage reticulations/connections, and other
+    //             repairs)
+    //           </p>
+    //           <div className="uk-flex uk-flex-between uk-flex-middle">
+    //             <p className="text-to-break">
+    //               Job Card Identifier: {jobCard.uniqueId}
+    //             </p>
+    //             <p>Date and Time logged: {jobCard.dateIssued}</p>
+    //           </div>
+    //         </div>
+    //         <div className="uk-grid uk-child-width-1-2@s" data-uk-grid>
+    //           <div>
+    //             <div className="uk-margin">
+    //               <input
+    //                 type="text"
+    //                 id="objectives"
+    //                 placeholder="Division"
+    //                 value={jobCard.division}
+    //                 onChange={(e) =>
+    //                   setJobCard({
+    //                     ...jobCard,
+    //                     division: e.target.value,
+    //                   })
+    //                 }
+    //               />
+    //             </div>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="assignTo">
+    //                 Assign To
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <select
+    //                   className="uk-select uk-form-small"
+    //                   id="assignTo"
+    //                   value={jobCard.assignedTo}
+    //                   onChange={handleUserChange}
+    //                   required>
+    //                   <option value="">Assign to</option>{" "}
+    //                   {/* Placeholder option */}
+    //                   {users.map((user) => (
+    //                     <option key={user.asJson.uid} value={user.asJson.uid}>
+    //                       {user.asJson.displayName}
+    //                     </option>
+    //                   ))}
+    //                 </select>
+    //               </div>
+    //             </div>
+    //           </div>
+    //           <div>
+    //             <div className="uk-margin">
+    //               <input
+    //                 type="text"
+    //                 id="objectives"
+    //                 placeholder="Section"
+    //                 value={jobCard.section}
+    //                 onChange={(e) =>
+    //                   setJobCard({
+    //                     ...jobCard,
+    //                     section: e.target.value,
+    //                   })
+    //                 }
+    //               />
+    //             </div>
 
-          {/* Add Task Section */}
-          <h3>Fill In Allocation</h3>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="urgency">
+    //                 Urgency:
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <select
+    //                   className="uk-select uk-form-small"
+    //                   id="urgency"
+    //                   value={jobCard.urgency}
+    //                   onChange={handleUrgencyChange}
+    //                   required>
+    //                   <option value="Normal">Normal</option>
+    //                   <option value="Urgent">Urgent</option>
+    //                   <option value="Very Urgent">Very Urgent</option>
+    //                 </select>
+    //               </div>
+    //             </div>
+    //           </div>
+    //         </div>
+    //         <div>
+    //           {" "}
+    //           <p>Client Details.</p>
+    //         </div>
+    //         <div className="uk-grid uk-child-width-1-2@s" data-uk-grid>
+    //           <div>
+    //             {/* Content for the first column */}
 
-       
-          <div>
-            {/* Your HTML for displaying tools */}
-            <table className="uk-table uk-table-divider">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Unit Cost</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {toolList.map((tool) => (
-                  <tr key={tool.asJson.id}>
-                    <td>{tool.asJson.name}</td>
-                    <td>{tool.asJson.quantity}</td>
-                    <td>{tool.asJson.unitCost}</td>
-                    <td>
-                      <button onClick={() => onUpdateTool(tool.asJson)}>
-                        Edit
-                      </button>
-                      <button onClick={() => onDeleteTool(tool.asJson)}>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    //             <div className="uk-margin">
+    //               <input
+    //                 type="text"
+    //                 id="objectives"
+    //                 placeholder="Full Names"
+    //                 value={jobCard.clientFullName}
+    //                 onChange={(e) =>
+    //                   setJobCard({
+    //                     ...jobCard,
+    //                     clientFullName: e.target.value,
+    //                   })
+    //                 }
+    //               />
+    //             </div>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="client-location">
+    //                 Email:
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <input
+    //                   className="uk-input uk-form-small"
+    //                   type="text"
+    //                   id="client-location"
+    //                   placeholder="Address"
+    //                   value={jobCard.clientEmail}
+    //                   onChange={(e) =>
+    //                     setJobCard({
+    //                       ...jobCard,
+    //                       clientAddress: e.target.value,
+    //                     })
+    //                   }
+    //                 />
+    //               </div>
+    //             </div>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="client-location">
+    //                 Cellphone :
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <input
+    //                   className="uk-input uk-form-small"
+    //                   type="phone"
+    //                   id="client-location"
+    //                   placeholder="Telephone"
+    //                   value={jobCard.clientMobileNumber}
+    //                   onChange={(e) =>
+    //                     setJobCard({
+    //                       ...jobCard,
+    //                       clientMobileNumber: e.target.value,
+    //                     })
+    //                   }
+    //                 />
+    //               </div>
+    //             </div>
+    //           </div>
+    //           <div>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="client-location">
+    //                 Email:
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <input
+    //                   className="uk-input uk-form-small"
+    //                   type="text"
+    //                   id="client-location"
+    //                   placeholder="Address"
+    //                   value={jobCard.clientEmail}
+    //                   onChange={(e) =>
+    //                     setJobCard({
+    //                       ...jobCard,
+    //                       clientEmail: e.target.value,
+    //                     })
+    //                   }
+    //                 />
+    //               </div>
+    //             </div>
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="client-location">
+    //                 Erf:
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <input
+    //                   className="uk-input uk-form-small"
+    //                   type="text"
+    //                   id="client-location"
+    //                   placeholder="Address"
+    //                   value={jobCard.erf}
+    //                   onChange={(e) =>
+    //                     setJobCard({
+    //                       ...jobCard,
+    //                       erf: e.target.value,
+    //                     })
+    //                   }
+    //                 />
+    //               </div>
+    //             </div>
 
-          
+    //             <div className="uk-margin">
+    //               <label className="uk-form-label" htmlFor="client-location">
+    //                 Telephone Number:
+    //               </label>
+    //               <div className="uk-form-controls">
+    //                 <input
+    //                   className="uk-input uk-form-small"
+    //                   type="phone"
+    //                   id="client-location"
+    //                   placeholder="Telephone"
+    //                   value={jobCard.clientTelephone}
+    //                   onChange={(e) =>
+    //                     setJobCard({
+    //                       ...jobCard,
+    //                       clientTelephone: e.target.value,
+    //                     })
+    //                   }
+    //                 />
+    //               </div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <div className="uk-margin">
+    //           <label className="uk-form-label" htmlFor="client-location">
+    //             Type of Work
+    //           </label>
+    //           <div className="uk-form-controls">
+    //             <input
+    //               className="uk-input uk-form-small"
+    //               type="text"
+    //               id="client-location"
+    //               placeholder="Type of Work"
+    //               value={jobCard.typeOfWork}
+    //               onChange={(e) =>
+    //                 setJobCard({
+    //                   ...jobCard,
+    //                   typeOfWork: e.target.value,
+    //                 })
+    //               }
+    //             />
+    //           </div>
+    //         </div>
+    //         <h3>Job Card Management and allocation {jobCard.uniqueId}</h3>
+
+    //         <div className="uk-grid">
+    //           <div className="uk-width-1-4">
+    //             <div className="uk-margin">
+    //               <input
+    //                 placeholder="Start Date"
+    //                 id="issuedDate"
+    //                 type="date"
+    //                 value={jobCard.dateIssued}
+    //                 onChange={(e) =>
+    //                   setJobCard({ ...jobCard, dateIssued: e.target.value })
+    //                 }
+    //               />
+    //             </div>
+    //           </div>
+    //           <div className="uk-width-1-4">
+    //             <div className="uk-margin">
+    //               <input
+    //                 placeholder="Issued Time"
+    //                 id="issuedTime"
+    //                 type="time"
+    //                 value={jobCard.dueDate}
+    //                 onChange={(e) =>
+    //                   setJobCard({ ...jobCard, dueDate: e.target.value })
+    //                 }
+    //               />
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <>
+    //           <div className="uk-grid">
+    //             <div className="uk-width-1-2">
+    //               <div className="uk-margin-right">
+    //                 <label htmlFor="issuedTime">Team Leader</label>
+    //                 <div className="uk-form-controls">
+    //                   <SingleSelect
+    //                     name="search-team"
+    //                     options={options}
+    //                     width="250px"
+    //                     onChange={handleTeamLeaderChange}
+    //                     placeholder="Search by name"
+    //                     value={teamLeaderValue}
+    //                   />
+    //                 </div>
+    //               </div>
+    //               <div className="uk-margin-right">
+    //                 <label htmlFor="issuedDate">Artesian</label>
+    //                 <div className="uk-form-controls">
+    //                   <SingleSelect
+    //                     name="search-team"
+    //                     options={options}
+    //                     width="250px"
+    //                     onChange={handleArtesianChange}
+    //                     placeholder="Search by name"
+    //                     value={artesianValue}
+    //                   />
+    //                 </div>
+    //               </div>
+
+    //               <div>
+    //                 <label htmlFor="issuedTime">Team Member</label>
+    //                 <div className="uk-form-controls">
+    //                   <SingleSelect
+    //                     name="search-team"
+    //                     options={options}
+    //                     width="250px"
+    //                     onChange={handleTeamMemberChange}
+    //                     placeholder="Search by name"
+    //                     value={teamMemberValue}
+    //                   />
+    //                 </div>
+    //               </div>
+    //               <div>
+    //                 <label htmlFor="issuedTime">KPI?Measure</label>
+    //                 <SingleSelect
+    //                   name="search-measure"
+    //                   options={measuresOptions}
+    //                   width="250px"
+    //                   onChange={handleMeasureChange}
+    //                   placeholder="Select measure"
+    //                   value={jobCard.measure}
+    //                 />
+    //               </div>
+    //             </div>
+
+    //             <div className="uk-width-1-2">
+    //               <div className="uk-margin">
+    //                 <h3>Team Details</h3>
+
+    //                 <div>
+    //                   {/* Displaying user details */}
+    //                   <p>
+    //                     Team Leader:{" "}
+    //                     {
+    //                       users.find(
+    //                         (user) => user.asJson.uid === jobCard.teamLeader
+    //                       )?.asJson.displayName
+    //                     }
+    //                   </p>
+    //                   <p>
+    //                     Artesian:{" "}
+    //                     {
+    //                       users.find(
+    //                         (user) => user.asJson.uid === jobCard.artesian
+    //                       )?.asJson.displayName
+    //                     }
+    //                   </p>
+    //                   <p>
+    //                     Team Member:{" "}
+    //                     {
+    //                       users.find(
+    //                         (user) => user.asJson.uid === jobCard.teamMember
+    //                       )?.asJson.displayName
+    //                     }
+    //                   </p>
+
+    //                   {/* Add more details here as needed */}
+    //                 </div>
+    //               </div>
+    //             </div>
+    //           </div>
+    //         </>
+
+    //         <div className="uk-grid">
+    //           <div className="uk-width-1-1">
+    //             <button
+    //               className="btn btn-primary"
+    //               onClick={(e) => {
+    //                 e.preventDefault();
+    //                 onView();
+    //               }}>
+    //               <span>Add Material&nbsp;&nbsp;</span>
+    //               <FontAwesomeIcon
+    //                 icon={faPlus}
+    //                 className="icon uk-margin-small-right"
+    //               />
+    //             </button>
+
+    //             <h3>Material List</h3>
+    //             <MaterialsGrid data={materialList} jobCard={jobCard} />
+    //           </div>
+    //         </div>
+    //         <div className="uk-margin">
+    //           <label htmlFor="remarks">Remarks:</label>
+    //           <textarea
+    //             id="remarks"
+    //             className="uk-textarea"
+    //             placeholder="Enter remarks..."
+    //             value={jobCard.remark}
+    //             onChange={(e) =>
+    //               setJobCard({ ...jobCard, remark: e.target.value })
+    //             }
+    //           />
+    //         </div>
+
+    //         <div
+    //           className="uk-width-1-1 uk-text-right"
+    //           style={{ marginTop: "10px" }}>
+    //           {/* <button onClick={handleNextClick}>Next</button> */}
+    //           <button
+    //             type="submit"
+    //             className="btn btn-primary"
+    //             disabled={loading}
+    //             // onClick={handleCreateJobCard}
+    //           >
+    //             Save {loading && <div data-uk-spinner="ratio: .5"></div>}
+    //           </button>
+    //         </div>
+    //       </form>
+    //     </div>
+    //   </div>
+
+    //   <Modal modalId={MODAL_NAMES.EXECUTION.ADDJOBCARDMATERIAL_MODAL}>
+    //     <AddNewMaterialModal />
+    //   </Modal>
+    //   <Modal modalId={MODAL_NAMES.EXECUTION.ONEDITMATERIAL_MODAL}>
+    //     <OnEditMaterial />
+    //   </Modal>
+    // </ErrorBoundary>
+
+    <ErrorBoundary>
+      <div
+        className="view-modal custom-modal-style uk-modal-dialog uk-modal-body uk-width-1-2"
+        style={{ width: "60%" }}>
+        <button
+          className="uk-modal-close-default"
+          // onClick={onCancel}
+          disabled={loading}
+          type="button"
+          data-uk-close></button>
+        <h3 className="main-title-small text-to-break"> Edit Job Card</h3>
+        <hr />
+
+        <div className="uk-grid">
+          <div className="uk-width-1-3">
+            {jobCard && (
+              <div className="uk-width-1-1 uk-margin-medium-top">
+                <h4>Selected Job Card Details</h4>
+                <div className="uk-grid uk-grid-small" data-uk-grid>
+                  <div className="uk-width-1-3">
+                    <p>Client Name:</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Account</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Entity No.</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Product Code</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Account Balance:</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Remaining Balance:</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-1">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+                </div>
+              </div>
+            )}
+            {jobCard && (
+              <div className="uk-width-1-1 uk-margin-large-top">
+                <h4>Selected Job Card Client Details</h4>
+                <div className="uk-grid uk-grid-small" data-uk-grid>
+                  <div className="uk-width-1-3">
+                    <p>Bank Name</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Account Name</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Account No.</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+
+                  <div className="uk-width-1-3">
+                    <p>Branch No.</p>
+                  </div>
+                  <div className="uk-width-2-3">
+                    <p>{jobCard.clientEmail}</p>
+                  </div>
+                  <hr className="uk-width-1-1" />
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Add Materials Section */}
+          <div className="dialog-content uk-position-relative uk-width-2-3">
+            <h4>Allocated Job Card</h4>
 
-          <div>
-            {/* Your HTML for displaying materials */}
-            <table className="uk-table uk-table-divider">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Unit Cost</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {materialList.map((material) => (
-                  <tr key={material.id}>
-                    <td>{material.name}</td>
-                    <td>{material.quantity}</td>
-                    <td>{material.unitCost}</td>
-                    <td>
-                      <button onClick={() => onUpdateMaterial(material)}>
-                        Edit
-                      </button>
-                      <button onClick={() => onDeleteMaterial(material)}>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <hr />
+            <form className="uk-grid" data-uk-grid onSubmit={handleSubmit}>
+              <div className="uk-grid uk-child-width-1-2" data-uk-grid>
+                <div>
+                  {/* Form fields for the first column */}
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    {/* Add margin-bottom to create spacing */}
+                    <label className="uk-form-label required" htmlFor="">
+                      Division
+                    </label>
+                    <input
+                      type="text"
+                      className="uk-input"
+                      placeholder="Division"
+                      value={jobCard.division}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          division: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
 
-        
-          
+                  {/* Add margin-bottom to create spacing */}
+
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label required" htmlFor="">
+                      Urgency
+                    </label>
+                    <select
+                      className="uk-select uk-form-small"
+                      id="urgency"
+                      value={jobCard.urgency}
+                      onChange={handleUrgencyChange}
+                      required>
+                      <option value="Normal">Normal</option>
+                      <option value="Urgent">Urgent</option>
+                      <option value="Very Urgent">Very Urgent</option>
+                    </select>
+                  </div>
+
+                  {/* Add margin-bottom to create spacing */}
+
+                  {/* Add margin-bottom to create spacing */}
+                </div>
+                <div>
+                  {/* Form fields for the second column */}
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label
+                      className="uk-form-label required"
+                      htmlFor="valueDate">
+                      Assign
+                    </label>
+                    <select
+                      className="uk-select uk-form-small"
+                      id="assignTo"
+                      value={selectedUser}
+                      onChange={handleUserChange}
+                      required>
+                      <option value="">Assign to</option>
+                      {users.map((user) => (
+                        <option key={user.asJson.uid} value={user.asJson.uid}>
+                          {user.asJson.displayName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Add margin-bottom to create spacing */}
+
+                  {/* Add margin-bottom to create spacing */}
+                  <div className="uk-grid uk-grid-small uk-grid-match uk-child-width-1-1 uk-width-1-1 uk-margin-bottom">
+                    {/* Add margin-bottom to create spacing */}
+                  </div>
+                </div>
+                <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                  {/* Add margin-bottom to create spacing */}
+                  <label className="uk-form-label required" htmlFor="">
+                    Task Description(max char. 30)
+                  </label>
+                  <textarea
+                    className="uk-textarea uk-form-small"
+                    defaultValue="Task Description"
+                    rows={3}
+                    id="amount"
+                    maxLength={30}
+                    name={"amount"}
+                    // onChange={(e) =>
+                    //   setClientWithdrawal({
+                    //     ...clientWithdrawal,
+                    //     reference: e.target.value,
+                    //   })
+                    // }
+                    required
+                  />
+                </div>
+              </div>
+              <div className="uk-grid uk-child-width-1-2" data-uk-grid>
+                <div>
+                  {/* Form fields for the first column */}
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label required" htmlFor="amount">
+                      Full Name
+                    </label>
+                    <input
+                      type="tel"
+                      className="uk-input uk-form-small"
+                      id="client-mobile"
+                      placeholder="Cellphone"
+                      value={jobCard.clientMobileNumber}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          clientMobileNumber: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label required" htmlFor="amount">
+                      Cellphone Number
+                    </label>
+                    <input
+                      type="tel"
+                      className="uk-input uk-form-small"
+                      id="client-mobile"
+                      placeholder="Cellphone"
+                      value={jobCard.clientMobileNumber}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          clientMobileNumber: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label" htmlFor="">
+                      Client Email
+                    </label>
+                    <input
+                      type="email"
+                      className="uk-input uk-form-small"
+                      id="client-email"
+                      placeholder="Email"
+                      value={jobCard.clientEmail}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          clientEmail: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Add margin-bottom to create spacing */}
+
+                  {/* Add margin-bottom to create spacing */}
+
+                  {/* Add margin-bottom to create spacing */}
+                </div>
+                <div>
+                  {/* Add margin-bottom to create spacing */}
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label" htmlFor="">
+                      Address
+                    </label>
+                    <input
+                      type="email"
+                      className="uk-input uk-form-small"
+                      id="client-email"
+                      placeholder="Email"
+                      value={jobCard.clientEmail}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          clientEmail: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Add margin-bottom to create spacing */}
+                  <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                    <label className="uk-form-label" htmlFor="">
+                      Client Email
+                    </label>
+                    <input
+                      type="email"
+                      className="uk-input uk-form-small"
+                      id="client-email"
+                      placeholder="Email"
+                      value={jobCard.clientEmail}
+                      onChange={(e) =>
+                        setJobCard({
+                          ...jobCard,
+                          clientEmail: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Add margin-bottom to create spacing */}
+                  <div className="uk-grid uk-grid-small uk-grid-match uk-child-width-1-1 uk-width-1-1 uk-margin-bottom">
+                    {/* Add margin-bottom to create spacing */}
+
+                    <div className="uk-form-controls uk-width-1-1 ">
+                      <input
+                        type="text"
+                        className="uk-input uk-form-small"
+                        id="type-of-work"
+                        placeholder="Type of Work"
+                        value={jobCard.typeOfWork}
+                        onChange={(e) =>
+                          setJobCard({
+                            ...jobCard,
+                            typeOfWork: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                  {/* Add margin-bottom to create spacing */}
+                  <label className="uk-form-label required" htmlFor="">
+                    Remark(max char. 30)
+                  </label>
+                  <textarea
+                    className="uk-textarea uk-form-small"
+                    defaultValue="Task Description"
+                    rows={3}
+                    id="amount"
+                    maxLength={30}
+                    name={"amount"}
+                    // onChange={(e) =>
+                    //   setClientWithdrawal({
+                    //     ...clientWithdrawal,
+                    //     reference: e.target.value,
+                    //   })
+                    // }
+                    required
+                  />
+                </div>
+              </div>
+              <div
+                className="uk-width-1-1 uk-text-right"
+                style={{ marginTop: "10px" }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}>
+                  Create {loading && <div data-uk-spinner="ratio: .5"></div>}
+                </button>
+              </div>
+            </form>
           </div>
-
-
-
-          <div
-            className="uk-width-1-1 uk-text-right"
-            style={{ marginTop: "20px" }}>
-            <div
-              className="uk-width-1-1 uk-text-right"
-              style={{ marginTop: "10px" }}>
-              <button
-                className="btn btn-primary"
-                type="submit"
-                disabled={loading}>
-                Update {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 });
 
 export default EditJobCardModal;
+
+
+
+//  <form className="uk-grid" data-uk-grid onSubmit={handleSubmit}>
+//    <div className="uk-grid uk-child-width-1-2" data-uk-grid>
+//      <div>
+//        {/* Form fields for the first column */}
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          {/* Add margin-bottom to create spacing */}
+//          <label className="uk-form-label required" htmlFor="">
+//            Division
+//          </label>
+//          <input
+//            type="text"
+//            className="uk-input"
+//            placeholder="Division"
+//            value={jobCard.division}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                division: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label required" htmlFor="">
+//            Urgency
+//          </label>
+//          <select
+//            className="uk-select uk-form-small"
+//            id="urgency"
+//            value={jobCard.urgency}
+//            onChange={handleUrgencyChange}
+//            required>
+//            <option value="Normal">Normal</option>
+//            <option value="Urgent">Urgent</option>
+//            <option value="Very Urgent">Very Urgent</option>
+//          </select>
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+
+//        {/* Add margin-bottom to create spacing */}
+//      </div>
+//      <div>
+//        {/* Form fields for the second column */}
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label required" htmlFor="valueDate">
+//            Assign
+//          </label>
+//          <select
+//            className="uk-select uk-form-small"
+//            id="assignTo"
+//            value={selectedUser}
+//            onChange={handleUserChange}
+//            required>
+//            <option value="">Assign to</option>
+//            {users.map((user) => (
+//              <option key={user.asJson.uid} value={user.asJson.uid}>
+//                {user.asJson.displayName}
+//              </option>
+//            ))}
+//          </select>
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+
+//        {/* Add margin-bottom to create spacing */}
+//        <div className="uk-grid uk-grid-small uk-grid-match uk-child-width-1-1 uk-width-1-1 uk-margin-bottom">
+//          {/* Add margin-bottom to create spacing */}
+//        </div>
+//      </div>
+//      <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//        {/* Add margin-bottom to create spacing */}
+//        <label className="uk-form-label required" htmlFor="">
+//          Task Description(max char. 30)
+//        </label>
+//        <textarea
+//          className="uk-textarea uk-form-small"
+//          defaultValue="Task Description"
+//          rows={3}
+//          id="amount"
+//          maxLength={30}
+//          name={"amount"}
+//          // onChange={(e) =>
+//          //   setClientWithdrawal({
+//          //     ...clientWithdrawal,
+//          //     reference: e.target.value,
+//          //   })
+//          // }
+//          required
+//        />
+//      </div>
+//    </div>
+//    <div className="uk-grid uk-child-width-1-2" data-uk-grid>
+//      <div>
+//        {/* Form fields for the first column */}
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label required" htmlFor="amount">
+//            Full Name
+//          </label>
+//          <input
+//            type="tel"
+//            className="uk-input uk-form-small"
+//            id="client-mobile"
+//            placeholder="Cellphone"
+//            value={jobCard.clientMobileNumber}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                clientMobileNumber: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label required" htmlFor="amount">
+//            Cellphone Number
+//          </label>
+//          <input
+//            type="tel"
+//            className="uk-input uk-form-small"
+//            id="client-mobile"
+//            placeholder="Cellphone"
+//            value={jobCard.clientMobileNumber}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                clientMobileNumber: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label" htmlFor="">
+//            Client Email
+//          </label>
+//          <input
+//            type="email"
+//            className="uk-input uk-form-small"
+//            id="client-email"
+//            placeholder="Email"
+//            value={jobCard.clientEmail}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                clientEmail: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+
+//        {/* Add margin-bottom to create spacing */}
+
+//        {/* Add margin-bottom to create spacing */}
+//      </div>
+//      <div>
+//        {/* Add margin-bottom to create spacing */}
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label" htmlFor="">
+//            Address
+//          </label>
+//          <input
+//            type="email"
+//            className="uk-input uk-form-small"
+//            id="client-email"
+//            placeholder="Email"
+//            value={jobCard.clientEmail}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                clientEmail: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+//        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//          <label className="uk-form-label" htmlFor="">
+//            Client Email
+//          </label>
+//          <input
+//            type="email"
+//            className="uk-input uk-form-small"
+//            id="client-email"
+//            placeholder="Email"
+//            value={jobCard.clientEmail}
+//            onChange={(e) =>
+//              setJobCard({
+//                ...jobCard,
+//                clientEmail: e.target.value,
+//              })
+//            }
+//            required
+//          />
+//        </div>
+
+//        {/* Add margin-bottom to create spacing */}
+//        <div className="uk-grid uk-grid-small uk-grid-match uk-child-width-1-1 uk-width-1-1 uk-margin-bottom">
+//          {/* Add margin-bottom to create spacing */}
+
+//          <div className="uk-form-controls uk-width-1-1 ">
+//            <input
+//              type="text"
+//              className="uk-input uk-form-small"
+//              id="type-of-work"
+//              placeholder="Type of Work"
+//              value={jobCard.typeOfWork}
+//              onChange={(e) =>
+//                setJobCard({
+//                  ...jobCard,
+//                  typeOfWork: e.target.value,
+//                })
+//              }
+//              required
+//            />
+//          </div>
+//        </div>
+//      </div>
+//      <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+//        {/* Add margin-bottom to create spacing */}
+//        <label className="uk-form-label required" htmlFor="">
+//          Remark(max char. 30)
+//        </label>
+//        <textarea
+//          className="uk-textarea uk-form-small"
+//          defaultValue="Task Description"
+//          rows={3}
+//          id="amount"
+//          maxLength={30}
+//          name={"amount"}
+//          // onChange={(e) =>
+//          //   setClientWithdrawal({
+//          //     ...clientWithdrawal,
+//          //     reference: e.target.value,
+//          //   })
+//          // }
+//          required
+//        />
+//      </div>
+//    </div>
+//    <div className="uk-width-1-1 uk-text-right" style={{ marginTop: "10px" }}>
+//      <button type="submit" className="btn btn-primary" disabled={loading}>
+//        Create {loading && <div data-uk-spinner="ratio: .5"></div>}
+//      </button>
+//    </div>
+//  </form>;

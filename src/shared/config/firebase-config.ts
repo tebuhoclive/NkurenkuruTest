@@ -7,25 +7,17 @@ import { getFunctions } from "firebase/functions";
 // Your web app's Firebase configuration  *in production
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
+  // NKURENKURU
   apiKey: "AIzaSyDasgXX3u3cLujb7rwGlJpqgXV2wwfmKS8",
   authDomain: "nkurenkuru-town-council.firebaseapp.com",
   projectId: "nkurenkuru-town-council",
   storageBucket: "nkurenkuru-town-council.appspot.com",
   messagingSenderId: "651659197779",
   appId: "1:651659197779:web:122730299f6c30bbacf5a6",
-  measurementId: "G-N3BJ50MDSN",
+  measurementId: "G-N3BJ50MDSN"
 };
 
 
-//testing on ijg
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDVI2yHFy2ERdqbYh5gplruXOhJsMuSUlc",
-//   authDomain: "ijgmms.firebaseapp.com",
-//   projectId: "ijgmms",
-//   storageBucket: "ijgmms.appspot.com",
-//   messagingSenderId: "69645852108",
-//   appId: "1:69645852108:web:c2e4b9cf346860d5fa5169"
-// };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

@@ -23,6 +23,7 @@ interface INumberInputProps {
   min?: number;
   required?: boolean;
   disabled?: boolean;
+  decimalScale?: number;
 }
 const NumberInput = (props: INumberInputProps) => {
   const {

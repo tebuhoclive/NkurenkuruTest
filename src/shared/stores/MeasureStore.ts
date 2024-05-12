@@ -46,3 +46,4 @@ export default class MeasureStore extends Store<IMeasure, Measure> {
     return this.getByUid(me.uid); //me.uid
   }
 }
+

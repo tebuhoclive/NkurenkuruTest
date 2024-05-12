@@ -76,9 +76,12 @@ const MODAL_NAMES = {
     SCORECARD_MODAL: "scorecard-modal",
     JOBCARD_MODAL: "jobcard-modal",
     VIEWJOBCARD_MODAL: "view-jobcard-modal",
+    CREATEJOBCARD_MODAL: "create-jobcard-modal",
     EDITJOBCARD_MODAL: "edit-jobcard-modal",
     JOBCARDFEEDBACK_MODAL: "jobcard-feedback--modal",
+    ALLOCATEJOBCARD_MODAL: "allocate-jobcard-modal",
     ADDJOBCARDMATERIAL_MODAL: "add-material-modal",
+    ONEDITMATERIAL_MODAL: "edit-material-modal",
   },
   PERFORMANCE_REVIEW: {
     REVIEW_MODAL: "performance-review-modal",

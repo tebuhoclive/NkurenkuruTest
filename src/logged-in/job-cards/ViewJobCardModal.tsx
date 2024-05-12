@@ -43,51 +43,10 @@ const ViewJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store, ui } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-
-  const { jobId } = useParams();
-  const navigate = useNavigate();
-  const [task, setTask] = useState<ITask>({ ...defaultTask });
-  const [createMode, setCreateMode] = useState(true);
-  const [render, setRender] = useState(false);
-  const [tool, setTool] = useState<ITool>({ ...defaultTool });
-  const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
-  const [precaution, setPrecaution] = useState<IPrecaution>({
-    ...defaultPrecaution,
-  });
-
-  const [createdJobCardId, setCreatedJobCardId] = useState(null);
-  const [showClientDetails, setShowClientDetails] = useState(false);
-
-  const [standard, setStandard] = useState<IStandard>({
-    ...defaultStandard,
-  });
-  const [labour, setLabour] = useState<ILabour>({
-    ...defaultLabour,
-  });
-  const [otherExpense, setOtherExpense] = useState<IOtherExpense>({
-    ...defaultOtherExpense,
-  });
+  const users = store.user.all;
 
   //handle  tasks removal, addition,updating
 
-  const handleTaskInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-    setTask((prevTask) => ({ ...prevTask, [fieldName]: value }));
-  };
-  const handleCreateTask = async () => {
-    try {
-      // Create a new task on the server
-      await api.jobcard.task.create(task, jobCard.id);
-
-      // Clear the form
-      setTask({ ...defaultTask });
-    } catch (error) {
-      console.error("Error creating task:", error);
-    }
-  };
 
   // Function to get base64 image from URL
   const getBase64ImageFromURL = (url: string) => {
@@ -115,86 +74,8 @@ const ViewJobCardModal = observer(() => {
       img.src = url;
     });
   };
-  const onDeleteTask = async (task: ITask) => {
-    try {
-      // Delete from the server
-      await api.jobcard.task.delete(task.id, jobId);
-    } catch (error) {
-      console.error("Error deleting task:", error);
-    }
-  };
 
-  const onUpdateTask = (updatedTask: ITask) => {
-    setCreateMode(false);
-    setTask(updatedTask);
-  };
-
-  const handleUpdateTask = async () => {
-    try {
-      // Update the task on the server
-      await api.jobcard.task.update(task, jobCard.id);
-      // Clear the form and revert to create mode
-      setTask({ ...defaultTask });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
-  const taskList = store.jobcard.task.all;
   const materialList = store.jobcard.material.all;
-  const labourList = store.jobcard.labour.all;
-  const expensesList = store.jobcard.otherExpense.all;
-  const toolList = store.jobcard.tool.all;
-  const currentClient = store.jobcard.client.all;
-
-  const [client, setClient] = useState<IClient>({ ...defaultClient });
-
-  const allClients = store.jobcard.client.all;
-
-  //Handle tools
-  const handleToolInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldName: string
-  ) => {
-    const { value } = e.target;
-    // Exclude 'id' property from being updated
-    setTool((prevTool) => ({ ...prevTool, [fieldName]: value }));
-  };
-
-  const handleCreateTool = async () => {
-    try {
-      // Create the tool on the server
-      await api.jobcard.tool.create(tool, jobCard.id);
-
-      // Clear the form
-      setTool({ ...defaultTool });
-    } catch (error) {
-      console.error("Error creating tool:", error);
-    }
-  };
-
-  const onDeleteTool = async (tool: ITool) => {
-    try {
-      // Delete the tool on the server
-      await api.jobcard.tool.delete(tool.id, jobCard.id);
-    } catch (error) {
-      console.error("Error deleting tool:", error);
-    }
-  };
-
-  const onUpdateTool = (updatedTool: ITool) => {
-    setRender(true);
-    // Assuming store.jobcard.tool.select() is available
-    store.jobcard.tool.select(updatedTool);
-
-    const selectedTool = store.jobcard.tool.selected;
-    if (selectedTool) {
-      setTool(selectedTool);
-      setCreateMode(false);
-    }
-  };
-
   // Register fonts with pdfMake
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -235,17 +116,7 @@ const ViewJobCardModal = observer(() => {
         },
         {
           layout: "noBorders",
-          table: {
-            body: [
-              ["Client Name:", client.name],
-              ["Telephone Number:", client.telephone],
-              ["Mobile Number:", client.mobileNumber],
-              ["Email:", client.email],
-              ["Address:", client.address],
-              ["City:", client.city],
-              ["Location:", client.location],
-            ],
-          },
+         
         },
         {
           text: "Allocation Section",
@@ -257,22 +128,7 @@ const ViewJobCardModal = observer(() => {
         },
         {
           layout: "lightHorizontalLines",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*", "*"],
-            body: [
-              [
-                { text: "Description", bold: true },
-                { text: "Assigned To", bold: true },
-                { text: "Estimated Time", bold: true },
-              ],
-              ...taskList.map((task) => [
-                task.asJson.description,
-                task.asJson.assignedTo,
-                task.asJson.estimatedTime,
-              ]),
-            ],
-          },
+         
         },
         {
           text: "Tool Description",
@@ -288,52 +144,22 @@ const ViewJobCardModal = observer(() => {
           text: "Precaution Description",
           style: "subheader",
         },
-        {
-          text: precaution.description,
-        },
+       
         {
           text: "Standard Description",
           style: "subheader",
         },
-        {
-          text: standard.description,
-        },
+      
         {
           text: "Labour Assigned",
           style: "subheader",
         },
-        {
-          layout: "lightHorizontalLines",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*"],
-            body: [
-              ["Description", "Cost"],
-              ...labourList.map((labour) => [
-                labour.asJson.description,
-                labour.asJson.cost,
-              ]),
-            ],
-          },
-        },
+       
         {
           text: "Expenses",
           style: "subheader",
         },
-        {
-          layout: "lightHorizontalLines",
-          table: {
-            headerRows: 1,
-            widths: ["*", "*"],
-            body: [
-              ["Description", "Cost"],
-              ...expensesList.map((expense) => [
-                expense.asJson.description,
-                expense.asJson.cost,
-              ]),
-            ],
-          },
-        },
+      
       ],
       styles: {
         header: {
@@ -353,27 +179,128 @@ const ViewJobCardModal = observer(() => {
     pdfMake.createPdf(docDefinition).download("job_card_details.pdf");
   };
 
-  const handleUpdateTool = async () => {
-    try {
-      // Update the tool on the server
-      await api.jobcard.tool.update(tool, jobCard.id);
-
-      // Clear the form and revert to create mode
-      setTool({ ...defaultTool });
-      setCreateMode(true);
-    } catch (error) {
-      console.error("Error updating tool:", error);
-    } finally {
-      setRender(false);
-    }
+  
+const generatePDF = () => {
+  const docDefinition : any= {
+    content: [
+      { text: "JOB CARD FOR MUNICIPAL SERVICES", style: "header" },
+      {
+        text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
+        style: "italic",
+      },
+      { text: "Job Card Identifier: " + jobCard.uniqueId },
+      { text: "Date and Time logged: " + jobCard.dateIssued },
+      {
+        columns: [
+          {
+            width: "50%",
+            text: [
+              { text: "Division: ", bold: true },
+              jobCard.division,
+              "\n",
+              { text: "Assign To: ", bold: true },
+              users.find((user) => user.asJson.uid === jobCard.assignedTo)?.asJson
+                .displayName || "",
+              "\n",
+              { text: "Urgency: ", bold: true },
+              jobCard.urgency,
+              "\n",
+              // Add more fields as needed
+            ],
+          },
+          {
+            width: "50%",
+            text: [
+              { text: "Client Details:", bold: true },
+              "\n",
+              { text: "Full Names: ", bold: true },
+              jobCard.clientFullName,
+              "\n",
+              { text: "Email: ", bold: true },
+              jobCard.clientEmail,
+              "\n",
+              { text: "Cellphone: ", bold: true },
+              jobCard.clientMobileNumber,
+              "\n",
+              // Add more client details as needed
+            ],
+          },
+        ],
+      },
+      {
+        columns: [
+          {
+            width: "50%",
+            text: [
+              { text: "Start Date: ", bold: true },
+              jobCard.dateIssued,
+              "\n",
+              { text: "Issued Time: ", bold: true },
+              jobCard.dueDate,
+              "\n",
+              // Add more fields as needed
+            ],
+          },
+          {
+            width: "50%",
+            text: [
+              { text: "Team Leader: ", bold: true },
+              users.find((user) => user.asJson.uid === jobCard.teamLeader)?.asJson
+                .displayName || "",
+              "\n",
+              { text: "Artesian: ", bold: true },
+              users.find((user) => user.asJson.uid === jobCard.artesian)?.asJson
+                .displayName || "",
+              "\n",
+              { text: "Team Member: ", bold: true },
+              users.find((user) => user.asJson.uid === jobCard.teamMember)?.asJson
+                .displayName || "",
+              "\n",
+              { text: "KPI?Measure: ", bold: true },
+              jobCard.measure,
+              "\n",
+              // Add more details as needed
+            ],
+          },
+        ],
+      },
+      {
+        text: "Material List",
+        style: "header",
+      },
+      // Add material list here
+      { ul: materialList.map((material) => material.name) },
+      {
+        text: "Remarks: " + jobCard.remark,
+        style: "remarks",
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        alignment: "center",
+        margin: [0, 0, 0, 10],
+      },
+      italic: {
+        fontStyle: "italic",
+        margin: [0, 0, 0, 10],
+      },
+      remarks: {
+        margin: [0, 10, 0, 0],
+      },
+    },
   };
+
+  pdfMake.createPdf(docDefinition).download("job_card.pdf");
+};
 
   //handle materials
 
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();
     setJobCard({ ...defaultJobCard });
-    hideModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
+    hideModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
   };
 
   useEffect(() => {
@@ -382,49 +309,65 @@ const ViewJobCardModal = observer(() => {
     }
   }, [store.jobcard.jobcard.selected]);
 
-  useEffect(() => {
-    if (store.jobcard.jobcard.selected) {
-      const loadData = async () => {
-        try {
-          // Fetch job card details
-          const jobCardDetails = await api.jobcard.jobcard.getAll();
-          // Assuming jobCardDetails is an array of job card objects, choose one based on your logic
-          const selectedJobCard = store.jobcard.jobcard.selected;
+  // useEffect(() => {
+  //   if (store.jobcard.jobcard.selected) {
+  //     const loadData = async () => {
+  //       try {
+  //         // Fetch job card details
+  //         const jobCardDetails = await api.jobcard.jobcard.getAll();
+  //         // Assuming jobCardDetails is an array of job card objects, choose one based on your logic
+  //         const selectedJobCard = store.jobcard.jobcard.selected;
 
-          if (selectedJobCard) {
-            // Fetch data for subcollections
-            await api.jobcard.task.getAll(selectedJobCard.id);
-            await api.jobcard.client.getAll(selectedJobCard.id);
-            await api.jobcard.tool.getAll(selectedJobCard.id);
-            await api.jobcard.labour.getAll(selectedJobCard.id);
-            await api.jobcard.material.getAll(selectedJobCard.id);
-            await api.jobcard.otherExpense.getAll(selectedJobCard.id);
-            await api.jobcard.standard.getAll(selectedJobCard.id);
-            await api.jobcard.precaution.getAll(selectedJobCard.id);
-          } else {
-            console.error("Job card not found.");
-          }
-        } catch (error) {
-          console.error("Error loading data:", error);
-        }
-      };
+  //         if (selectedJobCard) {
+  //           // Fetch data for subcollections
+  //           await api.jobcard.task.getAll(selectedJobCard.id);
+  //           await api.jobcard.client.getAll(selectedJobCard.id);
+  //           await api.jobcard.tool.getAll(selectedJobCard.id);
+  //           await api.jobcard.labour.getAll(selectedJobCard.id);
+  //           await api.jobcard.material.getAll(selectedJobCard.id);
+  //           await api.jobcard.otherExpense.getAll(selectedJobCard.id);
+  //           await api.jobcard.standard.getAll(selectedJobCard.id);
+  //           await api.jobcard.precaution.getAll(selectedJobCard.id);
+  //         } else {
+  //           console.error("Job card not found.");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error loading data:", error);
+  //       }
+  //     };
 
-      loadData();
-    }
-  }, [
-    api.jobcard.jobcard,
-    api.jobcard.task,
-    api.jobcard.client,
-    api.jobcard.labour,
-    jobId,
-    store.jobcard.jobcard.selected,
-    api.jobcard.tool,
-    api.jobcard.material,
-    api.jobcard.otherExpense,
-    api.jobcard.standard,
-    api.jobcard.precaution,
-    jobCard.id,
-  ]);
+  //     loadData();
+  //   }
+  // }, [
+  //   api.jobcard.jobcard,
+  //   api.jobcard.task,
+  //   api.jobcard.client,
+  //   api.jobcard.labour,
+  //   jobId,
+  //   store.jobcard.jobcard.selected,
+  //   api.jobcard.tool,
+  //   api.jobcard.material,
+  //   api.jobcard.otherExpense,
+  //   api.jobcard.standard,
+  //   api.jobcard.precaution,
+  //   jobCard.id,
+  // ]);
+ useEffect(() => {
+   if (store.jobcard.jobcard.selected) {
+     const loadData = async () => {
+       await api.user.getAll();
+       await api.measure.getAll();
+     };
+
+     loadData();
+   }
+ }, [
+   api.jobcard.jobcard,
+   store.jobcard.jobcard.selected,
+   api.jobcard.material,
+   api.user,
+   api.measure,
+ ]);
 
   return (
     <div
@@ -434,32 +377,73 @@ const ViewJobCardModal = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close></button>
-      <button onClick={exportToPDF}>Export to PDF</button>
-      <h3 className="uk-modal-title text-to-break">
-        View{jobCard.id} {client.name}
-      </h3>
+
+      <h3 className="uk-modal-title text-to-break">View Job Card Details</h3>
       <div className="dialog-content uk-position-relative">
         {/* Add create Section */}
         <div className="dialog-content uk-position-relative ">
           <div className="uk-flex-column">
-            <div
-              className="uk-flex"
-              style={{ justifyContent: "space-around", width: "100%" }}>
-              <div className="text uk-flex-column" style={{ width: "100%" }}>
+            <div className="uk-grid uk-child-width-1-3@s" data-uk-grid>
+              {/* First Column */}
+              <div>
                 <div className="uk-margin">
-                  <p className="uk-form-label">Objectives:</p>
+                  <p className="uk-form-label">Assigned to:</p>
                   <div className="uk-form-controls">
-                    <p className="uk-text-small">{jobCard.objectives}</p>
+                    <p className="uk-text-small">
+                      {
+                        users.find(
+                          (user) => user.asJson.uid === jobCard.assignedTo
+                        )?.asJson.displayName
+                      }
+                    </p>
                   </div>
                 </div>
-
                 <div className="uk-margin">
-                  <p className="uk-form-label">Job Description:*</p>
+                  <p className="uk-form-label">Artesian :</p>
                   <div className="uk-form-controls">
-                    <p className="uk-text-small">{jobCard.jobDescription}</p>
+                    <p className="uk-text-small">
+                      {
+                        users.find(
+                          (user) => user.asJson.uid === jobCard.artesian
+                        )?.asJson.displayName
+                      }
+                    </p>
                   </div>
                 </div>
+                <div className="uk-margin">
+                  <p className="uk-form-label">Team Leader :</p>
+                  <div className="uk-form-controls">
+                    <p className="uk-text-small">
+                      {
+                        users.find(
+                          (user) => user.asJson.uid === jobCard.teamLeader
+                        )?.asJson.displayName
+                      }
+                    </p>
+                  </div>
+                </div>
+                <div className="uk-margin">
+                  <p className="uk-form-label">Team Member:</p>
+                  <div className="uk-form-controls">
+                    <p className="uk-text-small">
+                      {
+                        users.find(
+                          (user) => user.asJson.uid === jobCard.teamMember
+                        )?.asJson.displayName
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
 
+              {/* Second Column */}
+              <div>
+                <div className="uk-margin">
+                  <p className="uk-form-label">Division:*</p>
+                  <div className="uk-form-controls">
+                    <p className="uk-text-small">{jobCard.division}</p>
+                  </div>
+                </div>
                 <div className="uk-margin">
                   <p className="uk-form-label">Urgency:</p>
                   <div className="uk-form-controls">
@@ -468,27 +452,18 @@ const ViewJobCardModal = observer(() => {
                 </div>
               </div>
 
-              <div
-                className="select uk-flex-column"
-                style={{ width: "100%", marginLeft: "20px" }}>
+              {/* Third Column */}
+              <div>
                 <div className="uk-margin">
                   <p className="uk-form-label">Date Issued:</p>
                   <div className="uk-form-controls">
                     <p className="uk-text-small">{jobCard.dateIssued}</p>
                   </div>
                 </div>
-
                 <div className="uk-margin">
                   <p className="uk-form-label">Due Date:</p>
                   <div className="uk-form-controls">
                     <p className="uk-text-small">{jobCard.dueDate}</p>
-                  </div>
-                </div>
-
-                <div className="uk-margin">
-                  <p className="uk-form-label">Expected Outcomes:</p>
-                  <div className="uk-form-controls">
-                    <p className="uk-text-small">{jobCard.expectedOutcomes}</p>
                   </div>
                 </div>
               </div>
@@ -496,43 +471,51 @@ const ViewJobCardModal = observer(() => {
 
             {/*Client Details */}
             <div>
-              <h3>Client Details (Optional)</h3>
+              <h3>Client Details</h3>
 
               <div className="uk-flex-column">
                 <div className="uk-margin">
                   <label className="uk-form-label">Client Name:</label>
-                  <div className="uk-form-controls">{client.name}</div>
+                  <div className="uk-form-controls">
+                    {jobCard.clientFullName}
+                  </div>
                 </div>
                 <div className="uk-flex">
                   <div className="uk-margin" style={{ width: "50%" }}>
                     <label className="uk-form-label">Telephone Number:</label>
-                    <div className="uk-form-controls">{}</div>
+                    <div className="uk-form-controls">
+                      {jobCard.clientTelephone}
+                    </div>
                   </div>
                   <div className="uk-margin" style={{ width: "50%" }}>
                     <label className="uk-form-label">Mobile Number:</label>
                     <div className="uk-form-controls">
-                      {client.mobileNumber}
+                      {jobCard.clientMobileNumber}
                     </div>
                   </div>
                 </div>
                 <div className="uk-flex">
                   <div className="uk-margin" style={{ width: "50%" }}>
                     <label className="uk-form-label">Email:</label>
-                    <div className="uk-form-controls">{client.email}</div>
+                    <div className="uk-form-controls">
+                      {jobCard.clientEmail}
+                    </div>
                   </div>
                   <div className="uk-margin" style={{ width: "50%" }}>
                     <label className="uk-form-label">Address:</label>
-                    <div className="uk-form-controls">{client.address}</div>
+                    <div className="uk-form-controls">
+                      {jobCard.clientAddress}
+                    </div>
                   </div>
                 </div>
                 <div className="uk-flex">
                   <div className="uk-margin" style={{ width: "50%" }}>
-                    <label className="uk-form-label">City:</label>
-                    <div className="uk-form-controls">{client.city}</div>
+                    <label className="uk-form-label">erf:</label>
+                    <div className="uk-form-controls">{jobCard.erf}</div>
                   </div>
                   <div className="uk-margin" style={{ width: "50%" }}>
-                    <label className="uk-form-label">Location:</label>
-                    <div className="uk-form-controls">{client.location}</div>
+                    <label className="uk-form-label">Type of work:</label>
+                    <div className="uk-form-controls">{jobCard.typeOfWork}</div>
                   </div>
                 </div>
               </div>
@@ -541,72 +524,12 @@ const ViewJobCardModal = observer(() => {
         </div>
 
         <div>
-          <h2>Allocation Section</h2>
+          <h2>Allocation</h2>
         </div>
-
-        <div>
-          <div>
-            <h3>Task List</h3>
-            <p>
-              This table displays the tasks with their descriptions, assigned
-              users, estimated times, and actions.
-            </p>
-
-            <table className="uk-table uk-table-divider">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Assigned To</th>
-                  <th>Estimated Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {taskList.map((task) => (
-                  <tr key={task.asJson.id}>
-                    <td>{task.asJson.description}</td>
-                    <td>{task.asJson.assignedTo}</td>
-                    <td>{task.asJson.estimatedTime}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {/* Add Tools Section */}
-        <div>
-          <div>
-            <h3>Tool Description</h3>
-            <p>View and manage tools in the inventory.</p>
-
-            {/* Your HTML for displaying tools */}
-            <table className="uk-table uk-table-divider">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Unit Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {toolList.map((tool) => (
-                  <tr key={tool.asJson.id}>
-                    <td>{tool.asJson.name}</td>
-                    <td>{tool.asJson.quantity}</td>
-                    <td>{tool.asJson.unitCost}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Your form for creating/updating tools */}
-        </div>
-
-        {/* Add Materials Section */}
 
         <div>
           <h3>Material Description</h3>
-          <p>View and manage materials in the inventory.</p>
+          <p>View Material type and description.</p>
 
           {/* Your HTML for displaying materials */}
           <table className="uk-table uk-table-divider">
@@ -628,71 +551,6 @@ const ViewJobCardModal = observer(() => {
             </tbody>
           </table>
         </div>
-        <div>
-          {/* Display data for IPrecaution */}
-          <div className="uk-margin">
-            <p>
-              <strong>Precaution Description:</strong> {precaution.description}
-            </p>
-          </div>
-
-          {/* Display data for IStandard */}
-          <div className="uk-margin">
-            <p>
-              <strong>Standard Description:</strong> {standard.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Add Labor Section */}
-        <div className="uk-flex-column" style={{ marginBottom: "2px" }}>
-          <h3
-            className="text-center uk-text-center"
-            style={{ marginBottom: "0px" }}>
-            Labour Assigned
-          </h3>
-          <div>
-            {/* Display data for labor */}
-            <table className="uk-table uk-table-divider">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {labourList.map((labour) => (
-                  <tr key={labour.asJson.id}>
-                    <td>{labour.asJson.description}</td>
-                    <td>{labour.asJson.cost}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Add Other Expenses Section */}
-        <div>
-          <h3 className="uk-card-title">Expenses</h3>
-          {/* Display data for other expenses */}
-          <table className="uk-table uk-table-divider">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expensesList.map((otherExpense) => (
-                <tr key={otherExpense.asJson.id}>
-                  <td>{otherExpense.asJson.description}</td>
-                  <td>{otherExpense.asJson.cost}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
         <div
           className="uk-width-1-1 uk-text-right"
@@ -701,10 +559,18 @@ const ViewJobCardModal = observer(() => {
             className="uk-width-1-1 uk-text-right"
             style={{ marginTop: "10px" }}>
             <button
+              onClick={generatePDF}
+              className="btn btn-primary uk-button-danger"
+              style={{ marginRight: "10px" }}>
+              Export to PDF
+            </button>
+
+            <button
               className="btn btn-primary"
-              type="submit"
-              disabled={loading}>
-              View {loading && <div data-uk-spinner="ratio: .5"></div>}
+              type="button"
+              disabled={loading}
+              onClick={onCancel}>
+              Close {loading && <div data-uk-spinner="ratio: .5"></div>}
             </button>
           </div>
         </div>
