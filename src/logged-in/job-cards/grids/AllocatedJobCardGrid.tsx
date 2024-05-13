@@ -8,39 +8,45 @@ import MODAL_NAMES from "../../dialogs/ModalName";
 import ViewJobCardModal from "../ViewJobCardModal";
 import { DeleteForever, OpenInNew, Visibility } from "@mui/icons-material";
 import swal from "sweetalert";
-import { IJobCard, IStatus, defaultJobCard } from "../../../shared/models/job-card-model/Jobcard";
+import {
+  IJobCard,
+  IStatus,
+  defaultJobCard,
+} from "../../../shared/models/job-card-model/Jobcard";
 import Toolbar from "../../shared/components/toolbar/Toolbar";
 
 interface IProp {
   data: any[];
 }
 
-const AllocatedJobCardGrid = observer(({ data }: IProp) => {
+const CreatedJobCardGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const [selectedStatus, setSelectedStatus] = useState("");
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
- 
-
-const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
-  const currentJobCard = store.jobcard.jobcard.getItemById(jobCardId)?.asJson;
-  if (currentJobCard) {
-    const updatedJobCard = { ...currentJobCard, status: newStatus };
-    setJobCard(updatedJobCard);
-
-    try {
-      await api.jobcard.jobcard.update(updatedJobCard);
-      // Add any additional logic or UI updates after successful status update
-    } catch (error) {
-      console.error("Error updating status: ", error);
-      // Handle error appropriately
-    }
-  }
-};
-
-
+  const onUpdateStatus = async (jobCardId: string) => {
+    console.log("job card id", jobCardId);
+    // const currentJobCard = store.jobcard.jobcard.getItemById(jobCardId)?.asJson;
+    //  console.log("job card id", currentJobCard);
+    await api.jobcard.jobcard.delete(jobCardId);
+  };
+  // Function to get the display name based on the assignedTo ID
+  const getDisplayName = (assignedToId) => {
+    const user = store.user.all.find(
+      (user) => user.asJson.uid === assignedToId
+    );
+    return user ? user.asJson.displayName : "Unknown";
+  };
 
   const columns: GridColDef[] = [
+    {
+      field: "assignedTo",
+      headerName: "Assigned To",
+      flex: 1,
+      renderCell: (params) => {
+        return getDisplayName(params.row.assignedTo);
+      },
+    },
     {
       field: "division",
       headerName: "Division",
@@ -57,8 +63,8 @@ const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
       flex: 1,
     },
     {
-      field: "dueDate",
-      headerName: "Date Due",
+      field: "clientFullName",
+      headerName: "Client Name",
       flex: 1,
     },
     {
@@ -70,22 +76,6 @@ const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
       field: "status",
       headerName: "Status",
       flex: 1,
-      renderCell: (params) => (
-        <Select
-          value={params.row.status}
-          onChange={(event) =>
-            onUpdateStatus(params.row.id, event.target.value)
-          }
-          variant="standard"
-          style={{ width: "100%" }}>
-          <MenuItem value="Not Started" style={{ color: "red" }}>
-            Not Started
-          </MenuItem>
-          <MenuItem value="Assigned">Assigned</MenuItem>
-          <MenuItem value="In Progress">In Progress</MenuItem>
-          <MenuItem value="Completed">Completed</MenuItem>
-        </Select>
-      ),
     },
     {
       field: "Action",
@@ -103,7 +93,7 @@ const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
             </IconButton>
 
             {/* <IconButton
-              onClick={() => onDelete(params.row)}
+              onClick={() => onUpdateStatus(params.row.id)}
               aria-label="delete"
               data-uk-tooltip="Delete">
               <DeleteForever />
@@ -123,46 +113,46 @@ const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
 
   const onUpdate = (jobCards: any) => {
     store.jobcard.jobcard.select(jobCards);
-    showModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
+    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
   };
 
-  const onView = (jobCard: any) => {
-    store.jobcard.jobcard.select(jobCard);
-    showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
-  };
+  // const onView = (jobCard: any) => {
+  //   store.jobcard.jobcard.select(jobCard);
+  //   showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
+  // };
 
-  const onDelete = (jobCard: any) => {
-    // Show a confirmation dialog
-    swal({
-      title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this job card!",
-      icon: "warning",
-      buttons: ["Cancel", "Delete"],
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        try {
-          deleteJobCard(jobCard);
-          swal({
-            title: "Job Card Deleted!",
-            icon: "success",
-          });
-        } catch (error) {
-          console.log("Error: " + error);
-        }
-      } else {
-        swal("Cancelled!");
-      }
-    });
-  };
+  // const onDelete = (jobCard: any) => {
+  //   // Show a confirmation dialog
+  //   swal({
+  //     title: "Are you sure?",
+  //     text: "Once deleted, you will not be able to recover this job card!",
+  //     icon: "warning",
+  //     buttons: ["Cancel", "Delete"],
+  //     dangerMode: true,
+  //   }).then((willDelete) => {
+  //     if (willDelete) {
+  //       try {
+  //         deleteJobCard(jobCard);
+  //         swal({
+  //           title: "Job Card Deleted!",
+  //           icon: "success",
+  //         });
+  //       } catch (error) {
+  //         console.log("Error: " + error);
+  //       }
+  //     } else {
+  //       swal("Cancelled!");
+  //     }
+  //   });
+  // };
 
-  const deleteJobCard = async (jobCard: any) => {
-    try {
-      await api.jobcard.jobcard.delete(jobCard.id);
-    } catch (error) {
-      console.log("Error" + error);
-    }
-  };
+  // const deleteJobCard = async (jobCard: any) => {
+  //   try {
+  //     await api.jobcard.jobcard.delete(jobCard.id);
+  //   } catch (error) {
+  //     console.log("Error" + error);
+  //   }
+  // };
 
   function handleFilterChange(arg0: string, value: string): void {
     throw new Error("Function not implemented.");
@@ -225,4 +215,4 @@ const onUpdateStatus = async (jobCardId: string, newStatus: IStatus) => {
   );
 });
 
-export default AllocatedJobCardGrid;
+export default CreatedJobCardGrid;

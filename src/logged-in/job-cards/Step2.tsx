@@ -61,7 +61,7 @@ const Step2: React.FC<Step2Props> = observer(({ handleNext }) => {
   };
   const handleTeamMemberChange = (value) => {
     setTeamMemberValue(value);
-    setJobCard({ ...jobCard, teamMember: value });
+    setJobCard({ ...jobCard, teamMembers: value });
     // Additional logic if needed
   };
 

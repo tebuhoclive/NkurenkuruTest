@@ -36,23 +36,22 @@ const JobCardGridTabs = (props: IProps) => {
       <ul className="kit-tabs" data-uk-tab>
         <TabItem
           label="strategy-tab"
-          name="Created"
+          name="Unallocated Job Cards"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
         <TabItem
           label="department-tab"
-          name="Allocated"
+          name="Allocated Job Cards"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
         <TabItem
           label="people-tab"
-          name="Completed"
+          name="Completed Job Cards"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
-       
       </ul>
     </div>
   );

@@ -10,7 +10,6 @@ import "datatables.net-responsive-bs4";
 import "datatables.net-searchbuilder-bs4";
 import "datatables.net-searchpanes-bs4";
 import "datatables.net-staterestore-bs4";
-import { useNavigate } from "react-router-dom";
 import {
   IJobCard,
   IUrgency,
@@ -18,6 +17,7 @@ import {
 } from "../../shared/models/job-card-model/Jobcard";
 import { hideModalFromId } from "../../shared/functions/ModalShow";
 import MODAL_NAMES from "../dialogs/ModalName";
+
 
 
 
@@ -64,36 +64,36 @@ const CreateJobCard = observer(() => {
       setJobCard(updatedJobCard);
       await api.jobcard.jobcard.create(updatedJobCard);
 
-      console.log("my created job card ", updatedJobCard);
+    
 
       // store.jobcard.jobcard.select(jobCard);
       store.jobcard.jobcard.select(updatedJobCard);
     } catch (error) {
     } finally {
-      onCancel()
+      onCancel();
       setLoading(false);
     }
   };
-    const onCancel = () => {
-      store.jobcard.jobcard.clearSelected();
-      setJobCard({ ...defaultJobCard });
-      hideModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
-    };
+  const onCancel = () => {
+    store.jobcard.jobcard.clearSelected();
+    setJobCard({ ...defaultJobCard });
+    hideModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
+  };
 
   const handleUserChange = (event) => {
     const selectedUserId = event.target.value;
     setSelectedUser(selectedUserId);
-     setJobCard({
-       ...jobCard,
-       assignedTo: selectedUserId,
-     });
+    setJobCard({
+      ...jobCard,
+      assignedTo: selectedUserId,
+    });
     // Perform additional actions if needed, such as updating jobCard state
   };
   const uniqueId = generateUniqueId();
   useEffect(() => {
-    if (store.jobcard.jobcard.selected) {
-      setJobCard(store.jobcard.jobcard.selected);
-    }
+    // if (store.jobcard.jobcard.selected) {
+    //   setJobCard(store.jobcard.jobcard.selected);
+    // }
   }, [store.jobcard.jobcard.selected]);
 
   useEffect(() => {
@@ -111,6 +111,15 @@ const CreateJobCard = observer(() => {
     setJobCard({
       ...jobCard,
       urgency: e.target.value as IUrgency,
+    });
+  };
+  // Define a function to handle changes to the due date
+  const handleDateChange = (newDate) => {
+    console.log("new date",newDate);
+    
+    setJobCard({
+      ...jobCard,
+      dueDate: newDate,
     });
   };
 
@@ -152,8 +161,8 @@ const CreateJobCard = observer(() => {
                   }
                   required>
                   <option value="">Select Division</option>
-                  <option value="Division 1">Technical</option>
-                  <option value="Division 2">Division 2</option>
+                  <option value="Technical">Technical</option>
+                  <option value="Electrical">Electrical</option>
                   <option value="Division 3">Division 3</option>
                   {/* Add more options for each division */}
                 </select>
@@ -174,10 +183,10 @@ const CreateJobCard = observer(() => {
                   }
                   required>
                   <option value="">Select Division</option>
-                  <option value="Section 1">Roads Section</option>
-                  <option value="Section 1">Sewage Section</option>
-                  <option value="Section 1">Electricity Section</option>
-                  <option value="Section 1">Water Section</option>
+                  <option value="Roads Section">Roads Section</option>
+                  <option value="Sewage Section">Sewage Section</option>
+                  <option value="Electrical Section">Electrical Section</option>
+                  <option value="Water Section">Water Section</option>
                   {/* Add more options for each division */}
                 </select>
               </div>
@@ -223,6 +232,20 @@ const CreateJobCard = observer(() => {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                <label className="uk-form-label required" htmlFor="dueDate">
+                  Due Date
+                </label>
+                <input
+                  className="uk-input uk-form-small"
+                  id="dueDate"
+                  type="date"
+                  name="dueDate"
+                  value={jobCard.dueDate || ""} // Ensure a default value to prevent issues with uncontrolled inputs
+                  onChange={(e) => handleDateChange(e.target.value)} // Pass the value directly to the handler function
+                  required
+                />
               </div>
 
               {/* Add margin-bottom to create spacing */}

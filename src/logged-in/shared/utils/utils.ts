@@ -37,6 +37,21 @@ export const dateFormat_YY_MM_DY = (dateMillis: number | string | null) => {
   return `${year}-${mn}-${dy}`;
 };
 
+export const dateFormat_YY_MM_DD = (dateMillis: number | string | null) => {
+  if (dateMillis === null) return "-";
+
+  const date = new Date(dateMillis);
+  // const month = date.getMonth() + 1;
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  // append 0 if month or day is less than 10
+  const mn = `${month < 10 ? `0${month}` : month}`;
+  const dy = `${day < 10 ? `0${day}` : day}`;
+
+  return `${year}-${mn}-${dy}`;
+};
 export const dateFormat = (dateMillis: number | string | null) => {
   if (dateMillis === null || dateMillis === 0 || dateMillis === undefined) {
     return "-";

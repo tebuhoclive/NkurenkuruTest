@@ -39,7 +39,7 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     assignedTo: "",
     artesian: "",
     teamLeader: "",
-    teamMember: "",
+    teamMembers: [],
     remark: "",
     measure: "",
     acknowledged: false
@@ -70,7 +70,7 @@ export interface IJobCard {
   typeOfWork: string;
   artesian:string;
   teamLeader:string;
-  teamMember:string;
+  teamMembers?:string[];
   remark:string;
   measure:string;
   isAllocated?:boolean

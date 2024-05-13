@@ -17,17 +17,10 @@ interface IProp {
 
 const CreatedJobCardGrid= observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
-  const [selectedStatus, setSelectedStatus] = useState("");
+
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
-  const onUpdateStatus = async (jobCardId: string) => {
 
-       console.log("job card id", jobCardId);
-    // const currentJobCard = store.jobcard.jobcard.getItemById(jobCardId)?.asJson;
-      //  console.log("job card id", currentJobCard);
-      await api.jobcard.jobcard.delete(jobCardId);
-  
-  };
   // Function to get the display name based on the assignedTo ID
   const getDisplayName = (assignedToId) => {
     const user = store.user.all.find(
@@ -61,8 +54,8 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
       flex: 1,
     },
     {
-      field: "dueDate",
-      headerName: "Date Due",
+      field: "clientFullName",
+      headerName: "Client Name",
       flex: 1,
     },
     {
@@ -72,7 +65,7 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
     },
     {
       field: "status",
-      headerName: "Urgency",
+      headerName: "Status",
       flex: 1,
     },
     {
@@ -90,12 +83,12 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
               <OpenInNew style={{ fontSize: "20px" }} />
             </IconButton>
 
-            <IconButton
+            {/* <IconButton
               onClick={() => onUpdateStatus(params.row.id)}
               aria-label="delete"
               data-uk-tooltip="Delete">
               <DeleteForever />
-            </IconButton>
+            </IconButton> */}
 
             {/* <IconButton
               onClick={() => onView(params.row)}
@@ -189,13 +182,13 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
               </div>
             </div>
           }
-          leftControls={
-            <>
-              <h4 className="main-title-alt uk-text-bold">
-                Unallocated Job Cards
-              </h4>
-            </>
-          }
+          // leftControls={
+          //   <>
+          //     <h4 className="main-title-alt uk-text-bold">
+          //       Unallocated Job Cards
+          //     </h4>
+          //   </>
+          // }
         />
         <hr />
         <Box sx={{ height: 500 }}>

@@ -12,21 +12,17 @@ import {
   IJobCard,
   defaultJobCard,
 } from "../../shared/models/job-card-model/Jobcard";
-import { ITask, defaultTask } from "../../shared/models/job-card-model/Task";
-import { ITool, defaultTool } from "../../shared/models/job-card-model/Tool";
-
-
+import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
-import AddNewMaterialModal from "./dialogs/AddNewMaterialModal";
-import Modal from "../../shared/components/Modal";
 import { MaterialsGrid } from "./grids/MaterialsGrid";
 import SingleSelect, {
   IOption,
 } from "../../shared/components/single-select/SingleSelect";
 import NumberInput from "../shared/components/number-input/NumberInput";
 import { IMaterial, defaultMaterial } from "../../shared/models/job-card-model/Material";
+import { Console } from "console";
 
 const AllocateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -50,11 +46,20 @@ const AllocateJobCardModal = observer(() => {
     setJobCard({ ...jobCard, teamLeader: value });
     // Additional logic if needed
   };
-  const handleTeamMemberChange = (value) => {
-    setTeamMemberValue(value);
-    setJobCard({ ...jobCard, teamMember: value });
-    // Additional logic if needed
+  // const handleTeamMemberChange = (value) => {
+  //   setTeamMemberValue(value);
+  //   setJobCard({ ...jobCard, teamMember: value });
+  //   // Additional logic if needed
+  // };
+  const handleTeamMemberChange = (selectedOptions) => {
+    // selectedOptions is an array containing the selected option objects
+    // You can access the selected values and perform any necessary actions
+
+    // For example, you can extract the selected values and store them in state
+    const selectedValues = selectedOptions.map((option) => option.value);
+    console.log(selectedValues); // Assuming setTeamMembers is a state update function
   };
+
    const handleMeasureChange = (value) => {
      setTeamMemberValue(value);
      setJobCard({ ...jobCard, measure: value });
@@ -93,23 +98,26 @@ const AllocateJobCardModal = observer(() => {
 
 
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+   e.preventDefault();
+   setLoading(true);
 
-    try {
-     setJobCard({...jobCard, isAllocated: true})
+   try {
+     // Update the job card object locally
+     const updatedJobCard = { ...jobCard, isAllocated: true };
 
-      await api.jobcard.jobcard.update(jobCard);
-      console.log("jobcard", jobCard);
-    } catch (error) {
-      // Handle errors appropriately
-      console.error("Error submitting form:", error);
-    } finally {
-      onCancel()
-      setLoading(false);
-    }
-  };
+     // Call the API to update the job card with the updated object
+     await api.jobcard.jobcard.update(updatedJobCard);
+     console.log("jobcard", updatedJobCard);
+   } catch (error) {
+     // Handle errors appropriately
+     console.error("Error submitting form:", error);
+   } finally {
+     onCancel();
+     setLoading(false);
+   }
+ };
+
     const onCancel = () => {
       store.jobcard.jobcard.clearSelected();
       setJobCard({ ...defaultJobCard });
@@ -161,6 +169,9 @@ const AllocateJobCardModal = observer(() => {
    
     setShowMaterialForm(false);
   };
+
+
+
 
   // Function to handle changes for Material Name
   const handleMaterialNameChange = (e) => {
@@ -308,7 +319,7 @@ const AllocateJobCardModal = observer(() => {
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-1">
-                    <p>{jobCard.clientEmail}</p>
+                    <p>{jobCard.dueDate}</p>
                   </div>
                   <hr className="uk-width-1-1" />
                 </div>
@@ -359,46 +370,14 @@ const AllocateJobCardModal = observer(() => {
 
             <hr />
             <form
-              className="review-info uk-card uk-card-default uk-card-body uk-card-small "
+              className="uk-margin"
               style={{ justifyContent: "center" }}
               onSubmit={handleSubmit}>
-              {/* Add Task Section */}
-              {/* <h3>Job Card Management and allocation {jobCard.uniqueId}</h3> */}
-
-              {/* <div className="uk-grid">
-                <div className="uk-width-1-4">
-                  <div className="uk-margin">
-                    <input
-                      placeholder="Start Date"
-                      id="issuedDate"
-                      type="date"
-                      value={jobCard.dateIssued}
-                      onChange={(e) =>
-                        setJobCard({ ...jobCard, dateIssued: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="uk-width-1-4">
-                  <div className="uk-margin">
-                    <input
-                      placeholder="Issued Time"
-                      id="issuedTime"
-                      type="time"
-                      value={jobCard.dueDate}
-                      onChange={(e) =>
-                        setJobCard({ ...jobCard, dueDate: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-              </div> */}
-
               <>
                 <div className="uk-grid">
-                  <div className="uk-width-1-4">
-                    <div className="uk-margin">
-                      <label htmlFor="issuedDate">Artesian </label>
+                  <div className="uk-width-1-3">
+                    <div>
+                      <label htmlFor="issuedDate">Artesian</label>
                       <div className="uk-form-controls">
                         <SingleSelect
                           name="search-team"
@@ -412,8 +391,8 @@ const AllocateJobCardModal = observer(() => {
                     </div>
                   </div>
 
-                  <div className="uk-width-1-4">
-                    <div className="uk-margin">
+                  <div className="uk-width-1-3">
+                    <div>
                       <label htmlFor="issuedTime">Team Leader</label>
                       <div className="uk-form-controls">
                         <SingleSelect
@@ -428,44 +407,46 @@ const AllocateJobCardModal = observer(() => {
                     </div>
                   </div>
 
-                  <div className="uk-width-1-4">
-                    <div className="uk-margin">
-                      <label htmlFor="issuedTime">Team Member</label>
+                  <div className="uk-width-1-3">
+                    <div>
+                      <label htmlFor="issuedTime">
+                        Please select your aligned KPI
+                      </label>
                       <div className="uk-form-controls">
                         <SingleSelect
+                          name="search-team"
+                          options={measureOptions}
+                          width="250px"
+                          onChange={handleMeasureChange}
+                          placeholder="Select KPI"
+                          value={jobCard.measure}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+
+              <div className="uk-width-1-2 uk-margin">
+                <div className="uk-margin">
+                  <label htmlFor="issuedTime">Select team Member(s)</label>
+                  <div className="uk-form-controls">
+                    {/* <SingleSelect
                           name="search-team"
                           options={options}
                           width="250px"
                           onChange={handleTeamMemberChange}
                           placeholder="Search by name"
                           value={teamMemberValue}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* <div className="uk-width-1-4">
-                <div className="uk-margin">
-                  <UserDetails displayName={artesianValue} />
-                  <UserDetails displayName={teamLeaderValue} />
-                  <UserDetails displayName={teamMemberValue} />
-                </div>
-              </div> */}
-                </div>
-              </>
-              <div className="uk-width-1-1">
-                <div className="uk-margin">
-                  <label htmlFor="issuedTime">
-                    Please select your KPI aligned with the job card
-                  </label>
-                  <div className="uk-form-controls">
-                    <SingleSelect
-                      name="search-team"
-                      options={measureOptions}
-                      width="250px"
-                      onChange={handleMeasureChange}
-                      placeholder="Select KPI"
-                      value={jobCard.measure}
+                        /> */}
+                    <Select
+                      defaultValue={[]}
+                      isMulti
+                      name="colors"
+                      options={options}
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                      onChange={handleTeamMemberChange}
                     />
                   </div>
                 </div>
@@ -475,9 +456,12 @@ const AllocateJobCardModal = observer(() => {
                 <div className="uk-width-1-1">
                   <h3>Material List</h3>
                   <MaterialsGrid data={materialList} jobCard={jobCard} />
-                  {!showMaterialForm && (
+                  {!showMaterialForm && jobCard.isAllocated !== true && (
+                     <div
+                className="uk-width-1-1 uk-text-right"
+                style={{ marginTop: "20px" }}>
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-primary uk-margin"
                       onClick={handleAddMaterialClick}>
                       <span>Add Material&nbsp;&nbsp;</span>
                       <FontAwesomeIcon
@@ -485,6 +469,7 @@ const AllocateJobCardModal = observer(() => {
                         className="icon uk-margin-small-right"
                       />
                     </button>
+                    </div>
                   )}
                   {showMaterialForm && (
                     <div>
@@ -574,14 +559,50 @@ const AllocateJobCardModal = observer(() => {
                 <div
                   className="uk-width-1-1 uk-text-right"
                   style={{ marginTop: "10px" }}>
-                  {/* <button >Next</button> */}
-                  <button
-                    className="btn btn-primary"
-                    type="submit"
-                    disabled={loading}>
-                    allocate and Complete{" "}
-                    {loading && <div data-uk-spinner="ratio: .5"></div>}
-                  </button>
+                  {jobCard.isAllocated !== true && (
+                    <button
+                      className="btn btn-primary"
+                      type="submit"
+                      disabled={loading}>
+                      Allocate 
+                      {loading && <div data-uk-spinner="ratio: .5"></div>}
+                    </button>
+                  )}
+
+                  {jobCard.isAllocated === true && (
+                    <>
+                      {" "}
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={loading}>
+                        Exported to pdf{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={loading}>
+                        Delete Job Card{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={loading}>
+                        Mark As completed{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={loading}>
+                        Feedback & Comments{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </form>

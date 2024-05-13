@@ -29,6 +29,7 @@ import { faCommentDots } from "@fortawesome/free-regular-svg-icons";
 import showModalFromId from "../../../shared/functions/ModalShow";
 import MODAL_NAMES from "../../dialogs/ModalName";
 import Modal from "../../../shared/components/Modal";
+import JobCardDashboardGrids from "./JobCardDashboardGrids";
 
 const CompanyJobCard = observer(() => {
   const { api, store } = useAppContext();
@@ -43,53 +44,10 @@ const CompanyJobCard = observer(() => {
     setActiveTab(index);
   };
 
-  const onViewJobCard = (jobCard: IJobCard) => {
-    store.jobcard.jobcard.select(jobCard);
-
-    showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
-  };
+  
   const onCreateJobCard = () => {
     showModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
   };
-
-  // const onEditJobCard = (jobCard: IJobCard) => {
-  //   const currentclient = store.jobcard.client.selected;
-
-  //   store.jobcard.jobcard.select(jobCard);
-
-  //   showModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
-  // };
-
-  // const onDelete = (jobCard: IJobCard) => {
-  //   deleteJobCard(jobCard); // Call the Delete function
-  // };
-
-  // const deleteJobCard = async (jobCard: IJobCard) => {
-  //   try {
-  //     await api.jobcard.jobcard.delete(jobCard.id);
-  //   } catch (error) {
-  //     console.log("Error" + error);
-
-  //     // Handle error appropriately
-  //   }
-  // };
-
-  // Define a function to handle search text input
-  const Jobcards = store.jobcard.jobcard.all.map((job) => {
-    return job.asJson;
-  });
-  //stats
-  const totalJobcards = store.jobcard.jobcard.all.length;
-
-  const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
-    return job.asJson.status === "Not Started";
-  });
-  const totalPendingJobcards = pendingJobcards.length;
-
-  const completedJobcards = store.jobcard.jobcard.all.filter((job) => {
-    return job.asJson.status === "Completed";
-  });
-  const totalCompletedJobcards = completedJobcards.length;
 
 
 
@@ -128,121 +86,6 @@ const CompanyJobCard = observer(() => {
   }
 
   return (
-    // <ErrorBoundary>
-    //   <div className="uk-container uk-container-xlarge">
-    //     {/* <h1>Job Card Dashboard</h1> */}
-
-    //     {/* Job Cards Statistics */}
-
-    //     <div className="uk-child-width-expand" data-uk-grid>
-    //       <div className="uk-child-width-expand">
-    //         <DashboardCard
-    //           cardValue={totalJobcards}
-    //           cardTitle="Total Job Cards"
-    //           cardLink="/members"
-    //           cardColour={{ background: "#5CC858" }}
-    //         />
-    //       </div>
-    //       <div className="">
-    //         <DashboardCard
-    //           cardValue={totalPendingJobcards}
-    //           cardTitle="Pending Job Cards"
-    //           cardLink="/members/terminated"
-    //           cardColour={{ background: "#FF326E" }}
-    //         />
-    //       </div>
-    //       <div className="">
-    //         <DashboardCard
-    //           cardValue={totalCompletedJobcards}
-    //           cardTitle=" Completed Job Cards"
-    //           cardLink="/members"
-    //           cardColour={{ background: "#F97A53" }}
-    //         />
-    //       </div>
-    //     </div>
-    //     <div className="uk-width-1-1">
-    //       <div className="display-label">
-    //         <h4 className="main-title-alt">Recent Job Card List Submissions</h4>
-    //         <div>
-    //           <DeductionSubmissionCard
-    //             jobcards={Jobcards}
-    //             onAcknowledge={handleAcknowledge}
-    //           />
-    //         </div>
-    //       </div>
-    //     </div>
-    //     <div>
-    //       <ul className="uk-tab" data-uk-tab="true">
-    //         <li className={activeTab === 0 ? "uk-active" : ""}>
-    //           <a href="#" onClick={() => handleTabChange(0)}>
-    //             Job Cards waiting Allocation
-    //           </a>
-    //         </li>
-    //         <li className={activeTab === 1 ? "uk-active" : ""}>
-    //           <a href="#" onClick={() => handleTabChange(1)}>
-    //             Not Acknowledged Job Cards
-    //           </a>
-    //         </li>
-    //         {/* Add more tabs as needed */}
-    //       </ul>
-
-    //       <ul className="uk-switcher uk-margin" data-uk-switcher="true">
-    //         <li className={activeTab === 0 ? "uk-active" : ""}>
-    //           <DashboardGrid data={Jobcards} />
-    //         </li>
-    //         <li className={activeTab === 1 ? "uk-active" : ""}>
-    //           <p>Second Tab</p>
-    //           <DashboardGrid data={Jobcards} />
-    //         </li>
-    //         {/* Add more table content as needed */}
-    //       </ul>
-    //     </div>
-    //   </div>
-
-    //   {/* <table className="uk-table uk-table-divider custom-table">
-
-    //     <thead>
-    //       <tr>
-    //         <th className="uk-text-bold">Unique ID</th>
-    //         <th className="uk-text-bold">Description</th>
-    //         <th className="uk-text-bold">Status</th>
-    //         <th className="uk-text-bold">Date Issued</th>
-    //         <th className="uk-text-bold">Actions</th>
-    //       </tr>
-    //     </thead>
-    //     <tbody>
-    //       {jobcards.map((jobCard) => (
-    //         <tr key={jobCard.asJson.id}>
-    //           <td>{jobCard.asJson.jobDescription}</td>
-    //           <td>{jobCard.asJson.objectives}</td>
-    //           <td>{jobCard.asJson.status}</td>
-    //           <td>{jobCard.asJson.dateIssued}</td>
-    //           <td>
-    //             <button onClick={() => onEditJobCard(jobCard.asJson)}>
-    //               <FontAwesomeIcon icon={faEdit} />
-    //             </button>
-    //             <button onClick={() => onViewJobCard(jobCard.asJson)}>
-    //               <FontAwesomeIcon icon={faEye} />
-    //             </button>
-    //             <button onClick={() => onDelete(jobCard.asJson)}>
-    //               <FontAwesomeIcon icon={faTrash} />
-    //             </button>
-    //           </td>
-    //         </tr>
-    //       ))}
-    //     </tbody>
-    //   </table> */}
-
-    //   <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
-    //     <ViewJobCardModal />
-    //   </Modal>
-    //   <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
-    //     <EditJobCardModal
-    //     // id={jobCard.id}
-    //     />
-    //   </Modal>
-    // </ErrorBoundary>
-
     <ErrorBoundary>
       <div className="reports uk-section">
         <div className="uk-container uk-container-xlarge background white">
@@ -319,7 +162,9 @@ const CompanyJobCard = observer(() => {
           </ErrorBoundary>
           <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
           <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && <JobDashboardMain />}
+            {!loading && selectedTab === "strategy-tab" && (
+              <JobCardDashboardGrids />
+            )}
             {!loading && selectedTab === "department-tab" && <CreateJobCard />}
             {!loading && selectedTab === "people-tab" && <CreateJobCard />}
             {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}

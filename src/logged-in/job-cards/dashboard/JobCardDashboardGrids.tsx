@@ -31,44 +31,17 @@ const JobCardDashboardGrids = observer(() => {
   useTitle("Job Cards");
   useBackButton();
 
-  // const onViewJobCard = (jobCard: IJobCard) => {
-  //   store.jobcard.jobcard.select(jobCard);
-
-  //   showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
-  // };
-
-  // const onEditJobCard = (jobCard: IJobCard) => {
-  //   const currentclient = store.jobcard.client.selected;
-
-  //   store.jobcard.jobcard.select(jobCard);
-
-  //   showModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
-  // };
-
-  // const onDelete = (jobCard: IJobCard) => {
-  //   deleteJobCard(jobCard); // Call the Delete function
-  // };
-
-  // const deleteJobCard = async (jobCard: IJobCard) => {
-  //   try {
-  //     await api.jobcard.jobcard.delete(jobCard.id);
-  //   } catch (error) {
-  //     console.log("Error" + error);
-
-  //     // Handle error appropriately
-  //   }
-  // };
-
-  // Define a function to handle search text input
-  const Jobcards = store.jobcard.jobcard.all.map((job) => {
-    return job.asJson;
-  });
+  const JobCards = store.jobcard.jobcard.all
+    .map((job) => job.asJson)
+    .filter((job) => !job.isAllocated);
   //stats
   const totalJobcards = store.jobcard.jobcard.all.length;
 
-  const allocatedJobCards = store.jobcard.jobcard.all.filter((job) => {
-    return job.asJson.isAllocated === true;
-  });
+
+  const allocatedJobCards = store.jobcard.jobcard.all
+    .map((job) => job.asJson)
+    .filter((job) => job.isAllocated);
+  //stats
   //filter using
   const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
     return job.asJson.status === "Not Started";
@@ -79,30 +52,6 @@ const JobCardDashboardGrids = observer(() => {
     return job.asJson.status === "Completed";
   });
   const totalCompletedJobcards = completedJobcards.length;
-
-  // const handleAcknowledge = async (jobCard: IJobCard) => {
-  //   // If user clicks "Record", proceed with acknowledgment
-  //   try {
-  //     const updatedJobCard: IJobCard = {
-  //       ...jobCard,
-  //       acknowledged: true,
-  //     };
-
-  //     // Assuming that `api.jobcard.jobcard.update` method accepts the job card ID and the updated data
-  //     await api.jobcard.jobcard.update(updatedJobCard);
-
-  //     // Call any additional logic or UI updates as needed after a successful acknowledgment
-
-  //     // Optionally, show a success message
-  //     swal({
-  //       title: "Acknowledged!",
-  //       icon: "success",
-  //     });
-  //   } catch (error) {
-  //     console.log("Error: " + error);
-  //     // Handle error appropriately
-  //   }
-  // };
 
   useEffect(() => {
     const loadData = async () => {
@@ -129,7 +78,7 @@ const JobCardDashboardGrids = observer(() => {
           <div className="uk-child-width-expand">
             <DashboardCard
               cardValue={totalJobcards}
-              cardTitle="Created"
+              cardTitle="Total"
               cardLink="/members"
               cardColour={{ background: "grey" }}
             />
@@ -159,7 +108,7 @@ const JobCardDashboardGrids = observer(() => {
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
         <ErrorBoundary>
           {!loading && selectedTab === "strategy-tab" && (
-            <CreatedJobCardGrid data={Jobcards} />
+            <CreatedJobCardGrid data={JobCards} />
           )}
           {!loading && selectedTab === "department-tab" && (
             <AllocatedJobCardGrid data={allocatedJobCards} />

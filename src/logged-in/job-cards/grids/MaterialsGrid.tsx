@@ -81,7 +81,7 @@ const columns: GridColDef[] = [
 
   return (
     <div className="grid">
-      <Box sx={{ height: 450 }}>
+      <Box sx={{ height: 300 }}>
         <DataGrid
           loading={!data}
           rows={data}

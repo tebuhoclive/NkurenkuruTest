@@ -181,7 +181,7 @@ const ViewJobCardModal = observer(() => {
 
   
 const generatePDF = () => {
-  const docDefinition : any= {
+  const docDefinition: any = {
     content: [
       { text: "JOB CARD FOR MUNICIPAL SERVICES", style: "header" },
       {
@@ -199,8 +199,8 @@ const generatePDF = () => {
               jobCard.division,
               "\n",
               { text: "Assign To: ", bold: true },
-              users.find((user) => user.asJson.uid === jobCard.assignedTo)?.asJson
-                .displayName || "",
+              users.find((user) => user.asJson.uid === jobCard.assignedTo)
+                ?.asJson.displayName || "",
               "\n",
               { text: "Urgency: ", bold: true },
               jobCard.urgency,
@@ -245,17 +245,23 @@ const generatePDF = () => {
             width: "50%",
             text: [
               { text: "Team Leader: ", bold: true },
-              users.find((user) => user.asJson.uid === jobCard.teamLeader)?.asJson
-                .displayName || "",
+              users.find((user) => user.asJson.uid === jobCard.teamLeader)
+                ?.asJson.displayName || "",
               "\n",
               { text: "Artesian: ", bold: true },
               users.find((user) => user.asJson.uid === jobCard.artesian)?.asJson
                 .displayName || "",
               "\n",
-              { text: "Team Member: ", bold: true },
-              users.find((user) => user.asJson.uid === jobCard.teamMember)?.asJson
-                .displayName || "",
-              "\n",
+              // { text: "Team Members: ", bold: true },
+              // ...jobCard.teamMembers
+              //   ?.map((memberId) => {
+              //     const user = users.find(
+              //       (user) => user.asJson.uid === memberId
+              //     );
+              //     return user ? user.asJson.displayName : ""; // Return the display name if user is found, otherwise an empty string
+              //   })
+              //   .join(",\n"),
+
               { text: "KPI?Measure: ", bold: true },
               jobCard.measure,
               "\n",
@@ -309,50 +315,8 @@ const generatePDF = () => {
     }
   }, [store.jobcard.jobcard.selected]);
 
-  // useEffect(() => {
-  //   if (store.jobcard.jobcard.selected) {
-  //     const loadData = async () => {
-  //       try {
-  //         // Fetch job card details
-  //         const jobCardDetails = await api.jobcard.jobcard.getAll();
-  //         // Assuming jobCardDetails is an array of job card objects, choose one based on your logic
-  //         const selectedJobCard = store.jobcard.jobcard.selected;
 
-  //         if (selectedJobCard) {
-  //           // Fetch data for subcollections
-  //           await api.jobcard.task.getAll(selectedJobCard.id);
-  //           await api.jobcard.client.getAll(selectedJobCard.id);
-  //           await api.jobcard.tool.getAll(selectedJobCard.id);
-  //           await api.jobcard.labour.getAll(selectedJobCard.id);
-  //           await api.jobcard.material.getAll(selectedJobCard.id);
-  //           await api.jobcard.otherExpense.getAll(selectedJobCard.id);
-  //           await api.jobcard.standard.getAll(selectedJobCard.id);
-  //           await api.jobcard.precaution.getAll(selectedJobCard.id);
-  //         } else {
-  //           console.error("Job card not found.");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error loading data:", error);
-  //       }
-  //     };
-
-  //     loadData();
-  //   }
-  // }, [
-  //   api.jobcard.jobcard,
-  //   api.jobcard.task,
-  //   api.jobcard.client,
-  //   api.jobcard.labour,
-  //   jobId,
-  //   store.jobcard.jobcard.selected,
-  //   api.jobcard.tool,
-  //   api.jobcard.material,
-  //   api.jobcard.otherExpense,
-  //   api.jobcard.standard,
-  //   api.jobcard.precaution,
-  //   jobCard.id,
-  // ]);
- useEffect(() => {
+  useEffect(() => {
    if (store.jobcard.jobcard.selected) {
      const loadData = async () => {
        await api.user.getAll();
@@ -422,18 +386,7 @@ const generatePDF = () => {
                     </p>
                   </div>
                 </div>
-                <div className="uk-margin">
-                  <p className="uk-form-label">Team Member:</p>
-                  <div className="uk-form-controls">
-                    <p className="uk-text-small">
-                      {
-                        users.find(
-                          (user) => user.asJson.uid === jobCard.teamMember
-                        )?.asJson.displayName
-                      }
-                    </p>
-                  </div>
-                </div>
+               
               </div>
 
               {/* Second Column */}

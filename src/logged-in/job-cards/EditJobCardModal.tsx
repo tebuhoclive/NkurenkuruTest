@@ -114,7 +114,7 @@ const EditJobCardModal = observer(() => {
   };
   const handleTeamMemberChange = (value) => {
     setTeamMemberValue(value);
-    setJobCard({ ...jobCard, teamMember: value });
+    setJobCard({ ...jobCard, teamMembers: value });
     // Additional logic if needed
   };
 
