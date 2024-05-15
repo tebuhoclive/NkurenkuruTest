@@ -30,6 +30,7 @@ import showModalFromId from "../../../shared/functions/ModalShow";
 import MODAL_NAMES from "../../dialogs/ModalName";
 import Modal from "../../../shared/components/Modal";
 import JobCardDashboardGrids from "./JobCardDashboardGrids";
+import JobCardReports from "../JobCardReports";
 
 const CompanyJobCard = observer(() => {
   const { api, store } = useAppContext();
@@ -162,10 +163,9 @@ const CompanyJobCard = observer(() => {
           </ErrorBoundary>
           <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
           <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && (
-              <JobCardDashboardGrids />
+            {!loading && selectedTab === "strategy-tab" && ( <JobCardDashboardGrids />
             )}
-            {!loading && selectedTab === "department-tab" && <CreateJobCard />}
+            {!loading && selectedTab === "department-tab" && <JobCardReports />}
             {!loading && selectedTab === "people-tab" && <CreateJobCard />}
             {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
           </ErrorBoundary>

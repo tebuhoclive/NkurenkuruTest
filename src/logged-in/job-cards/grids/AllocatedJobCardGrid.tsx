@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, IconButton, MenuItem, Select } from "@mui/material";
 import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
@@ -24,12 +24,7 @@ const CreatedJobCardGrid = observer(({ data }: IProp) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
-  const onUpdateStatus = async (jobCardId: string) => {
-    console.log("job card id", jobCardId);
-    // const currentJobCard = store.jobcard.jobcard.getItemById(jobCardId)?.asJson;
-    //  console.log("job card id", currentJobCard);
-    await api.jobcard.jobcard.delete(jobCardId);
-  };
+
   // Function to get the display name based on the assignedTo ID
   const getDisplayName = (assignedToId) => {
     const user = store.user.all.find(
@@ -113,7 +108,8 @@ const CreatedJobCardGrid = observer(({ data }: IProp) => {
 
   const onUpdate = (jobCards: any) => {
     store.jobcard.jobcard.select(jobCards);
-    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+    // store.jobcard.material.select()
+    showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
 
   // const onView = (jobCard: any) => {
@@ -157,6 +153,34 @@ const CreatedJobCardGrid = observer(({ data }: IProp) => {
   function handleFilterChange(arg0: string, value: string): void {
     throw new Error("Function not implemented.");
   }
+
+   useEffect(() => {
+     const selectedJobCard = store.jobcard.jobcard.selected;
+     if (selectedJobCard) {
+       setJobCard(selectedJobCard);
+     }
+     const loadData = async () => {
+       await api.user.getAll();
+       await api.jobcard.jobcard.getAll;
+       const id = jobCard.id;
+       if (id) {
+         console.log("id is true");
+
+         await api.jobcard.material.getAll(id);
+       }
+
+       await api.measure.getAll();
+       await api.department.getAll();
+     };
+     loadData();
+   }, [
+     api.user,
+     api.jobcard,
+     api.department,
+     store.jobcard.jobcard.selected,
+     api.measure,
+     jobCard,
+   ]);
 
   return (
     <>

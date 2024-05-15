@@ -135,9 +135,12 @@ const CreateJobCard = observer(() => {
           disabled={loading}
           type="button"
           data-uk-close></button>
-        <h3 className="main-title-small text-to-break uk-text-bold">
-          Record NewJob Card
-        </h3>
+        <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+          Create New Job card
+        </span>
+        {/* <h3 className="main-title-small text-to-break uk-text-bold">
+          Record New Job Card
+        </h3> */}
 
         <hr />
 
@@ -146,8 +149,8 @@ const CreateJobCard = observer(() => {
             <div>
               {/* Form fields for the first column */}
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
-                <label className="uk-form-label required" htmlFor="division">
-                  Division
+                <label className="uk-form-label" htmlFor="division">
+                  Division<span className="uk-text-danger">*</span>
                 </label>
                 <select
                   className="uk-select"
@@ -167,9 +170,10 @@ const CreateJobCard = observer(() => {
                   {/* Add more options for each division */}
                 </select>
               </div>
+
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label required" htmlFor="division">
-                  Section
+                  Section<span className="uk-text-danger">*</span>
                 </label>
                 <select
                   className="uk-select"
@@ -195,7 +199,7 @@ const CreateJobCard = observer(() => {
 
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label required" htmlFor="">
-                  Urgency
+                  Urgency<span className="uk-text-danger">*</span>
                 </label>
                 <select
                   className="uk-select uk-form-small"
@@ -217,7 +221,7 @@ const CreateJobCard = observer(() => {
               {/* Form fields for the second column */}
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label required" htmlFor="valueDate">
-                  Assign
+                  Assign<span className="uk-text-danger">*</span>
                 </label>
                 <select
                   className="uk-select uk-form-small"
@@ -235,7 +239,7 @@ const CreateJobCard = observer(() => {
               </div>
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label required" htmlFor="dueDate">
-                  Due Date
+                  Due Date<span className="uk-text-danger">*</span>
                 </label>
                 <input
                   className="uk-input uk-form-small"
@@ -258,7 +262,7 @@ const CreateJobCard = observer(() => {
             <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
               {/* Add margin-bottom to create spacing */}
               <label className="uk-form-label required" htmlFor="">
-                Task Description(max char. 30)
+                Task Description <span className="uk-text-danger">*</span>
               </label>
               <textarea
                 className="uk-textarea uk-form-small"
@@ -266,7 +270,6 @@ const CreateJobCard = observer(() => {
                 rows={3}
                 id="task description"
                 value={jobCard.taskDescription}
-                maxLength={30}
                 name={"amount"}
                 onChange={(e) =>
                   setJobCard({
@@ -283,7 +286,7 @@ const CreateJobCard = observer(() => {
               {/* Form fields for the first column */}
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label required" htmlFor="amount">
-                  Full Name
+                  Full Name<span className="uk-text-danger">*</span>
                 </label>
                 <input
                   type="tel"
@@ -304,7 +307,7 @@ const CreateJobCard = observer(() => {
                 <label
                   className="uk-form-label required"
                   htmlFor="client-mobile">
-                  Cellphone Number
+                  Cellphone Number <span className="uk-text-danger">*</span>
                 </label>
                 <input
                   type="tel"
@@ -337,7 +340,7 @@ const CreateJobCard = observer(() => {
 
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label" htmlFor="">
-                  Client Email
+                  Client Email<span className="uk-text-danger">*</span>
                 </label>
                 <input
                   type="email"
@@ -375,14 +378,13 @@ const CreateJobCard = observer(() => {
                       clientAddress: e.target.value,
                     })
                   }
-                  required
                 />
               </div>
 
               {/* Add margin-bottom to create spacing */}
               <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
                 <label className="uk-form-label" htmlFor="">
-                  Type of work
+                  Type of work<span className="uk-text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -399,33 +401,11 @@ const CreateJobCard = observer(() => {
                   required
                 />
               </div>
-
-              {/* Add margin-bottom to create spacing */}
-              {/* <div className="uk-grid uk-grid-small uk-grid-match uk-child-width-1-1 uk-width-1-1 uk-margin-bottom">
-               
-
-                <div className="uk-form-controls uk-width-1-1 ">
-                  <input
-                    type="text"
-                    className="uk-input uk-form-small"
-                    id="type-of-work"
-                    placeholder="Type of Work"
-                    value={jobCard.typeOfWork}
-                    onChange={(e) =>
-                      setJobCard({
-                        ...jobCard,
-                        typeOfWork: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div> */}
             </div>
             <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
               {/* Add margin-bottom to create spacing */}
               <label className="uk-form-label required" htmlFor="">
-                Remarks(max char. 30)
+                Remarks
               </label>
               <textarea
                 className="uk-textarea uk-form-small"
@@ -440,7 +420,6 @@ const CreateJobCard = observer(() => {
                     remark: e.target.value,
                   })
                 }
-                required
               />
             </div>
           </div>

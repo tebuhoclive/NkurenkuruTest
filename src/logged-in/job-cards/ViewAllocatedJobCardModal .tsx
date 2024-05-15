@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, FormEvent } from "react";
 import { useAppContext } from "../../shared/functions/Context";
-
+import logo from "../job-cards/images/logo512.png";
 import MODAL_NAMES from "../dialogs/ModalName";
 import showModalFromId, {
   hideModalFromId,
@@ -18,7 +18,6 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
-import { MaterialsGrid } from "./grids/MaterialsGrid";
 import SingleSelect, {
   IOption,
 } from "../../shared/components/single-select/SingleSelect";
@@ -27,18 +26,19 @@ import {
   IMaterial,
   defaultMaterial,
 } from "../../shared/models/job-card-model/Material";
-import { Console } from "console";
-import MaterialTable from "./grids/MaterialTable";
 
-const AllocateJobCardModal = observer(() => {
+import MaterialTable from "./grids/MaterialTable";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+const ViewAllocatedJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
   const [artesianValue, setArtesianValue] = useState(""); // State for Artesian input
   const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
   const [teamMemberValue, setTeamMemberValue] = useState(""); // State for Team Member input
-  const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
 
   // Additional state or logic specific to Step 2
 
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
 
@@ -52,7 +52,11 @@ const AllocateJobCardModal = observer(() => {
     setJobCard({ ...jobCard, teamLeader: value });
     // Additional logic if needed
   };
-
+  // const handleTeamMemberChange = (value) => {
+  //   setTeamMemberValue(value);
+  //   setJobCard({ ...jobCard, teamMember: value });
+  //   // Additional logic if needed
+  // };
   const handleTeamMemberChange = (selectedOptions) => {
     // selectedOptions is an array containing the selected option objects
     // You can access the selected values and perform any necessary actions
@@ -74,10 +78,6 @@ const AllocateJobCardModal = observer(() => {
   const materialCost = store.jobcard.material.all;
 
   //calculate material cost
-  // test store
-  const currentid = jobCard.id;
-  const allMaterial = store.jobcard.material.getAllMaterialById(currentid);
-  console.log("Current id ", allMaterial);
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
@@ -96,19 +96,39 @@ const AllocateJobCardModal = observer(() => {
       }),
     [users]
   );
+  // const measureOptions: IOption[] = useMemo(
+  //   () =>
+  //     measure.map((measure) => {
+  //       return {
+  //         label: measure.asJson.description || "",
+  //         value: measure.asJson.uid,
+  //       };
+  //     }),
+  //   [measure]
+  // );
+
+  const staticMeasures = [
+    { label: "Measure 1", value: "measure1" },
+    { label: "Measure 2", value: "measure2" },
+    { label: "Measure 3", value: "measure3" },
+    // Add more measures as needed
+  ];
+
   const measureOptions: IOption[] = useMemo(
     () =>
-      measure.map((measure) => {
+      staticMeasures.map((measure) => {
         return {
-          label: measure.asJson.description || "",
-          value: measure.asJson.uid,
+          label: measure.label,
+          value: measure.value,
         };
       }),
-    [measure]
+    [] // No dependencies since staticMeasures is not expected to change
   );
 
+const currentMeasure=store.measure
   // const taskList = store.jobcard.task.all;
   const materialList = store.jobcard.material.all;
+
   const currentMaterialList = materialList.filter(
     (material) => material.jId === jobCard.id
   );
@@ -132,25 +152,192 @@ const AllocateJobCardModal = observer(() => {
       // Handle errors appropriately
       console.error("Error submitting form:", error);
     } finally {
-      SendEmailNotification();
       onCancel();
       setLoading(false);
-      store.jobcard.material.clearSelected();
-      store.jobcard.jobcard.clearSelected();
     }
+  };
+
+  // Function to get base64 image from URL
+  const getBase64ImageFromURL = (url: string) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+
+        const dataURL = canvas.toDataURL("image/png");
+
+        resolve(dataURL);
+      };
+
+      img.onerror = (error) => {
+        reject(error);
+      };
+
+      img.src = url;
+    });
+  };
+
+  // Register fonts with pdfMake
+  pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+
+
+  const generatePDF = async () => {
+    const dataURL = await getBase64ImageFromURL(logo);
+    const docDefinition: any = {
+      content: [
+        {
+          columns: [
+            {
+              image: dataURL,
+              fit: [100, 100], // Adjust fit as needed
+              alignment: "center",
+            },
+          ],
+        },
+        { text: "JOB CARD FOR MUNICIPAL SERVICES", style: "header" },
+        {
+          text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
+          style: "italic",
+        },
+
+        {
+          columns: [
+            { text: "Job Card Details: " + jobCard.uniqueId },
+            { text: "Date and Time logged: " + jobCard.dateIssued },
+          ],
+        },
+        "\n",
+        {
+          columns: [
+            {
+              table: {
+                widths: ["30%", "70%"],
+                body: [
+                  [
+                    { text: "Assigned To:", bold: true },
+                    getDisplayName(jobCard.assignedTo),
+                  ],
+                  [{ text: "Section:", bold: true }, jobCard.section],
+                  [{ text: "Division:", bold: true }, jobCard.division],
+                  [{ text: "Urgency:", bold: true }, jobCard.urgency],
+                  [{ text: "Unique ID:", bold: true }, jobCard.uniqueId],
+                  [
+                    { text: "Task Description:", bold: true },
+                    jobCard.taskDescription,
+                  ],
+                  [{ text: "Due Date:", bold: true }, jobCard.dueDate],
+                ],
+              },
+            },
+          ],
+        },
+        "\n",
+        { text: "Client Details: " },
+        {
+          table: {
+            widths: ["30%", "70%"],
+            body: [
+              [{ text: "Full Name:", bold: true }, jobCard.clientFullName],
+              [{ text: "Address:", bold: true }, jobCard.clientAddress],
+              [{ text: "Phone No.:", bold: true }, jobCard.clientMobileNumber],
+              [{ text: "Email:", bold: true }, jobCard.clientEmail],
+            ],
+          },
+        },
+        "\n",
+        { text: "Team Details: " },
+        {
+          columns: [
+            {
+              table: {
+                widths: ["30%", "70%"],
+                body: [
+                  [
+                    { text: "Team Leader:", bold: true },
+                    getDisplayName(jobCard.teamLeader),
+                  ],
+                  [
+                    { text: "Artesian:", bold: true },
+                    getDisplayName(jobCard.artesian),
+                  ],
+                  [
+                    { text: "Team Members:", bold: true },
+                    {
+                      ul: jobCard.teamMembers.map((member) =>
+                        getDisplayName(member)
+                      ),
+                    },
+                  ],
+                  [{ text: "KPI Measure:", bold: true }, jobCard.measure],
+                  // Add more rows as needed
+                ],
+              },
+            },
+          ],
+        },
+
+        {
+          text: "Material List",
+        },
+        "\n",
+        // Add material list here
+        {
+          table: {
+            widths: ["auto", "*", "auto"], // Adjust column widths as needed
+            body: [
+              [
+                { text: "Quantity", bold: true },
+                { text: "Name", bold: true },
+                { text: "Unit Cost", bold: true },
+              ],
+              ...materialList.map((material) => [
+                material.quantity,
+                material.name,
+                material.unitCost,
+              ]),
+            ],
+          },
+        },
+
+        
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: "center",
+          margin: [0, 0, 0, 10],
+        },
+        italic: {
+          fontStyle: "italic",
+          margin: [0, 0, 0, 10],
+        },
+        remarks: {
+          margin: [0, 10, 0, 0],
+        },
+      },
+    };
+
+    pdfMake.createPdf(docDefinition).download("job_card.pdf");
   };
 
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();
     store.jobcard.material.clearSelected();
     setJobCard({ ...defaultJobCard });
-    hideModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+    hideModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
 
   // code for adding material
   const [showMaterialForm, setShowMaterialForm] = useState(false);
-  // code for adding material
-  const [showEditMaterialForm, setShowEditMaterialForm] = useState(false);
   const [newMaterial, setNewMaterial] = useState<IMaterial>({
     ...defaultMaterial,
   });
@@ -171,12 +358,12 @@ const AllocateJobCardModal = observer(() => {
       setQuantityErrorMessage("Quantity must be a positive number.");
       return; // Exit function if validation fails
     }
-    const updatedMaterial = { ...newMaterial, jId: jobCard.id };
+
     try {
       // Create the material on the server
       const id = jobCard.id;
       await api.jobcard.material.create(
-        updatedMaterial,
+        newMaterial,
         id
         // jobCard.id
       );
@@ -188,59 +375,13 @@ const AllocateJobCardModal = observer(() => {
       console.error("Error submitting form:", error);
     } finally {
       setLoading(false); // Make sure to reset loading state regardless of success or failure
-      // onCancel();
+      onCancel();
     }
     // Clear any previous error messages
     setUnitCostErrorMessage("");
     setQuantityErrorMessage("");
 
     setShowMaterialForm(false);
-  };
-
-  // Define function to handle changes in unit cost
-  // State variables
-  const [unitCostErrorMessage, setUnitCostErrorMessage] = useState("");
-  const [quantityErrorMessage, setQuantityErrorMessage] = useState("");
-  const [reworked, setReworked] = useState("No");
-
-  // Define function to handle changes in unit cost
-
-  const handleMaterialNameChangeOnEdit = (e) => {
-    const value = e.target.value;
-    setMaterial({
-      ...material,
-      name: value,
-    });
-  };
-  const handleUnitCostChangeOnEdit = (value) => {
-    // Ensure value is not negative or zero
-    if (value <= 0 || isNaN(value)) {
-      // Display error message
-      setUnitCostErrorMessage("Unit cost must be a positive number.");
-      return;
-    }
-    // Clear error message
-    setUnitCostErrorMessage("");
-    // Update state with new unit cost value
-    setMaterial({
-      ...material,
-      unitCost: value,
-    });
-  };
-  const handleQuantityChangeOnEdit = (value) => {
-    // Ensure value is not negative or zero
-    if (value <= 0 || isNaN(value)) {
-      // Display error message
-      setQuantityErrorMessage("Quantity must be a positive number.");
-      return;
-    }
-    // Clear error message
-    setQuantityErrorMessage("");
-    // Update state with new quantity value
-    setMaterial({
-      ...material,
-      quantity: value,
-    });
   };
 
   // Function to handle changes for Material Name
@@ -251,6 +392,13 @@ const AllocateJobCardModal = observer(() => {
       name: value,
     });
   };
+
+  // Define function to handle changes in unit cost
+  // State variables
+  const [unitCostErrorMessage, setUnitCostErrorMessage] = useState("");
+  const [quantityErrorMessage, setQuantityErrorMessage] = useState("");
+
+  // Define function to handle changes in unit cost
   const handleUnitCostChange = (value) => {
     // Ensure value is not negative or zero
     if (value <= 0 || isNaN(value)) {
@@ -266,6 +414,7 @@ const AllocateJobCardModal = observer(() => {
       unitCost: value,
     });
   };
+
   // Define function to handle changes in quantity
   const handleQuantityChange = (value) => {
     // Ensure value is not negative or zero
@@ -283,63 +432,6 @@ const AllocateJobCardModal = observer(() => {
     });
   };
 
-  const SendEmailNotification = async () => {
-    try {
-      const htmlContent = `
-      <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0;">
-        <div style="max-width: 1200px; margin: 20px auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 20px; text-align: left;">
-          <h2 style="color: #333333; margin-bottom: 10px;">Dear ${getDisplayName(
-            jobCard.assignedTo
-          )},</h2>
-          <!-- Add your simple text content here -->
-          <p style="color: #666666; font-size: 14px; margin-top: 10px;">
-            <br />
-            <br />
-            You have been assigned to a job card on the performance management system. Please login to review and get details about the job card.
-            <br />
-            Kind regards,
-            <br />
-          </p>
-          <p>Please contact us if you have any queries or require further information.</p>
-          <p style="color: #666666; font-size: 14px;">Thank you for your business.</p>
-          <div style="margin-top: 10px; font-style: italic; color: #999999;">
-            <p style="font-size: 12px;">Kind regards,<br />IJG</p>
-          </div>
-        </div>
-      </body>
-    `;
-      const to = "tebuhoclive14@gmail.com";
-      const from = "tebuhoclive14@gmail.com";
-      const subject = "PMS Job Card Allocation";
-
-      const response = await fetch(
-        "https://us-central1-functions-918c1.cloudfunctions.net/sendNotificationEmail",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            htmlContent: htmlContent,
-            subject: subject,
-            to: to,
-            from: from,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        // Email sent successfully
-        console.log("Email sent successfully");
-      } else {
-        // Email sending failed
-        console.error("Error sending email:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
-  };
-
   // Function to get the display name based on the assignedTo ID
   const getDisplayName = (assignedToId) => {
     const user = store.user.all.find(
@@ -348,9 +440,7 @@ const AllocateJobCardModal = observer(() => {
     return user ? user.asJson.displayName : "Unknown";
   };
 
-  const onDeleteMaterial = async (e, materialId: string) => {
-    e.preventDefault(); // Prevent default form submission behavior
-
+  const onDeleteMaterial = async (materialId: string) => {
     try {
       // Delete the material on the server
       await api.jobcard.material.delete(materialId, jobCard.id);
@@ -358,33 +448,36 @@ const AllocateJobCardModal = observer(() => {
       console.error("Error deleting material:", error);
     }
   };
- const onEditMaterial = async (e) => {
-       e.preventDefault(); // Prevent default form submission behavior
 
-       try {
-
-        if(material && jobCard){
-          // Update the material on the server
-          await api.jobcard.material.update(material, jobCard.id);
-        }
-       setShowEditMaterialForm(false);
-       } catch (error) {
-         console.error("Error updating material:", error);
-       }
-        
-     };
-
-
-  const handleEdit = async (material: IMaterial) => {
-    if (material) {
-      setMaterial(material);
-      setShowEditMaterialForm(true)
+  const handleEdit = async (materialId: string) => {
+    if (materialId) {
+      const currentMaterial = store.jobcard.material.getById(materialId);
+      store.jobcard.material.select(currentMaterial);
+      store.jobcard.jobcard.select(jobCard);
     }
     try {
+      showModalFromId(MODAL_NAMES.EXECUTION.ONEDITMATERIAL_MODAL);
     } catch (error) {
       console.error("Error deleting material:", error);
     }
   };
+
+  const handleExportToPDF = () => {
+    // Your logic for exporting to PDF goes here
+  };
+
+  const handleDeleteJobCard = () => {
+    // Your logic for deleting the job card goes here
+  };
+
+  const handleMarkAsCompleted = () => {
+    // Your logic for marking the job card as completed goes here
+  };
+
+  const handleFeedbackAndComments = () => {
+    // Your logic for handling feedback and comments goes here
+  };
+
   useEffect(() => {
     const selectedJobCard = store.jobcard.jobcard.selected;
     if (selectedJobCard) {
@@ -396,8 +489,10 @@ const AllocateJobCardModal = observer(() => {
       const id = jobCard.id;
       if (id) {
         console.log("id is true");
+
         await api.jobcard.material.getAll(id);
       }
+
       await api.measure.getAll();
       await api.department.getAll();
     };
@@ -422,18 +517,17 @@ const AllocateJobCardModal = observer(() => {
           disabled={loading}
           type="button"
           data-uk-close></button>
-        {/* <h3 className="main-title-small text-to-break"> Job Card Allocation</h3> */}
-        <span style={{ fontSize: "1.4rem", fontWeight: "bold" }}>
-          Allocate Job card
-        </span>
+        <h3 className="main-title-small text-to-break">
+          {" "}
+          Job Card Allocation view
+        </h3>
         <hr />
 
         <div className="uk-grid">
           <div className="uk-width-1-3">
             {jobCard && (
               <div className="uk-width-1-1 uk-margin-medium-top">
-                <h4 style={{ fontWeight: "bold" }}>Job Card Details</h4>
-
+                <h4>Selected Job Card Details</h4>
                 <div className="uk-grid uk-grid-small" data-uk-grid>
                   <div className="uk-width-1-3">
                     <p>Assigned To:</p>
@@ -486,16 +580,12 @@ const AllocateJobCardModal = observer(() => {
                   <div className="uk-width-1-1">
                     <p>{jobCard.dueDate}</p>
                   </div>
-                  <hr className="uk-width-1-1" />
                 </div>
               </div>
             )}
             {jobCard && (
               <div className="uk-width-1-1 uk-margin-large-top">
-                <h4 style={{ fontWeight: "bold" }}>Job Card Client Details</h4>
-                {/* <span style={{ fontSize: "1.3rem", fontWeight: "bold" }}>
-                  Job Card Client Details
-                </span> */}
+                <h4>Selected Job Card Client Details</h4>
                 <div className="uk-grid uk-grid-small" data-uk-grid>
                   <div className="uk-width-1-3">
                     <p>Full Name:</p>
@@ -527,15 +617,14 @@ const AllocateJobCardModal = observer(() => {
                   <div className="uk-width-2-3">
                     <p>{jobCard.clientEmail}</p>
                   </div>
+                  <hr className="uk-width-1-1" />
                 </div>
               </div>
             )}
           </div>
 
           <div className="dialog-content uk-position-relative uk-width-2-3">
-            <h4 style={{ fontWeight: "bold" }}>
-              Job Card Management and allocation
-            </h4>
+            <h4>Job Card Management and allocation</h4>
 
             <hr />
             <form
@@ -603,33 +692,22 @@ const AllocateJobCardModal = observer(() => {
                   </div>
                 </div>
               </>
-              <div className="uk-form-controls uk-width-1-2 uk-margin-bottom uk-margin-top">
-                <label className="uk-form-label" htmlFor="reworked">
-                  Re-worked Job Card :<span className="uk-text-danger">*</span>
-                </label>
-                <select
-                  id="reworked"
-                  className="uk-select"
-                  value={reworked}
-                  required
-                  onChange={(e) =>
-                    setJobCard({
-                      ...jobCard,
-                      reworked: e.target.value,
-                    })
-                  }>
-                  <option value="no">No</option>
-                  <option value="">Yes</option>
-                </select>
-              </div>
 
               <div className="uk-width-1-2 uk-margin">
                 <div className="uk-margin">
                   <label htmlFor="issuedTime">
-                    Select team Member(s){" "}
+                    Select team Member(s)
                     <span className="uk-text-danger">*</span>
                   </label>
                   <div className="uk-form-controls">
+                    {/* <SingleSelect
+                          name="search-team"
+                          options={options}
+                          width="250px"
+                          onChange={handleTeamMemberChange}
+                          placeholder="Search by name"
+                          value={teamMemberValue}
+                        /> */}
                     <Select
                       defaultValue={[]}
                       isMulti
@@ -646,15 +724,20 @@ const AllocateJobCardModal = observer(() => {
 
               <div className="uk-grid">
                 <div className="uk-width-1-1">
-                  <h3>Material List</h3>
-                  {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
-                  <MaterialTable
-                    materialList={currentMaterialList}
-                    handleEdit={handleEdit}
-                    onDeleteMaterial={onDeleteMaterial}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                  />
+                  {currentMaterialList.length !== 0 && (
+                    <>
+                      {" "}
+                      <h3>Material List</h3>
+                      <MaterialTable
+                        materialList={currentMaterialList}
+                        handleEdit={handleEdit}
+                        onDeleteMaterial={onDeleteMaterial}
+                        defaultPage={1} // Specify the default page number
+                        defaultItemsPerPage={5} // Specify the default items per page
+                      />
+                    </>
+                  )}
+
                   {!showMaterialForm && jobCard.isAllocated !== true && (
                     <div
                       className="uk-width-1-1 uk-text-right"
@@ -668,78 +751,6 @@ const AllocateJobCardModal = observer(() => {
                           className="icon uk-margin-small-right"
                         />
                       </button>
-                    </div>
-                  )}
-                  {showEditMaterialForm && (
-                    <div>
-                      <h4>Edit Material Form</h4>
-                      <div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialName">
-                            Material Name:
-                          </label>
-                          <input
-                            type="text"
-                            id="materialName"
-                            name="name"
-                            value={material.name}
-                            onChange={(value) =>
-                              handleMaterialNameChangeOnEdit(value)
-                            }
-                            className="uk-input"
-                          />
-                        </div>
-                        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
-                          <label
-                            className="uk-form-label required"
-                            htmlFor="amount">
-                            Cost Amount (min N$ 1 000.00)
-                          </label>
-                          <NumberInput
-                            id="amount"
-                            className="auto-save uk-input purchase-input uk-form-small"
-                            placeholder="-"
-                            value={material.unitCost}
-                            onChange={(value) =>
-                              handleUnitCostChangeOnEdit(value)
-                            }
-                            decimalScale={2}
-                          />
-                          {unitCostErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{unitCostErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialQuantity">
-                            Quantity:
-                          </label>
-                          <NumberInput
-                            id="materialQuantity"
-                            className="uk-input"
-                            value={material.quantity}
-                            onChange={(value) =>
-                              handleQuantityChangeOnEdit(value)
-                            }
-                          />
-                          {quantityErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{quantityErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          onClick={onEditMaterial}
-                          className="btn btn-primary">
-                          Edit Material
-                        </button>
-                      </div>
                     </div>
                   )}
                   {showMaterialForm && (
@@ -757,7 +768,6 @@ const AllocateJobCardModal = observer(() => {
                             id="materialName"
                             name="name"
                             value={newMaterial.name}
-                            onChange={handleMaterialNameChange}
                             className="uk-input"
                           />
                         </div>
@@ -765,7 +775,7 @@ const AllocateJobCardModal = observer(() => {
                           <label
                             className="uk-form-label required"
                             htmlFor="amount">
-                            Cost Amount (min N$ 1 000.00)
+                            Cost Amount (min N$ cannot be less than 0)
                           </label>
                           <NumberInput
                             id="amount"
@@ -839,6 +849,45 @@ const AllocateJobCardModal = observer(() => {
                       {loading && <div data-uk-spinner="ratio: .5"></div>}
                     </button>
                   )}
+
+                  {jobCard.isAllocated === true && (
+                    <div
+                      className="uk-width-1-1 uk-text-right"
+                      style={{ marginTop: "100px" }}>
+                      <button
+                        className="btn btn-primary uk-margin-right"
+                        type="button"
+                        disabled={loading}
+                        onClick={generatePDF}>
+                        Exported to pdf{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      <button
+                        className="btn btn-primary uk-margin-right"
+                        type="button"
+                        disabled={loading}
+                        onClick={handleDeleteJobCard}>
+                        Delete Job Card{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      <button
+                        className="btn btn-primary uk-margin-right"
+                        type="button"
+                        disabled={loading}
+                        onClick={handleMarkAsCompleted}>
+                        Mark As completed{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        type="button"
+                        disabled={loading}
+                        onClick={handleFeedbackAndComments}>
+                        Feedback & Comments{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </form>
@@ -849,4 +898,4 @@ const AllocateJobCardModal = observer(() => {
   );
 });
 
-export default AllocateJobCardModal;
+export default ViewAllocatedJobCardModal;

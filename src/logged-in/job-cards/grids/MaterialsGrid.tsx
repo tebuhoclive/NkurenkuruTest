@@ -8,6 +8,8 @@ import { Delete, Edit } from "@mui/icons-material";
 import { Box, IconButton } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 interface IProps {
   data: IMaterial[];
@@ -65,14 +67,18 @@ const columns: GridColDef[] = [
     renderCell: (params) => (
       <div>
         {/* Edit Button */}
-        <IconButton aria-label="edit" onClick={() => handleEdit(params.row.id)}>
+        <IconButton
+          aria-label="edit"
+          onClick={() => handleEdit(params.row.id)}
+          style={{ color: "black", padding: "8px", fontSize: "0.8rem" }}>
           <Edit />
         </IconButton>
         {/* Delete Button */}
         <IconButton
           aria-label="delete"
-          onClick={() => onDeleteMaterial(params.row.id)}>
-          <Delete />
+          onClick={() => onDeleteMaterial(params.row.id)}
+          style={{ color: "black", padding: "8px", fontSize: "1rem" }}>
+          <FontAwesomeIcon icon={faTrashAlt} />
         </IconButton>
       </div>
     ),
@@ -81,13 +87,13 @@ const columns: GridColDef[] = [
 
   return (
     <div className="grid">
-      <Box sx={{ height: 300 }}>
+      <Box sx={{ height: 280 }}>
         <DataGrid
           loading={!data}
           rows={data}
           columns={columns}
           getRowId={(row) => row.id} // Use the appropriate identifier property
-          rowHeight={40}
+          rowHeight={30}
         />
       </Box>
     </div>

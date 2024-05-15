@@ -2,6 +2,7 @@ import { runInAction } from "mobx";
 import AppStore from "../AppStore";
 import Store from "../Store";
 import { IMaterial } from "../../models/job-card-model/Material";
+import { sortAlphabetically } from "../../../logged-in/shared/utils/utils";
 
 
 export default class MaterialStore extends Store<IMaterial, IMaterial> {
@@ -16,5 +17,14 @@ export default class MaterialStore extends Store<IMaterial, IMaterial> {
     runInAction(() => {
       items.forEach((item) => this.items.set(item.id, item));
     });
+  }
+
+  // get all measures by uid
+  getAllMaterialById(uid: string) {
+    return this.all
+      .filter((item) => item.id === uid)
+      .sort((a, b) =>
+        sortAlphabetically(a.id, b.id)
+      );
   }
 }

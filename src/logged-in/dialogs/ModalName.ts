@@ -80,6 +80,7 @@ const MODAL_NAMES = {
     EDITJOBCARD_MODAL: "edit-jobcard-modal",
     JOBCARDFEEDBACK_MODAL: "jobcard-feedback--modal",
     ALLOCATEJOBCARD_MODAL: "allocate-jobcard-modal",
+    VIEWALLOCATEDJOBCARD_MODAL: "view-allocated-jobcard-modal",
     ADDJOBCARDMATERIAL_MODAL: "add-material-modal",
     ONEDITMATERIAL_MODAL: "edit-material-modal",
   },

@@ -20,9 +20,11 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
 
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
 
-
-  // Function to get the display name based on the assignedTo ID
-  const getDisplayName = (assignedToId) => {
+const onUpdate = (jobCards: any) => {
+  store.jobcard.jobcard.select(jobCards);
+  showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+};
+const getDisplayName = (assignedToId) => {
     const user = store.user.all.find(
       (user) => user.asJson.uid === assignedToId
     );
@@ -102,48 +104,7 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
     },
   ];
 
-  const onUpdate = (jobCards: any) => {
-    store.jobcard.jobcard.select(jobCards);
-    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
-  };
-
-  // const onView = (jobCard: any) => {
-  //   store.jobcard.jobcard.select(jobCard);
-  //   showModalFromId(MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL);
-  // };
-
-  // const onDelete = (jobCard: any) => {
-  //   // Show a confirmation dialog
-  //   swal({
-  //     title: "Are you sure?",
-  //     text: "Once deleted, you will not be able to recover this job card!",
-  //     icon: "warning",
-  //     buttons: ["Cancel", "Delete"],
-  //     dangerMode: true,
-  //   }).then((willDelete) => {
-  //     if (willDelete) {
-  //       try {
-  //         deleteJobCard(jobCard);
-  //         swal({
-  //           title: "Job Card Deleted!",
-  //           icon: "success",
-  //         });
-  //       } catch (error) {
-  //         console.log("Error: " + error);
-  //       }
-  //     } else {
-  //       swal("Cancelled!");
-  //     }
-  //   });
-  // };
-
-  // const deleteJobCard = async (jobCard: any) => {
-  //   try {
-  //     await api.jobcard.jobcard.delete(jobCard.id);
-  //   } catch (error) {
-  //     console.log("Error" + error);
-  //   }
-  // };
+  
 
   function handleFilterChange(arg0: string, value: string): void {
     throw new Error("Function not implemented.");
@@ -164,10 +125,10 @@ const CreatedJobCardGrid= observer(({ data }: IProp) => {
                   onChange={(e) =>
                     handleFilterChange("stringValueB", e.target.value)
                   }>
-                  <option value="">Click select transaction type</option>
+                  <option value="">filter By Urgency  </option>
                   <option value="Normal">Normal</option>
-                  <option value="High Value">High value</option>
-                  <option value="ZAR">ZAR</option>
+                  <option value="Urgent">Urgent</option>
+                  <option value="Very Urgent">Very Urgent</option>
                   <option value="Both">All</option>
                 </select>
               </div>

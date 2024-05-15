@@ -23,6 +23,14 @@ import JobCardGridTabs from "./JobCardGridTabs";
 import CreatedJobCardGrid from "../grids/CreatedJobCardGrid";
 import AllocatedJobCardGrid from "../grids/AllocatedJobCardGrid";
 import AllocateJobCardModal from "../AllocateJobCardModal";
+import ViewAllocatedJobCardModal from "../ViewAllocatedJobCardModal ";
+import MaterialTable from "../grids/MaterialTable";
+import JobCardTable from "../grids/JobCardTable";
+import showModalFromId from "../../../shared/functions/ModalShow";
+import { moneyFormat } from "../../project-management/utils/formats";
+
+import { getProgressColors } from "../../project-management/utils/common";
+import { CircularProgressbar } from "react-circular-progressbar";
 
 const JobCardDashboardGrids = observer(() => {
   const { api, store } = useAppContext();
@@ -46,12 +54,27 @@ const JobCardDashboardGrids = observer(() => {
   const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
     return job.asJson.status === "Not Started";
   });
-  const totalPendingJobcards = pendingJobcards.length;
+  const totalAllocatedJobcards = allocatedJobCards.length;
 
   const completedJobcards = store.jobcard.jobcard.all.filter((job) => {
     return job.asJson.status === "Completed";
   });
   const totalCompletedJobcards = completedJobcards.length;
+
+
+  const onViewCreated = (selectedJobCard: IJobCard) => {
+  console.log("selected job card",selectedJobCard);
+  store.jobcard.jobcard.select(selectedJobCard);
+
+    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+  };
+
+   const onViewAllocated = (selectedJobCard: IJobCard) => {
+     console.log("selected job card", selectedJobCard);
+     store.jobcard.jobcard.select(selectedJobCard);
+
+     showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
+   };
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,8 +96,37 @@ const JobCardDashboardGrids = observer(() => {
         {/* <h1>Job Card Dashboard</h1> */}
 
         {/* Job Cards Statistics */}
+        <div className="basic-statistics">
+          <div className="s-item">
+            <div className="content">
+              <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                {Math.round(totalJobcards)}
+              </span>
+              <br />
+              <span>Total Created</span>
+            </div>
+          </div>
+          <div className="s-item">
+            <div className="content">
+              <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                {Math.round(totalAllocatedJobcards)}
+              </span>
+              <br />
+              <span>All Allocated</span>
+            </div>
+          </div>
+          <div className="s-item">
+            <div className="content">
+              <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                {Math.round(totalCompletedJobcards)}
+              </span>
+              <br />
+              <span>Completed</span>
+            </div>
+          </div>
+        </div>
 
-        <div className="uk-child-width-expand" data-uk-grid>
+        {/* <div className="uk-child-width-expand" data-uk-grid>
           <div className="uk-child-width-expand">
             <DashboardCard
               cardValue={totalJobcards}
@@ -85,7 +137,7 @@ const JobCardDashboardGrids = observer(() => {
           </div>
           <div className="">
             <DashboardCard
-              cardValue={totalPendingJobcards}
+              cardValue={totalAllocatedJobcards}
               cardTitle="Allocated"
               cardLink="/members/terminated"
               cardColour={{ background: "#FF326E" }}
@@ -99,7 +151,7 @@ const JobCardDashboardGrids = observer(() => {
               cardColour={{ background: "green" }}
             />
           </div>
-        </div>
+        </div> */}
 
         <JobCardGridTabs
           selectedTab={selectedTab}
@@ -108,12 +160,35 @@ const JobCardDashboardGrids = observer(() => {
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
         <ErrorBoundary>
           {!loading && selectedTab === "strategy-tab" && (
-            <CreatedJobCardGrid data={JobCards} />
+            <>
+              {" "}
+              <JobCardTable
+                jobCards={JobCards}
+                handleEdit={onViewCreated}
+                onView={onViewCreated}
+                defaultPage={1} // Specify the default page number
+                defaultItemsPerPage={5} // Specify the default items per page
+              />
+            </>
           )}
           {!loading && selectedTab === "department-tab" && (
-            <AllocatedJobCardGrid data={allocatedJobCards} />
+            <JobCardTable
+              jobCards={allocatedJobCards}
+              handleEdit={onViewCreated}
+              onView={onViewAllocated}
+              defaultPage={1} // Specify the default page number
+              defaultItemsPerPage={5} // Specify the default items per page
+            />
           )}
-          {!loading && selectedTab === "people-tab" && <CreateJobCard />}
+          {!loading && selectedTab === "people-tab" && (
+            <JobCardTable
+              jobCards={completedJobcards}
+              handleEdit={onViewCreated}
+              onView={onViewAllocated}
+              defaultPage={1} // Specify the default page number
+              defaultItemsPerPage={5} // Specify the default items per page
+            />
+          )}
           {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
         </ErrorBoundary>
       </div>
@@ -126,6 +201,9 @@ const JobCardDashboardGrids = observer(() => {
       </Modal>
       <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
         <AllocateJobCardModal />
+      </Modal>
+      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL}>
+        <ViewAllocatedJobCardModal />
       </Modal>
     </ErrorBoundary>
   );

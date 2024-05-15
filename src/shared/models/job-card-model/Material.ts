@@ -3,16 +3,18 @@ import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
 export const defaultMaterial: IMaterial = {
-    id: "",
-    quantity: 0,
-     name: "",
-    unitCost: 0,
-  };
+  id: "",
+  quantity: 0,
+  name: "",
+  unitCost: 0,
+  jId: ""
+};
   export interface IMaterial {
     id: string;
     name: string;
     unitCost: number;
     quantity: number;
+    jId?: string
   };
   
 export default class Material {

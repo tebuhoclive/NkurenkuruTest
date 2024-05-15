@@ -42,7 +42,8 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     teamMembers: [],
     remark: "",
     measure: "",
-    acknowledged: false
+    acknowledged: false,
+    reworked: ""
   };
 export interface IJobCard {
   id: string;
@@ -68,17 +69,18 @@ export interface IJobCard {
   clientEmail: string;
   erf: string;
   typeOfWork: string;
-  artesian:string;
-  teamLeader:string;
-  teamMembers?:string[];
-  remark:string;
-  measure:string;
-  isAllocated?:boolean
-  comment?:string
+  artesian: string;
+  teamLeader: string;
+  teamMembers?: string[];
+  remark: string;
+  measure: string;
+  isAllocated?: boolean;
+  comment?: string;
+  reworked:string;
 }
   export default class JobCardModel {
     private JobCard: IJobCard;
-    status: string | number | readonly string[] | undefined;
+   
   
     constructor(private store: AppStore, JobCard: IJobCard) {
       makeAutoObservable(this);
@@ -89,3 +91,4 @@ export interface IJobCard {
       return toJS(this.JobCard);
     }
 }
+

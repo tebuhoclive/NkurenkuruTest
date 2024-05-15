@@ -2,6 +2,8 @@ import { FC } from "react";
 import { Chart as ChartJS, BarElement, CategoryScale, Legend, LinearScale, Title, Tooltip } from "chart.js";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 import { IProject } from "../../../shared/models/ProjectManagement";
+import { IJobCard } from "../../../shared/models/job-card-model/Jobcard";
+
 
 ChartJS.register(
     CategoryScale,
@@ -221,6 +223,44 @@ export const ProjectBudgetChart: FC<ProjectProps> = ({ projects }) => {
         <Bar options={options} data={data1} />
     );
 }
+
+
+
+interface JobCardProps {
+  jobCard: IJobCard[];
+}
+export const JobCardBarChart: FC<JobCardProps> = ({ jobCard }) => {
+  const options = {
+    elements: {
+      bar: {
+        borderWidth: 1,
+      },
+    },
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+    },
+  };
+
+  const labels = jobCard.map((p) => p.section);
+
+  const data1 = {
+    labels,
+    datasets: [
+      {
+        label: "Job Card Costs",
+        data: jobCard.map((p) => p.jobcardCost),
+        backgroundColor: "#84cbe9",
+        barPercentage: 0.2,
+      },
+    ],
+  };
+  return <Bar options={options} data={data1} />;
+};
+
+
+
 
 type StatusProps = {
     status: { active: number, onHold: number, atRisk: number, completed: number };
