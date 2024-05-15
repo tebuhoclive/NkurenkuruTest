@@ -125,7 +125,7 @@ const ViewAllocatedJobCardModal = observer(() => {
     [] // No dependencies since staticMeasures is not expected to change
   );
 
-const currentMeasure=store.measure
+  const currentMeasure = store.measure;
   // const taskList = store.jobcard.task.all;
   const materialList = store.jobcard.material.all;
 
@@ -186,8 +186,6 @@ const currentMeasure=store.measure
 
   // Register fonts with pdfMake
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
-
-
 
   const generatePDF = async () => {
     const dataURL = await getBase64ImageFromURL(logo);
@@ -306,8 +304,6 @@ const currentMeasure=store.measure
             ],
           },
         },
-
-        
       ],
       styles: {
         header: {
@@ -462,21 +458,28 @@ const currentMeasure=store.measure
     }
   };
 
-  const handleExportToPDF = () => {
-    // Your logic for exporting to PDF goes here
+  const handleDeleteJobCard = async () => {
+    try {
+      const id = jobCard.id;
+      if (id) {
+        await api.jobcard.jobcard.delete(id);
+      }
+      onCancel();
+    } catch (error) {
+      console.error("Error deleting material:", error);
+    }
   };
 
-  const handleDeleteJobCard = () => {
-    // Your logic for deleting the job card goes here
-  };
+  const handleMarkAsCompleted = async () => {
 
-  const handleMarkAsCompleted = () => {
-    // Your logic for marking the job card as completed goes here
-  };
-
-  const handleFeedbackAndComments = () => {
-    // Your logic for handling feedback and comments goes here
-  };
+    const UpdateJobCard:IJobCard={...jobCard, 
+      status:"Completed"}
+      
+  await api.jobcard.jobcard.update(UpdateJobCard);
+     onCancel();}
+  // const handleFeedbackAndComments = () => {
+  //   // Your logic for handling feedback and comments goes here
+  // };
 
   useEffect(() => {
     const selectedJobCard = store.jobcard.jobcard.selected;
@@ -878,14 +881,14 @@ const currentMeasure=store.measure
                         Mark As completed{" "}
                         {loading && <div data-uk-spinner="ratio: .5"></div>}
                       </button>
-                      <button
+                      {/* <button
                         className="btn btn-primary"
                         type="button"
                         disabled={loading}
                         onClick={handleFeedbackAndComments}>
                         Feedback & Comments{" "}
                         {loading && <div data-uk-spinner="ratio: .5"></div>}
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>

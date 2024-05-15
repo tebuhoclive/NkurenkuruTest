@@ -179,44 +179,12 @@ const jobcardData = store.jobcard.jobcard.all.map((r)=>r.asJson);
               {/* Second column content */}
 
               <div>
-                <h3>Percentage completion</h3>
+                <h3> NOT DEVELOPED YET</h3>
                 <div className="item-content">
                   <div className="risk">
-                    <section className="r-top">
-                      <div
-                        className="inner"
-                        style={{ width: "150px", height: "150px" }}>
-                        {" "}
-                        {/* Adjust the width and height as needed */}
-                        {/* Use the CircularProgressbar component */}
-                        <CircularProgressbar
-                          value={percentage}
-                          maxValue={1}
-                          text={`${value} % Resolved`} // Display the original value as percentage
-                          styles={{
-                            text: { fontSize: ".6rem" },
-                          }}
-                        />
-                      </div>
-                    </section>
+                   
                     <section className="r-bottom">
-                      <section>
-                        <span style={{ fontSize: "1.2rem" }}>
-                          <b>Status</b>
-                        </span>
-
-                        <ul className="uk-list">
-                          <li style={{ color: "#dc3545" }}>
-                            Not Started: <b>{totalPendingJobCards}</b>
-                          </li>
-                          <li style={{ color: "#faa05a" }}>
-                            In progress: <b>{totalAllocatedJobcards}</b>
-                          </li>
-                          <li style={{ color: "#4bb543" }}>
-                            Resolved: <b>{totalCompletedJobcards}</b>
-                          </li>
-                        </ul>
-                      </section>
+                     
                     </section>
                   </div>
                 </div>

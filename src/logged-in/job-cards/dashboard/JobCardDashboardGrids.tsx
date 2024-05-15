@@ -48,7 +48,7 @@ const JobCardDashboardGrids = observer(() => {
 
   const allocatedJobCards = store.jobcard.jobcard.all
     .map((job) => job.asJson)
-    .filter((job) => job.isAllocated);
+    .filter((job) => job.isAllocated && job.status!=="Completed");
   //stats
   //filter using
   const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {

@@ -34,8 +34,9 @@ const AllocateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
   const [artesianValue, setArtesianValue] = useState(""); // State for Artesian input
   const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
-  const [teamMemberValue, setTeamMemberValue] = useState(""); // State for Team Member input
+  const [teamMemberValue, setTeamMemberValue] = useState([]); // State for Team Member input
   const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
+
 
   // Additional state or logic specific to Step 2
 
@@ -60,7 +61,9 @@ const AllocateJobCardModal = observer(() => {
     // For example, you can extract the selected values and store them in state
     const selectedValues = selectedOptions.map((option) => option.value);
     console.log(selectedValues); // Assuming setTeamMembers is a state update function
+     setTeamMemberValue(selectedValues);
   };
+ 
 
   const handleMeasureChange = (value) => {
     setTeamMemberValue(value);
@@ -123,6 +126,9 @@ const AllocateJobCardModal = observer(() => {
         ...jobCard,
         isAllocated: true,
         jobcardCost: totalMaterialCost,
+        teamLeaderValue: teamLeaderValue,
+        artesian: artesianValue,
+        teamMembers: teamMemberValue,
       };
 
       // Call the API to update the job card with the updated object
@@ -596,7 +602,7 @@ const AllocateJobCardModal = observer(() => {
                           onChange={handleMeasureChange}
                           placeholder="Select KPI"
                           value={jobCard.measure}
-                          required
+                          // required
                         />
                       </div>
                     </div>
