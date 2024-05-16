@@ -42,12 +42,12 @@ const ViewAllocatedJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
 
-  const handleArtesianChange = (value) => {
+  const handleArtesianChange = (value:string) => {
     setArtesianValue(value);
     setJobCard({ ...jobCard, artesian: value });
     // Additional logic if needed
   };
-  const handleTeamLeaderChange = (value) => {
+  const handleTeamLeaderChange = (value:string) => {
     setTeamLeaderValue(value);
     setJobCard({ ...jobCard, teamLeader: value });
     // Additional logic if needed
@@ -289,7 +289,7 @@ const ViewAllocatedJobCardModal = observer(() => {
         // Add material list here
         {
           table: {
-            widths: ["auto", "*", "auto"], // Adjust column widths as needed
+            widths: ["30%", "40%", "30%"], // Adjust column widths as needed
             body: [
               [
                 { text: "Quantity", bold: true },
@@ -299,7 +299,7 @@ const ViewAllocatedJobCardModal = observer(() => {
               ...materialList.map((material) => [
                 material.quantity,
                 material.name,
-                material.unitCost,
+                `N$${material.unitCost}`, // Add "N$" to the unit cost price
               ]),
             ],
           },
@@ -470,13 +470,18 @@ const ViewAllocatedJobCardModal = observer(() => {
     }
   };
 
-  const handleMarkAsCompleted = async () => {
+const handleMarkAsCompleted = async () => {
+  const UpdateJobCard :IJobCard = { ...jobCard, status: "Completed" };
 
-    const UpdateJobCard:IJobCard={...jobCard, 
-      status:"Completed"}
-      
-  await api.jobcard.jobcard.update(UpdateJobCard);
-     onCancel();}
+  try {
+    await api.jobcard.jobcard.update(UpdateJobCard);
+    console.log("Completed", UpdateJobCard);
+    
+  } finally {
+    onCancel();
+  }
+};
+
   // const handleFeedbackAndComments = () => {
   //   // Your logic for handling feedback and comments goes here
   // };
@@ -733,6 +738,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <h3>Material List</h3>
                       <MaterialTable
                         materialList={currentMaterialList}
+                        status={jobCard.status}
                         handleEdit={handleEdit}
                         onDeleteMaterial={onDeleteMaterial}
                         defaultPage={1} // Specify the default page number
@@ -865,22 +871,27 @@ const ViewAllocatedJobCardModal = observer(() => {
                         Exported to pdf{" "}
                         {loading && <div data-uk-spinner="ratio: .5"></div>}
                       </button>
-                      <button
-                        className="btn btn-primary uk-margin-right"
-                        type="button"
-                        disabled={loading}
-                        onClick={handleDeleteJobCard}>
-                        Delete Job Card{" "}
-                        {loading && <div data-uk-spinner="ratio: .5"></div>}
-                      </button>
-                      <button
-                        className="btn btn-primary uk-margin-right"
-                        type="button"
-                        disabled={loading}
-                        onClick={handleMarkAsCompleted}>
-                        Mark As completed{" "}
-                        {loading && <div data-uk-spinner="ratio: .5"></div>}
-                      </button>
+                      {jobCard.status !== "Completed" && (
+                        <>
+                          <button
+                            className="btn btn-primary uk-margin-right"
+                            type="button"
+                            disabled={loading}
+                            onClick={handleDeleteJobCard}>
+                            Delete Job Card{" "}
+                            {loading && <div data-uk-spinner="ratio: .5"></div>}
+                          </button>
+                          <button
+                            className="btn btn-primary uk-margin-right"
+                            type="button"
+                            disabled={loading}
+                            onClick={handleMarkAsCompleted}>
+                            Mark As completed{" "}
+                            {loading && <div data-uk-spinner="ratio: .5"></div>}
+                          </button>
+                        </>
+                      )}
+
                       {/* <button
                         className="btn btn-primary"
                         type="button"

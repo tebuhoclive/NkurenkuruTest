@@ -2,12 +2,11 @@
 // UpdateJobCard.tsx
 import { observer } from "mobx-react-lite";
 import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect, FormEvent } from "react";
 import { useAppContext } from "../../shared/functions/Context";
 
 import MODAL_NAMES from "../dialogs/ModalName";
-import showModalFromId, {
+import  {
   hideModalFromId,
 } from "../../shared/functions/ModalShow";
 import {
@@ -18,7 +17,7 @@ import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
-import { MaterialsGrid } from "./grids/MaterialsGrid";
+
 import SingleSelect, {
   IOption,
 } from "../../shared/components/single-select/SingleSelect";
@@ -27,7 +26,6 @@ import {
   IMaterial,
   defaultMaterial,
 } from "../../shared/models/job-card-model/Material";
-import { Console } from "console";
 import MaterialTable from "./grids/MaterialTable";
 
 const AllocateJobCardModal = observer(() => {
@@ -122,13 +120,15 @@ const AllocateJobCardModal = observer(() => {
 
     try {
       // Update the job card object locally
-      const updatedJobCard = {
+      const updatedJobCard: IJobCard = {
         ...jobCard,
         isAllocated: true,
         jobcardCost: totalMaterialCost,
-        teamLeaderValue: teamLeaderValue,
+        teamLeader: teamLeaderValue,
         artesian: artesianValue,
         teamMembers: teamMemberValue,
+        reworked: reworked,
+        status: "In Progress",
       };
 
       // Call the API to update the job card with the updated object
@@ -147,6 +147,9 @@ const AllocateJobCardModal = observer(() => {
   };
 
   const onCancel = () => {
+    setArtesianValue ("") ; // State for Artesian input
+     setTeamLeaderValue("")// State for Team Leader input
+   setTeamMemberValue([]) // State for Team Member input
     store.jobcard.jobcard.clearSelected();
     store.jobcard.material.clearSelected();
     setJobCard({ ...defaultJobCard });
@@ -354,6 +357,20 @@ const AllocateJobCardModal = observer(() => {
     return user ? user.asJson.displayName : "Unknown";
   };
 
+    const getBusinessUnitName = (businessId) => {
+      const unit = store.businessUnit.all.find(
+        (unit) => unit.asJson.id === businessId
+      );
+      return unit ? unit.asJson.name : "Unknown";
+    };
+
+    const getDepartmentName = (deptId) => {
+      const dept = store.department.all.find(
+        (user) => user.asJson.id === deptId
+      );
+      return dept ? dept.asJson.name : "Unknown";
+    };
+
   const onDeleteMaterial = async (e, materialId: string) => {
     e.preventDefault(); // Prevent default form submission behavior
 
@@ -453,7 +470,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Section:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.section}</p>
+                    <p>{getDepartmentName(jobCard.section)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -461,7 +478,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Division.</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.division}</p>
+                    <p>{getBusinessUnitName(jobCard.division)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -545,8 +562,7 @@ const AllocateJobCardModal = observer(() => {
 
             <hr />
             <form
-              className="uk-margin"
-              style={{ justifyContent: "center" }}
+              className="uk-form uk-grid uk-grid-small"
               onSubmit={handleSubmit}>
               <>
                 <div className="uk-grid">
@@ -618,14 +634,9 @@ const AllocateJobCardModal = observer(() => {
                   className="uk-select"
                   value={reworked}
                   required
-                  onChange={(e) =>
-                    setJobCard({
-                      ...jobCard,
-                      reworked: e.target.value,
-                    })
-                  }>
+                  onChange={(e) => setReworked(e.target.value)}>
                   <option value="no">No</option>
-                  <option value="">Yes</option>
+                  <option value="yes">Yes</option>
                 </select>
               </div>
 
@@ -650,174 +661,168 @@ const AllocateJobCardModal = observer(() => {
                 </div>
               </div>
 
-              <div className="uk-grid">
-                <div className="uk-width-1-1">
-                  <h3>Material List</h3>
-                  {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
-                  <MaterialTable
-                    materialList={currentMaterialList}
-                    handleEdit={handleEdit}
-                    onDeleteMaterial={onDeleteMaterial}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                  />
-                  {!showMaterialForm && jobCard.isAllocated !== true && (
-                    <div
-                      className="uk-width-1-1 uk-text-right"
-                      style={{ marginTop: "20px" }}>
-                      <button
-                        className="btn btn-primary uk-margin"
-                        onClick={handleAddMaterialClick}>
-                        <span>Add Material&nbsp;&nbsp;</span>
-                        <FontAwesomeIcon
-                          icon={faPlus}
-                          className="icon uk-margin-small-right"
+              <div className="uk-width-1-1">
+                <h3>Material List</h3>
+                {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
+                <MaterialTable
+                  materialList={currentMaterialList}
+                  handleEdit={handleEdit}
+                  onDeleteMaterial={onDeleteMaterial}
+                  defaultPage={1} // Specify the default page number
+                  defaultItemsPerPage={5} // Specify the default items per page
+                />
+                {!showMaterialForm && jobCard.isAllocated !== true && (
+                  <div
+                    className="uk-width-1-1 uk-text-right"
+                    style={{ marginTop: "20px" }}>
+                    <button
+                      className="btn btn-primary uk-margin"
+                      onClick={handleAddMaterialClick}>
+                      <span>Add Material&nbsp;&nbsp;</span>
+                      <FontAwesomeIcon
+                        icon={faPlus}
+                        className="icon uk-margin-small-right"
+                      />
+                    </button>
+                  </div>
+                )}
+                {showEditMaterialForm && (
+                  <div>
+                    <h4>Edit Material Form</h4>
+                    <div>
+                      <div className="uk-margin">
+                        <label className="uk-form-label" htmlFor="materialName">
+                          Material Name:
+                        </label>
+                        <input
+                          type="text"
+                          id="materialName"
+                          name="name"
+                          value={material.name}
+                          onChange={(value) =>
+                            handleMaterialNameChangeOnEdit(value)
+                          }
+                          className="uk-input"
                         />
+                      </div>
+                      <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                        <label
+                          className="uk-form-label required"
+                          htmlFor="amount">
+                          Cost Amount (min N$ 1 000.00)
+                        </label>
+                        <NumberInput
+                          id="amount"
+                          className="auto-save uk-input purchase-input uk-form-small"
+                          placeholder="-"
+                          value={material.unitCost}
+                          onChange={(value) =>
+                            handleUnitCostChangeOnEdit(value)
+                          }
+                          decimalScale={2}
+                        />
+                        {unitCostErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{unitCostErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="uk-margin">
+                        <label
+                          className="uk-form-label"
+                          htmlFor="materialQuantity">
+                          Quantity:
+                        </label>
+                        <NumberInput
+                          id="materialQuantity"
+                          className="uk-input"
+                          value={material.quantity}
+                          onChange={(value) =>
+                            handleQuantityChangeOnEdit(value)
+                          }
+                        />
+                        {quantityErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{quantityErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={onEditMaterial}
+                        className="btn btn-primary">
+                        Edit Material
                       </button>
                     </div>
-                  )}
-                  {showEditMaterialForm && (
+                  </div>
+                )}
+                {showMaterialForm && (
+                  <div>
+                    <h4>Add New Material</h4>
                     <div>
-                      <h4>Edit Material Form</h4>
-                      <div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialName">
-                            Material Name:
-                          </label>
-                          <input
-                            type="text"
-                            id="materialName"
-                            name="name"
-                            value={material.name}
-                            onChange={(value) =>
-                              handleMaterialNameChangeOnEdit(value)
-                            }
-                            className="uk-input"
-                          />
-                        </div>
-                        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
-                          <label
-                            className="uk-form-label required"
-                            htmlFor="amount">
-                            Cost Amount (min N$ 1 000.00)
-                          </label>
-                          <NumberInput
-                            id="amount"
-                            className="auto-save uk-input purchase-input uk-form-small"
-                            placeholder="-"
-                            value={material.unitCost}
-                            onChange={(value) =>
-                              handleUnitCostChangeOnEdit(value)
-                            }
-                            decimalScale={2}
-                          />
-                          {unitCostErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{unitCostErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialQuantity">
-                            Quantity:
-                          </label>
-                          <NumberInput
-                            id="materialQuantity"
-                            className="uk-input"
-                            value={material.quantity}
-                            onChange={(value) =>
-                              handleQuantityChangeOnEdit(value)
-                            }
-                          />
-                          {quantityErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{quantityErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          onClick={onEditMaterial}
-                          className="btn btn-primary">
-                          Edit Material
-                        </button>
+                      <div className="uk-margin uk-width-1-1">
+                        <label className="uk-form-label" htmlFor="materialName">
+                          Material Name:
+                        </label>
+                        <input
+                          type="text"
+                          id="materialName"
+                          name="name"
+                          value={newMaterial.name}
+                          onChange={handleMaterialNameChange}
+                          className="uk-input"
+                        />
                       </div>
-                    </div>
-                  )}
-                  {showMaterialForm && (
-                    <div>
-                      <h4>Add New Material</h4>
-                      <div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialName">
-                            Material Name:
-                          </label>
-                          <input
-                            type="text"
-                            id="materialName"
-                            name="name"
-                            value={newMaterial.name}
-                            onChange={handleMaterialNameChange}
-                            className="uk-input"
-                          />
-                        </div>
-                        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
-                          <label
-                            className="uk-form-label required"
-                            htmlFor="amount">
-                            Cost Amount (min N$ 1 000.00)
-                          </label>
-                          <NumberInput
-                            id="amount"
-                            className="auto-save uk-input purchase-input uk-form-small"
-                            placeholder="-"
-                            value={newMaterial.unitCost}
-                            onChange={(value) => handleUnitCostChange(value)}
-                            decimalScale={2}
-                          />
-                          {unitCostErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{unitCostErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialQuantity">
-                            Quantity:
-                          </label>
-                          <NumberInput
-                            id="materialQuantity"
-                            className="uk-input"
-                            value={newMaterial.quantity}
-                            onChange={(value) => handleQuantityChange(value)}
-                          />
-                          {quantityErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{quantityErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          onClick={handleMaterialAdded}
-                          className="btn btn-primary">
-                          Add Material
-                        </button>
+                      <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                        <label
+                          className="uk-form-label required"
+                          htmlFor="amount">
+                          Cost Amount (min N$ 1 000.00)
+                        </label>
+                        <NumberInput
+                          id="amount"
+                          className="auto-save uk-input purchase-input uk-form-small"
+                          placeholder="-"
+                          value={newMaterial.unitCost}
+                          onChange={(value) => handleUnitCostChange(value)}
+                          decimalScale={2}
+                        />
+                        {unitCostErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{unitCostErrorMessage}</p>
+                          </div>
+                        )}
                       </div>
+                      <div className="uk-margin">
+                        <label
+                          className="uk-form-label"
+                          htmlFor="materialQuantity">
+                          Quantity:
+                        </label>
+                        <NumberInput
+                          id="materialQuantity"
+                          className="uk-input"
+                          value={newMaterial.quantity}
+                          onChange={(value) => handleQuantityChange(value)}
+                        />
+                        {quantityErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{quantityErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={handleMaterialAdded}
+                        className="btn btn-primary">
+                        Add Material
+                      </button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
-              <div className="uk-margin">
+              <div className="uk-margin uk-width-1-1">
                 <label htmlFor="remarks">Remarks:</label>
                 <textarea
                   id="remarks"

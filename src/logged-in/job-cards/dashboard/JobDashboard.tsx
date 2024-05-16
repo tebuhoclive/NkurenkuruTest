@@ -86,6 +86,7 @@ const CompanyJobCard = observer(() => {
     throw new Error("Function not implemented.");
   }
 
+
   return (
     <ErrorBoundary>
       <div className="reports uk-section">

@@ -1,46 +1,32 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "../../../shared/functions/Context";
-import {
-  IJobCard,
-  defaultJobCard,
-} from "../../../shared/models/job-card-model/Jobcard";
-import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
-import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
-
-import MODAL_NAMES from "../../dialogs/ModalName";
-import EditJobCardModal from "../EditJobCardModal";
-import Modal from "../../../shared/components/Modal";
-import "./Dashboard.css"; // Your custom styles
-import ViewJobCardModal from "../ViewJobCardModal";
-
-
-import useTitle from "../../../shared/hooks/useTitle";
-import useBackButton from "../../../shared/hooks/useBack";
-import CreateJobCard from "../CreateJobCard";
-import AllocateJobCard from "../AllocateJobCardModal";
-import JobCardGridTabs from "./JobCardGridTabs";
-import CreatedJobCardGrid from "../grids/CreatedJobCardGrid";
-import AllocatedJobCardGrid from "../grids/AllocatedJobCardGrid";
-import AllocateJobCardModal from "../AllocateJobCardModal";
-import ViewAllocatedJobCardModal from "../ViewAllocatedJobCardModal ";
-import MaterialTable from "../grids/MaterialTable";
-import JobCardTable from "../grids/JobCardTable";
-import showModalFromId from "../../../shared/functions/ModalShow";
-import { moneyFormat } from "../../project-management/utils/formats";
-
-import { getProgressColors } from "../../project-management/utils/common";
-import DonutChart from "../charts/DonutChart";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../shared/functions/Context";
+import { useEffect, useState } from "react";
+import useTitle from "../../shared/hooks/useTitle";
+
+import { IJobCard } from "../../shared/models/job-card-model/Jobcard";
+import MODAL_NAMES from "../dialogs/ModalName";
+import showModalFromId from "../../shared/functions/ModalShow";
+import { LoadingEllipsis } from "../../shared/components/loading/Loading";
+import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
+import JobCardGridTabs from "./dashboard/JobCardGridTabs";
+
+import useBackButton from "../../shared/hooks/useBack";
+import JobCardTable from "./grids/JobCardTable copy 2";
+import Dropdown from "../../shared/components/dropdown/Dropdown";
+import Toolbar from "../shared/components/toolbar/Toolbar";
+import JobCardTabs from "./dashboard/JobCardTabs";
+import { faCommentDots, faFileExcel, faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 
-const JobCardDashboardGrids = observer(() => {
-    const navigate = useNavigate();
+const MoreJobCards = observer(() => {
+  const navigate = useNavigate();
   const { api, store } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [selectedTab, setselectedTab] = useState("strategy-tab");
-  useTitle("Job Cards");
+  useTitle("View All Job Cards");
   useBackButton();
 
   const JobCards = store.jobcard.jobcard.all
@@ -114,9 +100,9 @@ const JobCardDashboardGrids = observer(() => {
       )} hours, ${weeks.toFixed(2)} weeks, ${months.toFixed(2)} months`
     );
   });
- const onViewMore = () => {
-   navigate(`/c/job-cards/create`);
- };
+  const onViewMore = () => {
+    navigate(`/c/job-cards/create`);
+  };
   const onViewCreated = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
     store.jobcard.jobcard.select(selectedJobCard);
@@ -131,34 +117,33 @@ const JobCardDashboardGrids = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
   //donut code
- const backgroundColors = {
-   pending: "rgb(255, 99, 132)", // Red
-   completed: "rgb(54, 162, 235)", // Blue
-   total: "rgb(255, 205, 86)", // Yellow
- };
+  const backgroundColors = {
+    pending: "rgb(255, 99, 132)", // Red
+    completed: "rgb(54, 162, 235)", // Blue
+    total: "rgb(255, 205, 86)", // Yellow
+  };
 
- const data = {
-   labels: ["Pending", "Completed", "Total"],
-   datasets: [
-     {
-       label: "My First Dataset",
-       data: [totalPendingJobcards, totalCompletedJobcards, totalJobcards],
-       backgroundColor: [
-         backgroundColors.pending,
-         backgroundColors.completed,
-         backgroundColors.total,
-       ],
-       hoverOffset: 4,
-     },
-   ],
-   datalabels: {
-     color: "#fff", // Adjust the color as needed
-     formatter: (value, context) => {
-       return context.chart.data.labels[context.dataIndex];
-     },
-   },
- };
-
+  const data = {
+    labels: ["Pending", "Completed", "Total"],
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: [totalPendingJobcards, totalCompletedJobcards, totalJobcards],
+        backgroundColor: [
+          backgroundColors.pending,
+          backgroundColors.completed,
+          backgroundColors.total,
+        ],
+        hoverOffset: 4,
+      },
+    ],
+    datalabels: {
+      color: "#fff", // Adjust the color as needed
+      formatter: (value, context) => {
+        return context.chart.data.labels[context.dataIndex];
+      },
+    },
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -174,36 +159,90 @@ const JobCardDashboardGrids = observer(() => {
 
   if (loading) return <LoadingEllipsis />;
 
+    function onCreateJobCard(): void {
+        throw new Error("Function not implemented.");
+    }
+
+    function handleExportPDF(): void {
+        throw new Error("Function not implemented.");
+    }
+
+    function handleExportExcel(): void {
+        throw new Error("Function not implemented.");
+    }
+
+    function handleFeedback(): void {
+        throw new Error("Function not implemented.");
+    }
+
   return (
     <ErrorBoundary>
       <div className="uk-container uk-container-xlarge">
-        {/* <h1>Job Card Dashboard</h1> */}
+        <ErrorBoundary>
+          <Toolbar
+            leftControls={
+              <JobCardTabs
+                selectedTab={selectedTab}
+                setselectedTab={setselectedTab}
+              />
+            }
+            rightControls={
+              <ErrorBoundary>
+               
+                <div className="uk-inline">
+                  <button
+                    className="btn btn-primary"
+                    title="More Job Card Actions.">
+                    More <span data-uk-icon="icon: more; ratio:.8"></span>
+                  </button>
 
-        <div className="uk-form uk-grid uk-grid-small" data-uk-grid>
-          <div className="uk-width-1-3">
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">Donut Chart</h3>
-              <div className="content">
-                <DonutChart chartData={data} />
-              </div>
-            </div>
-          </div>
-          <div className="uk-width-expand">
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">NOT YET ADDED</h3>
-              <div
-                className="content"
-                style={{ width: "300px", height: "440px" }}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Job Cards Statistics */}
-
-        <JobCardGridTabs
-          selectedTab={selectedTab}
-          setselectedTab={setselectedTab}
-        />
+                  <Dropdown pos="bottom-right">
+                    <li>
+                      <button
+                        className="kit-dropdown-btn"
+                        onClick={handleExportPDF}
+                        title="Export your scorecard as PDF.">
+                        <FontAwesomeIcon
+                          icon={faFilePdf}
+                          size="lg"
+                          className="icon uk-margin-small-right"
+                        />
+                        Export PDF
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="kit-dropdown-btn"
+                        onClick={handleExportExcel}
+                        title="Export your scorecard as EXCEL.">
+                        <FontAwesomeIcon
+                          icon={faFileExcel}
+                          size="lg"
+                          className="icon uk-margin-small-right"
+                        />
+                        Export Excel
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className="kit-dropdown-btn"
+                        onClick={handleFeedback}
+                        title="Read Comments">
+                        <FontAwesomeIcon
+                          icon={faCommentDots}
+                          size="lg"
+                          className="icon uk-margin-small-right"
+                        />
+                        Feedback
+                      </button>
+                    </li>
+                  </Dropdown>
+                </div>
+              </ErrorBoundary>
+            }
+          />
+        </ErrorBoundary>
+       
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
         <ErrorBoundary>
           {!loading && selectedTab === "strategy-tab" && (
@@ -214,9 +253,9 @@ const JobCardDashboardGrids = observer(() => {
                 handleEdit={onViewCreated}
                 onView={onViewCreated}
                 defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
+                defaultItemsPerPage={10} // Specify the default items per page
                 timeSinceIssuanceArray={timeSinceIssuanceArray}
-                onViewMoreClick={onViewMore}
+                // onViewMoreClick={onViewMore}
               />
             </>
           )}
@@ -228,7 +267,7 @@ const JobCardDashboardGrids = observer(() => {
               defaultPage={1} // Specify the default page number
               defaultItemsPerPage={5} // Specify the default items per page
               timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
+              //   onViewMoreClick={onViewMore}
             />
           )}
           {!loading && selectedTab === "people-tab" && (
@@ -239,27 +278,13 @@ const JobCardDashboardGrids = observer(() => {
               defaultPage={1} // Specify the default page number
               defaultItemsPerPage={5} // Specify the default items per page
               timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
+              //   onViewMoreClick={onViewMore}
             />
           )}
-          {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
         </ErrorBoundary>
       </div>
-
-      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
-        <ViewJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
-        <EditJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
-        <AllocateJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL}>
-        <ViewAllocatedJobCardModal />
-      </Modal>
     </ErrorBoundary>
   );
 });
 
-export default JobCardDashboardGrids;
+export default MoreJobCards;

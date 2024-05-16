@@ -5,6 +5,7 @@ import React, { useState } from "react";
 
 const MaterialTable = ({
   materialList,
+  status = "",
   handleEdit,
   onDeleteMaterial,
   defaultPage = 1,
@@ -50,29 +51,33 @@ const MaterialTable = ({
               <tr key={material.id}>
                 <td>{startIndex + index + 1}</td>
                 <td>{material.name}</td>
-                <td>{material.unitCost}</td>
+                <td>N$ {material.unitCost}</td>
                 <td>{material.quantity}</td>
                 <td>
-                  <IconButton
-                    aria-label="edit"
-                    onClick={() => handleEdit(material)}
-                    style={{
-                      color: "black",
-                      padding: "8px",
-                      fontSize: "1rem",
-                    }}>
-                    <FontAwesomeIcon icon={faPencilAlt} />
-                  </IconButton>
-                  <IconButton
-                    aria-label="delete"
-                    onClick={(e) => onDeleteMaterial(e, material.id)}
-                    style={{
-                      color: "black",
-                      padding: "8px",
-                      fontSize: "1rem",
-                    }}>
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </IconButton>
+                  {status !== "Completed" && (
+                    <>
+                      <IconButton
+                        aria-label="edit"
+                        onClick={() => handleEdit(material)}
+                        style={{
+                          color: "black",
+                          padding: "8px",
+                          fontSize: "1rem",
+                        }}>
+                        <FontAwesomeIcon icon={faPencilAlt} />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        onClick={(e) => onDeleteMaterial(e, material.id)}
+                        style={{
+                          color: "black",
+                          padding: "8px",
+                          fontSize: "1rem",
+                        }}>
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </IconButton>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}

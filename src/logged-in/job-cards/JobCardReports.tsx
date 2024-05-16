@@ -54,7 +54,9 @@ const jobcardData = store.jobcard.jobcard.all.map((r)=>r.asJson);
   //new code
   // Calculate the percentage value
   const value = totalCompletedJobcards / totalJobcards;
-  const percentage = value * 100;
+  
+  const percentage = Math.round(value* 100)
+ 
   useEffect(() => {
     setLoading(true);
     const loaData = async () => {
@@ -98,7 +100,7 @@ const jobcardData = store.jobcard.jobcard.all.map((r)=>r.asJson);
                         <CircularProgressbar
                           value={percentage}
                           maxValue={1}
-                          text={`${value} % Resolved`} // Display the original value as percentage
+                          text={`${percentage} % Resolved`} // Display the original value as percentage
                           styles={{
                             text: { fontSize: ".6rem" },
                           }}
@@ -182,10 +184,7 @@ const jobcardData = store.jobcard.jobcard.all.map((r)=>r.asJson);
                 <h3> NOT DEVELOPED YET</h3>
                 <div className="item-content">
                   <div className="risk">
-                   
-                    <section className="r-bottom">
-                     
-                    </section>
+                    <section className="r-bottom"></section>
                   </div>
                 </div>
               </div>

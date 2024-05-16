@@ -20,7 +20,7 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     taskDescription: "",
     jobcardType: "General",
     jobcardCost: 0,
-    dueDate: "",
+    dueDate: Date.now(),
     dateIssued: "",
     urgency: "Normal",
     status: "Not Started",
@@ -52,7 +52,7 @@ export interface IJobCard {
   taskDescription: string;
   jobcardType: IJobCardType;
   jobcardCost: number;
-  dueDate: string;
+  dueDate: number;
   dateIssued: string;
   urgency: IUrgency;
   status: IStatus;

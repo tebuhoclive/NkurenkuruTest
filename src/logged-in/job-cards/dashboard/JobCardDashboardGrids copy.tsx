@@ -14,7 +14,7 @@ import Modal from "../../../shared/components/Modal";
 import "./Dashboard.css"; // Your custom styles
 import ViewJobCardModal from "../ViewJobCardModal";
 
-
+import DashboardCard from "./dashboard-card/DashboardCard";
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
 import CreateJobCard from "../CreateJobCard";
@@ -31,12 +31,10 @@ import { moneyFormat } from "../../project-management/utils/formats";
 
 import { getProgressColors } from "../../project-management/utils/common";
 import DonutChart from "../charts/DonutChart";
-import { useNavigate } from "react-router-dom";
 
 
 
 const JobCardDashboardGrids = observer(() => {
-    const navigate = useNavigate();
   const { api, store } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [selectedTab, setselectedTab] = useState("strategy-tab");
@@ -61,7 +59,7 @@ const JobCardDashboardGrids = observer(() => {
   const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
     return job.asJson.status === "Not Started";
   });
-  const totalPendingJobcards = pendingJobcards.length;
+  const totalAllocatedJobcards = allocatedJobCards.length;
 
   const completedJobcards = store.jobcard.jobcard.all.filter((job) => {
     return job.asJson.status === "Completed";
@@ -114,9 +112,7 @@ const JobCardDashboardGrids = observer(() => {
       )} hours, ${weeks.toFixed(2)} weeks, ${months.toFixed(2)} months`
     );
   });
- const onViewMore = () => {
-   navigate(`/c/job-cards/create`);
- };
+
   const onViewCreated = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
     store.jobcard.jobcard.select(selectedJobCard);
@@ -131,34 +127,27 @@ const JobCardDashboardGrids = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
   //donut code
- const backgroundColors = {
-   pending: "rgb(255, 99, 132)", // Red
-   completed: "rgb(54, 162, 235)", // Blue
-   total: "rgb(255, 205, 86)", // Yellow
- };
-
- const data = {
-   labels: ["Pending", "Completed", "Total"],
-   datasets: [
-     {
-       label: "My First Dataset",
-       data: [totalPendingJobcards, totalCompletedJobcards, totalJobcards],
-       backgroundColor: [
-         backgroundColors.pending,
-         backgroundColors.completed,
-         backgroundColors.total,
-       ],
-       hoverOffset: 4,
-     },
-   ],
-   datalabels: {
-     color: "#fff", // Adjust the color as needed
-     formatter: (value, context) => {
-       return context.chart.data.labels[context.dataIndex];
-     },
-   },
- };
-
+  const data = {
+    labels: ["Red", "Blue", "Yellow"],
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: [300, 50, 100],
+        backgroundColor: [
+          "rgb(255, 99, 132)",
+          "rgb(54, 162, 235)",
+          "rgb(255, 205, 86)",
+        ],
+        hoverOffset: 4,
+      },
+    ],
+    datalabels: {
+      color: "#fff", // Adjust the color as needed
+      formatter: (value, context) => {
+        return context.chart.data.labels[context.dataIndex];
+      },
+    },
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -180,25 +169,38 @@ const JobCardDashboardGrids = observer(() => {
         {/* <h1>Job Card Dashboard</h1> */}
 
         <div className="uk-form uk-grid uk-grid-small" data-uk-grid>
-          <div className="uk-width-1-3">
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">Donut Chart</h3>
-              <div className="content">
-                <DonutChart chartData={data} />
-              </div>
-            </div>
-          </div>
-          <div className="uk-width-expand">
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">NOT YET ADDED</h3>
-              <div
-                className="content"
-                style={{ width: "300px", height: "440px" }}></div>
+          <div className="uk-width-1-3 ">
+            <div className="content">
+              <DonutChart chartData={data} />
             </div>
           </div>
         </div>
-
         {/* Job Cards Statistics */}
+        <div className="basic-statistics">
+          <div className="s-item">
+            <div className="content">
+              <DonutChart chartData={data} />
+            </div>
+          </div>
+          <div className="s-item">
+            <div className="content">
+              <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                {Math.round(totalAllocatedJobcards)}
+              </span>
+              <br />
+              <span>All Allocated</span>
+            </div>
+          </div>
+          {/* <div className="s-item">
+            <div className="content">
+              <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                {Math.round(totalCompletedJobcards)}
+              </span>
+              <br />
+              <span>Completed</span>
+            </div>
+          </div> */}
+        </div>
 
         <JobCardGridTabs
           selectedTab={selectedTab}
@@ -209,38 +211,37 @@ const JobCardDashboardGrids = observer(() => {
           {!loading && selectedTab === "strategy-tab" && (
             <>
               {" "}
-              <JobCardTable
+              {/* <JobCardTable
                 jobCards={JobCards}
                 handleEdit={onViewCreated}
                 onView={onViewCreated}
                 defaultPage={1} // Specify the default page number
                 defaultItemsPerPage={5} // Specify the default items per page
                 timeSinceIssuanceArray={timeSinceIssuanceArray}
-                onViewMoreClick={onViewMore}
-              />
+              /> */}
             </>
           )}
           {!loading && selectedTab === "department-tab" && (
-            <JobCardTable
-              jobCards={allocatedJobCards}
-              handleEdit={onViewCreated}
-              onView={onViewAllocated}
-              defaultPage={1} // Specify the default page number
-              defaultItemsPerPage={5} // Specify the default items per page
-              timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
-            />
+            // <JobCardTable
+            //   jobCards={allocatedJobCards}
+            //   handleEdit={onViewCreated}
+            //   onView={onViewAllocated}
+            //   defaultPage={1} // Specify the default page number
+            //   defaultItemsPerPage={5} // Specify the default items per page
+            //   timeSinceIssuanceArray={timeSinceIssuanceArray}
+            // />
+            <p>tre</p>
           )}
           {!loading && selectedTab === "people-tab" && (
-            <JobCardTable
-              jobCards={completed}
-              handleEdit={onViewCreated}
-              onView={onViewAllocated}
-              defaultPage={1} // Specify the default page number
-              defaultItemsPerPage={5} // Specify the default items per page
-              timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
-            />
+            // <JobCardTable
+            //   jobCards={completed}
+            //   handleEdit={onViewCreated}
+            //   onView={onViewAllocated}
+            //   defaultPage={1} // Specify the default page number
+            //   defaultItemsPerPage={5} // Specify the default items per page
+            //   timeSinceIssuanceArray={timeSinceIssuanceArray}
+            // />
+            <p>tre</p>
           )}
           {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
         </ErrorBoundary>

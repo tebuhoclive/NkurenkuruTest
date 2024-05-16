@@ -55,6 +55,7 @@ import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinat
 
 import JobDashboard from "./logged-in/job-cards/dashboard/JobDashboard";
 import CreateJobCard from "./logged-in/job-cards/CreateJobCard";
+import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
 
 
 
@@ -97,7 +98,7 @@ const DEV_MODE_ROUTES = () => {
           />
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<CreateJobCard />} />
+          <Route path="job-cards/create" element={<MoreJobCards />} />
 
           <Route
             path="strategy/department"

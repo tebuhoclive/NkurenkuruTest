@@ -46,12 +46,7 @@ const JobCardTabs = (props: IProps) => {
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
-        <TabItem
-          label="people-tab"
-          name="People"
-          activeTab={activeTab}
-          onClickTab={onClickTab}
-        />
+       
        
       </ul>
     </div>

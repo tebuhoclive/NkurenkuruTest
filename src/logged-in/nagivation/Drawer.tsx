@@ -265,7 +265,7 @@ const DEV_MODE_DRAWER = () => {
                 Dashboard
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to="job-cards/create" className="navlink">
                 <FontAwesomeIcon
                   icon={faAngleRight}
@@ -273,7 +273,7 @@ const DEV_MODE_DRAWER = () => {
                 />
                 Create Job Card
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </li>
 
@@ -1840,7 +1840,7 @@ const EMPLOYEE_USER_DRAWER = () => {
                 Dashboard
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to="job-cards/create" className="navlink">
                 <FontAwesomeIcon
                   icon={faAngleRight}
@@ -1848,7 +1848,7 @@ const EMPLOYEE_USER_DRAWER = () => {
                 />
                 Create Job Card
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </li>
 

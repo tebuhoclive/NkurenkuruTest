@@ -12,16 +12,14 @@ const JobCardTable = ({
   defaultPage = 1,
   defaultItemsPerPage = 5,
   timeSinceIssuanceArray, // Array containing time differences for each job card
-  onViewMoreClick, // Function prop for handling "View More" button click
 }) => {
-  const [showMore, setShowMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
-  const { api, store } = useAppContext();
 
   // Calculate pagination indices
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = showMore ? jobCards.length : startIndex + itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const { api, store } = useAppContext();
 
   // Function to get display name from assignedToId
   const getDisplayName = (assignedToId) => {
@@ -30,6 +28,7 @@ const JobCardTable = ({
     );
     return user ? user.asJson.displayName : "Unknown";
   };
+
    const getBusinessUnitName = (businessId) => {
      const unit = store.businessUnit.all.find(
        (unit) => unit.asJson.id === businessId
@@ -37,12 +36,13 @@ const JobCardTable = ({
      return unit ? unit.asJson.name : "Unknown";
    };
 
-    const getDepartmentName = (deptId) => {
-      const dept = store.department.all.find(
-        (user) => user.asJson.id === deptId
-      );
-      return dept ? dept.asJson.name : "Unknown";
-    };
+   const getDepartmentName = (deptId) => {
+     const dept = store.department.all.find(
+       (user) => user.asJson.id === deptId
+     );
+     return dept ? dept.asJson.name : "Unknown";
+   };
+
 
 const sortedJobCards = [...jobCards].sort((a, b) => {
   // Find the time difference objects for the current job cards
@@ -56,7 +56,6 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
   // Compare the time differences for sorting
   return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
 });
-
   // Function to render time difference for each job card
   const renderTimeDifference = (jobCardId) => {
     const timeDiffObject = timeSinceIssuanceArray.find(
@@ -146,12 +145,19 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
           </tbody>
         </table>
       </div>
-      {/* Show more button */}
-      {!showMore && (
-        <div className="pagination">
-          <button onClick={onViewMoreClick}>View More</button>
-        </div>
-      )}
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange("prev")}
+          disabled={currentPage === 1}>
+          Prev
+        </button>
+        <button
+          onClick={() => handlePageChange("next")}
+          disabled={endIndex >= jobCards.length}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };
