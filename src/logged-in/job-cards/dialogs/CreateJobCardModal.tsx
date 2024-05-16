@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import React, { FormEvent, useEffect, useMemo, useState } from "react";
-import { useAppContext } from "../../shared/functions/Context";
+import { useAppContext } from "../../../shared/functions/Context";
 import "datatables.net";
 import "datatables.net-buttons-bs4";
 import "datatables.net-buttons/js/buttons.print.mjs";
@@ -14,14 +14,15 @@ import {
   IJobCard,
   IUrgency,
   defaultJobCard,
-} from "../../shared/models/job-card-model/Jobcard";
-import { hideModalFromId } from "../../shared/functions/ModalShow";
-import MODAL_NAMES from "../dialogs/ModalName";
+} from "../../../shared/models/job-card-model/Jobcard";
+import { hideModalFromId } from "../../../shared/functions/ModalShow";
+import MODAL_NAMES from "../../dialogs/ModalName";
 import SingleSelect, {
   IOption,
-} from "../../shared/components/single-select/SingleSelect";
+} from "../../../shared/components/single-select/SingleSelect";
+import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
 
-const CreateJobCard = observer(() => {
+const CreateJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -92,7 +93,7 @@ const CreateJobCard = observer(() => {
     [businessUnit]
   );
 
-  const handleBusinessUnitOptions = (value:string) => {
+  const handleBusinessUnitOptions = (value: string) => {
     setJobCard({ ...jobCard, division: value });
     // Additional logic if needed
   };
@@ -114,7 +115,7 @@ const CreateJobCard = observer(() => {
       }),
     [filteredDepartments]
   );
-  const handleDepartmentOptions = (value:string) => {
+  const handleDepartmentOptions = (value: string) => {
     setJobCard({ ...jobCard, section: value });
     // Additional logic if needed
   };
@@ -160,7 +161,7 @@ const CreateJobCard = observer(() => {
     });
   };
   // Define a function to handle changes to the due date
-  const handleDateChange = (newDate:number) => {
+  const handleDateChange = (newDate: number) => {
     console.log("new date", newDate);
 
     setJobCard({
@@ -250,7 +251,7 @@ const CreateJobCard = observer(() => {
               id="dueDate"
               type="date"
               name="dueDate"
-              value={jobCard.dueDate || ""}
+              value={dateFormat_YY_MM_DY(jobCard.dueDate) || ""}
               onChange={(e) => handleDateChange(e.target.valueAsNumber)}
               min={today} // Set the minimum date to today's date
               // required
@@ -459,4 +460,4 @@ const CreateJobCard = observer(() => {
   );
 });
 
-export default CreateJobCard;
+export default CreateJobCardModal;

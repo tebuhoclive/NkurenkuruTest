@@ -9,46 +9,40 @@ import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBounda
 import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 
 import MODAL_NAMES from "../../dialogs/ModalName";
-import EditJobCardModal from "../EditJobCardModal";
+
 import Modal from "../../../shared/components/Modal";
 import "./Dashboard.css"; // Your custom styles
-import ViewJobCardModal from "../ViewJobCardModal";
 
 
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
-import CreateJobCard from "../CreateJobCard";
-import AllocateJobCard from "../AllocateJobCardModal";
+
+import AllocateJobCard from "../dialogs/AllocateJobCardModal";
 import JobCardGridTabs from "./JobCardGridTabs";
-import CreatedJobCardGrid from "../grids/CreatedJobCardGrid";
-import AllocatedJobCardGrid from "../grids/AllocatedJobCardGrid";
-import AllocateJobCardModal from "../AllocateJobCardModal";
-import ViewAllocatedJobCardModal from "../ViewAllocatedJobCardModal ";
-import MaterialTable from "../grids/MaterialTable";
+
+import AllocateJobCardModal from "../dialogs/AllocateJobCardModal";
+import ViewAllocatedJobCardModal from "../dialogs/ViewAllocatedJobCardModal ";
+
 import JobCardTable from "../grids/JobCardTable";
 import showModalFromId from "../../../shared/functions/ModalShow";
-import { moneyFormat } from "../../project-management/utils/formats";
-
-import { getProgressColors } from "../../project-management/utils/common";
 import DonutChart from "../charts/DonutChart";
 import { useNavigate } from "react-router-dom";
 import { CircularProgressbar } from "react-circular-progressbar";
-
-
+import UpdatedJobCardModal from "../dialogs/UpdateJobCardModal";
+import JobCardTableViewMore from "../grids/JobCardTableViewMoreRecent";
+import JobCardTableViewMoreOld from "../grids/JobCardTableViewMoreOld";
+import JobCardTableViewMoreRecent from "../grids/JobCardTableViewMoreRecent";
 
 const JobCardDashboardGrids = observer(() => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { api, store } = useAppContext();
   const [loading, setLoading] = useState(false);
-    const [count, setCount] = useState(5);
+  const [count, setCount] = useState(5);
   const [selectedTab, setselectedTab] = useState("strategy-tab");
   useTitle("Job Cards");
   useBackButton();
 
-  const JobCards = store.jobcard.jobcard.all
-    .map((job) => job.asJson)
-    .filter((job) => !job.isAllocated);
-  //stats
+const me= store.auth.meJson
   const totalJobcards = store.jobcard.jobcard.all.length;
 
   const completed = store.jobcard.jobcard.all
@@ -116,9 +110,9 @@ const JobCardDashboardGrids = observer(() => {
       )} hours, ${weeks.toFixed(2)} weeks, ${months.toFixed(2)} months`
     );
   });
- const onViewMore = () => {
-   navigate(`/c/job-cards/create`);
- };
+  const onViewMore = () => {
+    navigate(`/c/job-cards/create`);
+  };
   const onViewCreated = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
     store.jobcard.jobcard.select(selectedJobCard);
@@ -126,15 +120,12 @@ const JobCardDashboardGrids = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
   };
 
-   const value = totalCompletedJobcards / totalJobcards;
+  const value = totalCompletedJobcards / totalJobcards;
 
-   const percentage = Math.round(value * 100);
- 
-
+  const percentage = Math.round(value * 100);
 
   const totalPendingJobCards = pendingJobcards.length;
   const totalAllocatedJobcards = allocatedJobCards.length;
-
 
   const onViewAllocated = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
@@ -143,34 +134,33 @@ const JobCardDashboardGrids = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
   //donut code
- const backgroundColors = {
-   pending: "rgb(255, 99, 132)", // Red
-   completed: "rgb(54, 162, 235)", // Blue
-   total: "rgb(255, 205, 86)", // Yellow
- };
+  const backgroundColors = {
+    pending: "rgb(255, 99, 132)", // Red
+    completed: "rgb(54, 162, 235)", // Blue
+    total: "rgb(255, 205, 86)", // Yellow
+  };
 
- const data = {
-   labels: ["Pending", "Completed", "Total"],
-   datasets: [
-     {
-       label: "My First Dataset",
-       data: [totalPendingJobcards, totalCompletedJobcards, totalJobcards],
-       backgroundColor: [
-         backgroundColors.pending,
-         backgroundColors.completed,
-         backgroundColors.total,
-       ],
-       hoverOffset: 4,
-     },
-   ],
-   datalabels: {
-     color: "#fff", // Adjust the color as needed
-     formatter: (value, context) => {
-       return context.chart.data.labels[context.dataIndex];
-     },
-   },
- };
-
+  const data = {
+    labels: ["Pending", "Completed", "Total"],
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: [totalPendingJobcards, totalCompletedJobcards, totalJobcards],
+        backgroundColor: [
+          backgroundColors.pending,
+          backgroundColors.completed,
+          backgroundColors.total,
+        ],
+        hoverOffset: 4,
+      },
+    ],
+    datalabels: {
+      color: "#fff", // Adjust the color as needed
+      formatter: (value, context) => {
+        return context.chart.data.labels[context.dataIndex];
+      },
+    },
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -252,100 +242,112 @@ const JobCardDashboardGrids = observer(() => {
           setselectedTab={setselectedTab}
         />
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
-        <ErrorBoundary>
-          {!loading && selectedTab === "strategy-tab" && (
-            <>
-              {" "}
+
+        {me.role === "Employee" && (
+          <ErrorBoundary>
+            {!loading && selectedTab === "strategy-tab" && (
+              <div className="uk-grid uk-grid-small" data-uk-grid>
+                <div className="uk-width-1-2">
+                  {/* First column with body cards */}
+                  {/* Example content */}
+                  <p className="uk-text-bold">Recently Added Job cards</p>
+                  <JobCardTableViewMoreRecent
+                    jobCards={allocatedJobCards}
+                    handleEdit={onViewCreated}
+                    onView={onViewAllocated}
+                    defaultPage={1} // Specify the default page number
+                    defaultItemsPerPage={5} // Specify the default items per page
+                    timeSinceIssuanceArray={timeSinceIssuanceArray}
+                    onViewMoreClick={onViewMore}
+                  />
+                </div>
+                <div className="uk-width-1-2">
+                  {/* Second column with body cards */}
+
+                  {/* Example content */}
+                  <p className="uk-text-bold">Job Cards Older than 1 Day </p>
+                  <JobCardTableViewMoreOld
+                    jobCards={allocatedJobCards}
+                    handleEdit={onViewCreated}
+                    onView={onViewAllocated}
+                    defaultPage={1} // Specify the default page number
+                    defaultItemsPerPage={5} // Specify the default items per page
+                    timeSinceIssuanceArray={timeSinceIssuanceArray}
+                    onViewMoreClick={onViewMore}
+                  />
+                </div>
+              </div>
+            )}
+            {!loading && selectedTab === "department-tab" && (
               <JobCardTable
-                jobCards={JobCards}
+                jobCards={allocatedJobCards}
                 handleEdit={onViewCreated}
-                onView={onViewCreated}
+                onView={onViewAllocated}
                 defaultPage={1} // Specify the default page number
                 defaultItemsPerPage={5} // Specify the default items per page
                 timeSinceIssuanceArray={timeSinceIssuanceArray}
                 onViewMoreClick={onViewMore}
               />
-              {/* <div className="uk-width-1-1@s" style={{ marginLeft: "40px" }}>
-                <div className="uk-grid uk-child-width-1-2">
-                  <div className="uk-card uk-card-default uk-card-body uk-width-1-2@s">
-                    <div className="people-tab-content uk-card uk-card-default uk-card-body uk-card-small">
-                      <div className="header uk-margin">
-                        <h4 className="title kit-title">
-                         Job Cards Over 3 days Since Creation {" "}
-                        </h4>
-
-                        <select
-                          id="count"
-                          className="uk-select uk-form-small uk-margin-left"
-                          name="count"
-                          value={count}
-                          onChange={(e) => setCount(parseInt(e.target.value))}>
-                          <option value={5}>5</option>
-                          <option value={10}>10</option>
-                          <option value={25}>25</option>
-                          <option value={50}>50</option>
-                          <option value={"All"}>All</option>
-                        </select>
-                      </div>
-
-                      <table className="kit-table uk-table uk-table-small uk-table-striped">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Employee</th>
-                            <th>email</th>
-                            <th>Number of Job cards</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {JobCards.map((user, index) => (
-                            <tr key={user.id}>
-                              <td>{index + 1}</td>
-                              <td>{user.clientFullName}</td>
-                              <td>{user.clientEmail}</td>
-                              <td>{user.clientMobileNumber}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                 
-                </div>
-              </div> */}
-            </>
-          )}
-          {!loading && selectedTab === "department-tab" && (
-            <JobCardTable
-              jobCards={allocatedJobCards}
-              handleEdit={onViewCreated}
-              onView={onViewAllocated}
-              defaultPage={1} // Specify the default page number
-              defaultItemsPerPage={5} // Specify the default items per page
-              timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
-            />
-          )}
-          {!loading && selectedTab === "people-tab" && (
-            <JobCardTable
-              jobCards={completed}
-              handleEdit={onViewCreated}
-              onView={onViewAllocated}
-              defaultPage={1} // Specify the default page number
-              defaultItemsPerPage={5} // Specify the default items per page
-              timeSinceIssuanceArray={timeSinceIssuanceArray}
-              onViewMoreClick={onViewMore}
-            />
-          )}
-          {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
-        </ErrorBoundary>
+            )}
+            {!loading && selectedTab === "people-tab" && (
+              <JobCardTable
+                jobCards={completed}
+                handleEdit={onViewCreated}
+                onView={onViewAllocated}
+                defaultPage={1} // Specify the default page number
+                defaultItemsPerPage={5} // Specify the default items per page
+                timeSinceIssuanceArray={timeSinceIssuanceArray}
+                onViewMoreClick={onViewMore}
+              />
+            )}
+            {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
+          </ErrorBoundary>
+        )}
+        {me.role !== "Employee" && me.role !== "Guest User" && (
+          <ErrorBoundary>
+            {!loading && selectedTab === "strategy-tab" && (
+              <JobCardTable
+                jobCards={allocatedJobCards}
+                handleEdit={onViewCreated}
+                onView={onViewAllocated}
+                defaultPage={1} // Specify the default page number
+                defaultItemsPerPage={5} // Specify the default items per page
+                timeSinceIssuanceArray={timeSinceIssuanceArray}
+                onViewMoreClick={onViewMore}
+              />
+            )}
+            {!loading && selectedTab === "department-tab" && (
+              <JobCardTable
+                jobCards={allocatedJobCards}
+                handleEdit={onViewCreated}
+                onView={onViewAllocated}
+                defaultPage={1} // Specify the default page number
+                defaultItemsPerPage={5} // Specify the default items per page
+                timeSinceIssuanceArray={timeSinceIssuanceArray}
+                onViewMoreClick={onViewMore}
+              />
+            )}
+            {!loading && selectedTab === "people-tab" && (
+              <JobCardTable
+                jobCards={completed}
+                handleEdit={onViewCreated}
+                onView={onViewAllocated}
+                defaultPage={1} // Specify the default page number
+                defaultItemsPerPage={5} // Specify the default items per page
+                timeSinceIssuanceArray={timeSinceIssuanceArray}
+                onViewMoreClick={onViewMore}
+              />
+            )}
+            {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
+          </ErrorBoundary>
+        )}
       </div>
 
-      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
+      {/* <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
         <ViewJobCardModal />
-      </Modal>
+      </Modal> */}
       <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
-        <EditJobCardModal />
+        <UpdatedJobCardModal />
       </Modal>
       <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
         <AllocateJobCardModal />

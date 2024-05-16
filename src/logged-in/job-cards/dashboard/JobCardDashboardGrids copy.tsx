@@ -9,30 +9,20 @@ import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBounda
 import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 
 import MODAL_NAMES from "../../dialogs/ModalName";
-import EditJobCardModal from "../EditJobCardModal";
+
 import Modal from "../../../shared/components/Modal";
 import "./Dashboard.css"; // Your custom styles
-import ViewJobCardModal from "../ViewJobCardModal";
 
-import DashboardCard from "./dashboard-card/DashboardCard";
+
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
-import CreateJobCard from "../CreateJobCard";
-import AllocateJobCard from "../AllocateJobCardModal";
+import AllocateJobCard from "../dialogs/AllocateJobCardModal";
 import JobCardGridTabs from "./JobCardGridTabs";
-import CreatedJobCardGrid from "../grids/CreatedJobCardGrid";
-import AllocatedJobCardGrid from "../grids/AllocatedJobCardGrid";
-import AllocateJobCardModal from "../AllocateJobCardModal";
-import ViewAllocatedJobCardModal from "../ViewAllocatedJobCardModal ";
-import MaterialTable from "../grids/MaterialTable";
-import JobCardTable from "../grids/JobCardTable";
+
+import AllocateJobCardModal from "../dialogs/AllocateJobCardModal";
+import ViewAllocatedJobCardModal from "../dialogs/ViewAllocatedJobCardModal ";
 import showModalFromId from "../../../shared/functions/ModalShow";
-import { moneyFormat } from "../../project-management/utils/formats";
-
-import { getProgressColors } from "../../project-management/utils/common";
 import DonutChart from "../charts/DonutChart";
-
-
 
 const JobCardDashboardGrids = observer(() => {
   const { api, store } = useAppContext();
@@ -56,15 +46,8 @@ const JobCardDashboardGrids = observer(() => {
     .filter((job) => job.isAllocated && job.status !== "Completed");
   //stats
   //filter using
-  const pendingJobcards = store.jobcard.jobcard.all.filter((job) => {
-    return job.asJson.status === "Not Started";
-  });
-  const totalAllocatedJobcards = allocatedJobCards.length;
 
-  const completedJobcards = store.jobcard.jobcard.all.filter((job) => {
-    return job.asJson.status === "Completed";
-  });
-  const totalCompletedJobcards = completedJobcards.length;
+  const totalAllocatedJobcards = allocatedJobCards.length;
 
   // Assuming allJobCards is an array of job cards
   const allJobCards = store.jobcard.jobcard.all;
@@ -247,12 +230,12 @@ const JobCardDashboardGrids = observer(() => {
         </ErrorBoundary>
       </div>
 
-      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
+      {/* <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
         <ViewJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
+      </Modal> */}
+      {/* <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
         <EditJobCardModal />
-      </Modal>
+      </Modal> */}
       <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
         <AllocateJobCardModal />
       </Modal>

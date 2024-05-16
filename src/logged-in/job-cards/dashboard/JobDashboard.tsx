@@ -17,8 +17,8 @@ import swal from "sweetalert";
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
 import JobCardTabs from "./JobCardTabs";
-import CreateJobCard from "../CreateJobCard";
-import AllocateJobCard from "../AllocateJobCardModal";
+import CreateJobCard from "../dialogs/CreateJobCardModal";
+import AllocateJobCard from "../dialogs/AllocateJobCardModal";
 import JobDashboardMain from "./JobCardDashboardGrids";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Toolbar from "../../shared/components/toolbar/Toolbar";
@@ -45,12 +45,9 @@ const CompanyJobCard = observer(() => {
     setActiveTab(index);
   };
 
-  
   const onCreateJobCard = () => {
     showModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
   };
-
-
 
   const [selectedTab, setselectedTab] = useState("strategy-tab");
   useTitle("Job Cards");
@@ -85,7 +82,6 @@ const CompanyJobCard = observer(() => {
   function handleFeedback(): void {
     throw new Error("Function not implemented.");
   }
-
 
   return (
     <ErrorBoundary>
@@ -164,7 +160,8 @@ const CompanyJobCard = observer(() => {
           </ErrorBoundary>
           <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
           <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && ( <JobCardDashboardGrids />
+            {!loading && selectedTab === "strategy-tab" && (
+              <JobCardDashboardGrids />
             )}
             {!loading && selectedTab === "department-tab" && <JobCardReports />}
             {!loading && selectedTab === "people-tab" && <CreateJobCard />}

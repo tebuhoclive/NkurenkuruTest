@@ -4,37 +4,27 @@ import { observer } from "mobx-react-lite";
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, FormEvent } from "react";
-import { useAppContext } from "../../shared/functions/Context";
-import logo from "../job-cards/images/logo512.png";
-import MODAL_NAMES from "../dialogs/ModalName";
+import { useAppContext } from "../../../shared/functions/Context";
+import logo from "../images/logo512.png"
+import MODAL_NAMES from "../../dialogs/ModalName";
 import showModalFromId, {
   hideModalFromId,
-} from "../../shared/functions/ModalShow";
+} from "../../../shared/functions/ModalShow";
 import {
   IJobCard,
   defaultJobCard,
-} from "../../shared/models/job-card-model/Jobcard";
-import Select from "react-select";
+} from "../../../shared/models/job-card-model/Jobcard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
-import SingleSelect, {
-  IOption,
-} from "../../shared/components/single-select/SingleSelect";
-import NumberInput from "../shared/components/number-input/NumberInput";
-import {
-  IMaterial,
-  defaultMaterial,
-} from "../../shared/models/job-card-model/Material";
+import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
 
-import MaterialTable from "./grids/MaterialTable";
+import MaterialTable from "../grids/MaterialTable";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { dateFormat_YY_MM_DD } from "../../shared/utils/utils";
 const ViewAllocatedJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-  const [artesianValue, setArtesianValue] = useState(""); // State for Artesian input
-  const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
-  const [teamMemberValue, setTeamMemberValue] = useState(""); // State for Team Member input
+
 
   // Additional state or logic specific to Step 2
 
@@ -42,16 +32,8 @@ const ViewAllocatedJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
 
-  const handleArtesianChange = (value: string) => {
-    setArtesianValue(value);
-    setJobCard({ ...jobCard, artesian: value });
-    // Additional logic if needed
-  };
-  const handleTeamLeaderChange = (value: string) => {
-    setTeamLeaderValue(value);
-    setJobCard({ ...jobCard, teamLeader: value });
-    // Additional logic if needed
-  };
+
+
   // const handleTeamMemberChange = (value) => {
   //   setTeamMemberValue(value);
   //   setJobCard({ ...jobCard, teamMember: value });
@@ -64,12 +46,6 @@ const ViewAllocatedJobCardModal = observer(() => {
     // For example, you can extract the selected values and store them in state
     const selectedValues = selectedOptions.map((option) => option.value);
     console.log(selectedValues); // Assuming setTeamMembers is a state update function
-  };
-
-  const handleMeasureChange = (value) => {
-    setTeamMemberValue(value);
-    setJobCard({ ...jobCard, measure: value });
-    // Additional logic if needed
   };
 
   //Kpi measures here
@@ -86,26 +62,7 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   const users = store.user.all;
 
-  const options: IOption[] = useMemo(
-    () =>
-      users.map((user) => {
-        return {
-          label: user.asJson.displayName || "",
-          value: user.asJson.uid,
-        };
-      }),
-    [users]
-  );
-  const measureOptions: IOption[] = useMemo(
-    () =>
-      measure.map((measure) => {
-        return {
-          label: measure.asJson.description || "",
-          value: measure.asJson.uid,
-        };
-      }),
-    [measure]
-  );
+
 
   const currentMeasure = store.measure;
   // const taskList = store.jobcard.task.all;
@@ -169,143 +126,174 @@ const ViewAllocatedJobCardModal = observer(() => {
   // Register fonts with pdfMake
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-  const generatePDF = async () => {
-    const dataURL = await getBase64ImageFromURL(logo);
-    const docDefinition: any = {
-      content: [
-        {
-          columns: [
-            {
-              image: dataURL,
-              fit: [100, 100], // Adjust fit as needed
-              alignment: "center",
-            },
-          ],
-        },
-        { text: "JOB CARD FOR MUNICIPAL SERVICES", style: "header" },
-        {
-          text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
-          style: "italic",
-        },
+ const generatePDF = async () => {
+   const dataURL = await getBase64ImageFromURL(logo);
+   const docDefinition: any = {
+     content: [
+       {
+         columns: [
+           {
+             image: dataURL,
+             fit: [100, 100], // Adjust fit as needed
+             alignment: "center",
+           },
+         ],
+       },
+       {
+         text: "JOB CARD FOR MUNICIPAL SERVICES",
+         style: "header",
+         fontSize: 10,
+       },
+       {
+         text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
+         style: "italic",
+         fontSize: 10,
+       },
 
-        {
-          columns: [
-            { text: "Job Card Details: " + jobCard.uniqueId },
-            { text: "Date and Time logged: " + jobCard.dateIssued },
-          ],
-        },
-        "\n",
-        {
-          columns: [
-            {
-              table: {
-                widths: ["30%", "70%"],
-                body: [
-                  [
-                    { text: "Assigned To:", bold: true },
-                    getDisplayName(jobCard.assignedTo),
-                  ],
-                  [{ text: "Section:", bold: true }, jobCard.section],
-                  [{ text: "Division:", bold: true }, jobCard.division],
-                  [{ text: "Urgency:", bold: true }, jobCard.urgency],
-                  [{ text: "Unique ID:", bold: true }, jobCard.uniqueId],
-                  [
-                    { text: "Task Description:", bold: true },
-                    jobCard.taskDescription,
-                  ],
-                  [{ text: "Due Date:", bold: true }, jobCard.dueDate],
-                ],
-              },
-            },
-          ],
-        },
-        "\n",
-        { text: "Client Details: " },
-        {
-          table: {
-            widths: ["30%", "70%"],
-            body: [
-              [{ text: "Full Name:", bold: true }, jobCard.clientFullName],
-              [{ text: "Address:", bold: true }, jobCard.clientAddress],
-              [{ text: "Phone No.:", bold: true }, jobCard.clientMobileNumber],
-              [{ text: "Email:", bold: true }, jobCard.clientEmail],
-            ],
-          },
-        },
-        "\n",
-        { text: "Team Details: " },
-        {
-          columns: [
-            {
-              table: {
-                widths: ["30%", "70%"],
-                body: [
-                  [
-                    { text: "Team Leader:", bold: true },
-                    getDisplayName(jobCard.teamLeader),
-                  ],
-                  [
-                    { text: "Artesian:", bold: true },
-                    getDisplayName(jobCard.artesian),
-                  ],
-                  [
-                    { text: "Team Members:", bold: true },
-                    {
-                      ul: jobCard.teamMembers.map((member) =>
-                        getDisplayName(member)
-                      ),
-                    },
-                  ],
-                  [{ text: "KPI Measure:", bold: true }, jobCard.measure],
-                  // Add more rows as needed
-                ],
-              },
-            },
-          ],
-        },
+       {
+         columns: [
+           { text: "Job Card Details: " + jobCard.uniqueId },
+           { text: "Date and Time logged: " + jobCard.dateIssued },
+         ],
+       },
+       "\n",
+       {
+         columns: [
+           {
+             table: {
+               widths: ["30%", "70%"],
+               body: [
+                 [
+                   { text: "Assigned To:", },
+                   getDisplayName(jobCard.assignedTo),
+                 ],
+                 [
+                   { text: "Section:"},
+                   getDepartmentName(jobCard.section),
+                 ],
+                 [
+                   { text: "Division:" },
+                   getBusinessUnitName(jobCard.division),
+                 ],
+                 [{ text: "Urgency:" }, jobCard.urgency],
+                 [{ text: "Unique ID:",  }, jobCard.uniqueId],
+                 [
+                   { text: "Task Description:"},
+                   jobCard.taskDescription,
+                 ],
+                 [
+                   { text: "Due Date:"},
+                   dateFormat_YY_MM_DD(jobCard.dueDate),
+                 ],
+               ],
+             },
+           },
+         ],
+       },
+       "\n",
+       { text: "Client Details: " },
+       {
+         table: {
+           widths: ["30%", "70%"],
+           body: [
+             [{ text: "Full Name:"}, jobCard.clientFullName],
+             [{ text: "Address:"},  jobCard.clientAddress],
+             [{ text: "Phone No.:"}, jobCard.clientMobileNumber],
+             [{ text: "Email:"}, jobCard.clientEmail],
+           ],
+         },
+       },
+       "\n",
+       { text: "Team Details: " },
+       {
+         columns: [
+           {
+             table: {
+               widths: ["30%", "70%"],
+               body: [
+                 [
+                   { text: "Team Leader:",fontSize: 9 }, // Adjust font size
+                   getDisplayName(jobCard.teamLeader),
+                 ],
+                 [
+                   { text: "Artesian:",  fontSize: 9 }, // Adjust font size
+                   getDisplayName(jobCard.artesian),
+                 ],
+                 [
+                   { text: "Team Members:", fontSize: 9 }, // Adjust font size
+                   {
+                     ul: jobCard.teamMembers.map((member) =>
+                       getDisplayName(member)
+                     ),
+                   },
+                 ],
+                 [
+                   { text: "KPI Measure:", fontSize: 9 },
+                   jobCard.measure,
+                 ], // Adjust font size
+                 // Add more rows as needed
+               ],
+             },
+             fontSize: 8, // Adjust overall font size
+           },
+         ],
+       },
 
-        {
-          text: "Material List",
-        },
-        "\n",
-        // Add material list here
-        {
-          table: {
-            widths: ["30%", "40%", "30%"], // Adjust column widths as needed
-            body: [
-              [
-                { text: "Quantity", bold: true },
-                { text: "Name", bold: true },
-                { text: "Unit Cost", bold: true },
-              ],
-              ...materialList.map((material) => [
-                material.quantity,
-                material.name,
-                `N$${material.unitCost}`, // Add "N$" to the unit cost price
-              ]),
-            ],
-          },
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          alignment: "center",
-          margin: [0, 0, 0, 10],
-        },
-        italic: {
-          fontStyle: "italic",
-          margin: [0, 0, 0, 10],
-        },
-        remarks: {
-          margin: [0, 10, 0, 0],
-        },
-      },
-    };
+       {
+         text: "Material List",
+       },
+       "\n",
+       // Add material list here
+       {
+         table: {
+           headerRows: 1,
+           widths: ["30%", "40%", "30%"], // Adjust column widths as needed
+           body: [
+             [
+               { text: "Quantity", style: "tableHeader", fontSize: 9 },
+               { text: "Name", style: "tableHeader", fontSize: 9 },
+               { text: "Unit Cost", style: "tableHeader", fontSize: 9 },
+             ],
+             ...materialList.map((material) => [
+               material.quantity,
+               material.name,
+               { text: `N$${material.unitCost}`, alignment: "right" }, // Add "N$" to the unit cost price
+             ]),
+           ],
+         },
+         layout: {
+           fillColor: "#fff", // Background color for the table cells
+           hLineWidth: () => 0.1, // Adjust the thickness of horizontal lines
+           vLineWidth: () => 0.1, // Adjust the thickness of vertical lines
+         },
+         margin: [0, 10, 0, 10],
+         fontSize: 8,
+         style: "table",
+       },
+     ],
+     styles: {
+       header: {
+         fontSize: 10,
+         bold: true,
+         alignment: "center",
+         margin: [0, 0, 0, 10],
+       },
+       italic: {
+         fontStyle: "italic",
+         margin: [0, 0, 0, 10],
+       },
+       remarks: {
+         margin: [0, 10, 0, 0],
+       },
+       tableHeader: {
+         bold: true,
+       },
+     },
+   };
 
-    pdfMake.createPdf(docDefinition).download("job_card.pdf");
-  };
+   pdfMake.createPdf(docDefinition).download("job_card.pdf");
+ };
+
 
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();
@@ -316,21 +304,13 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   // code for adding material
   const [showMaterialForm, setShowMaterialForm] = useState(false);
-  const [newMaterial, setNewMaterial] = useState<IMaterial>({
-    ...defaultMaterial,
-  });
+
   const handleAddMaterialClick = () => {
     setShowMaterialForm(true);
   };
 
   // Function to handle changes for Material Name
-  const handleMaterialNameChange = (e) => {
-    const value = e.target.value;
-    setNewMaterial({
-      ...newMaterial,
-      name: value,
-    });
-  };
+
 
   // Define function to handle changes in unit cost
   // State variables
@@ -387,9 +367,7 @@ const ViewAllocatedJobCardModal = observer(() => {
       onCancel();
     }
   };
-  const showOptionsColumn = true; // Set this to false to hide the Options column
 
-  const [reworked, setReworked] = useState("No");
 
   // code for adding material
   const getBusinessUnitName = (businessId) => {
@@ -432,9 +410,28 @@ const ViewAllocatedJobCardModal = observer(() => {
     jobCard,
   ]);
 
-  function handleOnEditJobCard(): void {
-    throw new Error("Function not implemented.");
-  }
+
+
+   const handleOnEditJobCard = () => {
+
+    
+     store.jobcard.jobcard.select(jobCard);
+
+     showModalFromId(MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL);
+   };
+    //  const getBusinessUnitName = (businessId) => {
+    //    const unit = store.businessUnit.all.find(
+    //      (unit) => unit.asJson.id === businessId
+    //    );
+    //    return unit ? unit.asJson.name : "Unknown";
+    //  };
+
+    //  const getDepartmentName = (deptId) => {
+    //    const dept = store.department.all.find(
+    //      (user) => user.asJson.id === deptId
+    //    );
+    //    return dept ? dept.asJson.name : "Unknown";
+    //  };
 
   return (
     <ErrorBoundary>
@@ -457,9 +454,8 @@ const ViewAllocatedJobCardModal = observer(() => {
         <hr />
 
         <div className="dialog-content uk-position-relative uk-width-1-1">
-          <h4 className="uk-text-bold">Job Card Management and allocation</h4>
+          <h4 className="uk-text-bold"> </h4>
 
-          <hr />
           <form
             className="uk-form uk-grid uk-grid-small"
             onSubmit={handleSubmit}>
@@ -470,9 +466,6 @@ const ViewAllocatedJobCardModal = observer(() => {
                     <h4 style={{ fontWeight: "bold" }}>Job Card Details</h4>
 
                     <div className="uk-grid uk-grid-small" data-uk-grid>
-                     
-                      <hr className="uk-width-1-1" />
-
                       <div className="uk-width-1-3">
                         <p>Section:</p>
                       </div>
@@ -515,8 +508,8 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <div className="uk-width-1-3">
                         <p>Due Date:</p>
                       </div>
-                      <div className="uk-width-1-1">
-                        <p>{jobCard.dueDate}</p>
+                      <div className="uk-width-1-3">
+                        <p>{dateFormat_YY_MM_DD(jobCard.dueDate)}</p>
                       </div>
                       <hr className="uk-width-1-1" />
                     </div>
@@ -541,7 +534,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                     <p>Team Leader:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{getDepartmentName(jobCard.section)}</p>
+                    <p>{getDisplayName(jobCard.teamLeader)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -549,24 +542,21 @@ const ViewAllocatedJobCardModal = observer(() => {
                     <p>Artesian</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{getBusinessUnitName(jobCard.division)}</p>
+                    <p>{getDisplayName(jobCard.artesian)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
-                    <p>Artesian</p>
+                    <p>Member(s)</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.urgency}</p>
+                    <p>
+                      {jobCard.teamMembers
+                        .map((id) => getDisplayName(id))
+                        .join(", ")}
+                    </p>
                   </div>
-                  <hr className="uk-width-1-1" />
 
-                  <div className="uk-width-1-3">
-                    <p>Member (s).</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.uniqueId}</p>
-                  </div>
                   <hr className="uk-width-1-1" />
                 </div>
               </div>
@@ -612,8 +602,8 @@ const ViewAllocatedJobCardModal = observer(() => {
               )}
             </>
 
-            <div className="uk-width-1-1">
-              <h3>Material List</h3>
+            <div className="uk-width-1-2">
+              <h3 style={{ fontWeight: "bold" }}>Material List</h3>
               {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
               <MaterialTable
                 materialList={materialList}
@@ -637,19 +627,6 @@ const ViewAllocatedJobCardModal = observer(() => {
                   </button>
                 </div>
               )}
-            </div>
-
-            <div className="uk-margin uk-width-1-1">
-              <label htmlFor="remarks">Remarks:</label>
-              <textarea
-                id="remarks"
-                className="uk-textarea"
-                placeholder="Enter remarks..."
-                value={jobCard.comment}
-                onChange={(e) =>
-                  setJobCard({ ...jobCard, comment: e.target.value })
-                }
-              />
             </div>
 
             <div

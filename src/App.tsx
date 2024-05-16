@@ -52,13 +52,9 @@ import Statistics from "./logged-in/project-management/Statistics";
 import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinate-scorecards/SubordinateScorecaard";
 // import CompanyJobCard from "./logged-in/company-job-card/CompanyJobCard";
 
-
 import JobDashboard from "./logged-in/job-cards/dashboard/JobDashboard";
-import CreateJobCard from "./logged-in/job-cards/CreateJobCard";
+import CreateJobCard from "./logged-in/job-cards/dialogs/CreateJobCardModal";
 import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
-
-
-
 
 // Lazy load components
 const LoggedIn = lazy(() => import("./logged-in/LoggedIn"));

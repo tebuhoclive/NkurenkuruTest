@@ -3,30 +3,28 @@
 import { observer } from "mobx-react-lite";
 import React, { useMemo } from "react";
 import { useState, useEffect, FormEvent } from "react";
-import { useAppContext } from "../../shared/functions/Context";
+import { useAppContext } from "../../../shared/functions/Context";
 
-import MODAL_NAMES from "../dialogs/ModalName";
-import  {
-  hideModalFromId,
-} from "../../shared/functions/ModalShow";
+import MODAL_NAMES from "../../dialogs/ModalName";
+import { hideModalFromId } from "../../../shared/functions/ModalShow";
 import {
   IJobCard,
   defaultJobCard,
-} from "../../shared/models/job-card-model/Jobcard";
+} from "../../../shared/models/job-card-model/Jobcard";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
+import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
 
 import SingleSelect, {
   IOption,
-} from "../../shared/components/single-select/SingleSelect";
-import NumberInput from "../shared/components/number-input/NumberInput";
+} from "../../../shared/components/single-select/SingleSelect";
+import NumberInput from "../../shared/components/number-input/NumberInput";
 import {
   IMaterial,
   defaultMaterial,
-} from "../../shared/models/job-card-model/Material";
-import MaterialTable from "./grids/MaterialTable";
+} from "../../../shared/models/job-card-model/Material";
+import MaterialTable from "../grids/MaterialTable";
 
 const AllocateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -34,7 +32,6 @@ const AllocateJobCardModal = observer(() => {
   const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
   const [teamMemberValue, setTeamMemberValue] = useState([]); // State for Team Member input
   const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
-
 
   // Additional state or logic specific to Step 2
 
@@ -59,9 +56,8 @@ const AllocateJobCardModal = observer(() => {
     // For example, you can extract the selected values and store them in state
     const selectedValues = selectedOptions.map((option) => option.value);
     console.log(selectedValues); // Assuming setTeamMembers is a state update function
-     setTeamMemberValue(selectedValues);
+    setTeamMemberValue(selectedValues);
   };
- 
 
   const handleMeasureChange = (value) => {
     setTeamMemberValue(value);
@@ -126,7 +122,7 @@ const AllocateJobCardModal = observer(() => {
         jobcardCost: totalMaterialCost,
         teamLeader: teamLeaderValue,
         artesian: artesianValue,
-        assignedTo:teamLeaderValue,
+        assignedTo: teamLeaderValue,
         teamMembers: teamMemberValue,
         reworked: reworked,
         status: "In Progress",
@@ -148,9 +144,9 @@ const AllocateJobCardModal = observer(() => {
   };
 
   const onCancel = () => {
-    setArtesianValue ("") ; // State for Artesian input
-     setTeamLeaderValue("")// State for Team Leader input
-   setTeamMemberValue([]) // State for Team Member input
+    setArtesianValue(""); // State for Artesian input
+    setTeamLeaderValue(""); // State for Team Leader input
+    setTeamMemberValue([]); // State for Team Member input
     store.jobcard.jobcard.clearSelected();
     store.jobcard.material.clearSelected();
     setJobCard({ ...defaultJobCard });
@@ -358,19 +354,17 @@ const AllocateJobCardModal = observer(() => {
     return user ? user.asJson.displayName : "Unknown";
   };
 
-    const getBusinessUnitName = (businessId) => {
-      const unit = store.businessUnit.all.find(
-        (unit) => unit.asJson.id === businessId
-      );
-      return unit ? unit.asJson.name : "Unknown";
-    };
+  const getBusinessUnitName = (businessId) => {
+    const unit = store.businessUnit.all.find(
+      (unit) => unit.asJson.id === businessId
+    );
+    return unit ? unit.asJson.name : "Unknown";
+  };
 
-    const getDepartmentName = (deptId) => {
-      const dept = store.department.all.find(
-        (user) => user.asJson.id === deptId
-      );
-      return dept ? dept.asJson.name : "Unknown";
-    };
+  const getDepartmentName = (deptId) => {
+    const dept = store.department.all.find((user) => user.asJson.id === deptId);
+    return dept ? dept.asJson.name : "Unknown";
+  };
 
   const onDeleteMaterial = async (e, materialId: string) => {
     e.preventDefault(); // Prevent default form submission behavior
@@ -382,27 +376,24 @@ const AllocateJobCardModal = observer(() => {
       console.error("Error deleting material:", error);
     }
   };
- const onEditMaterial = async (e) => {
-       e.preventDefault(); // Prevent default form submission behavior
+  const onEditMaterial = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
 
-       try {
-
-        if(material && jobCard){
-          // Update the material on the server
-          await api.jobcard.material.update(material, jobCard.id);
-        }
-       setShowEditMaterialForm(false);
-       } catch (error) {
-         console.error("Error updating material:", error);
-       }
-        
-     };
-
+    try {
+      if (material && jobCard) {
+        // Update the material on the server
+        await api.jobcard.material.update(material, jobCard.id);
+      }
+      setShowEditMaterialForm(false);
+    } catch (error) {
+      console.error("Error updating material:", error);
+    }
+  };
 
   const handleEdit = async (material: IMaterial) => {
     if (material) {
       setMaterial(material);
-      setShowEditMaterialForm(true)
+      setShowEditMaterialForm(true);
     }
     try {
     } catch (error) {
@@ -645,7 +636,6 @@ const AllocateJobCardModal = observer(() => {
                   </div>
                 </div>
               </>
-            
 
               <div className="uk-width-1-2 uk-margin">
                 <div className="uk-margin">
