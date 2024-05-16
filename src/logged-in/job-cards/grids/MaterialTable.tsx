@@ -10,6 +10,8 @@ const MaterialTable = ({
   onDeleteMaterial,
   defaultPage = 1,
   defaultItemsPerPage = 5,
+  showActions = true, // New prop to control showing/hiding the Actions column
+  showPagination=true
 }) => {
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
@@ -43,7 +45,8 @@ const MaterialTable = ({
               <th>Name</th>
               <th>Unit Cost</th>
               <th>Quantity</th>
-              <th>Actions</th>
+              {showActions && status !== "Completed" && <th>Actions</th>}{" "}
+              {/* Conditionally render the Actions column based on showActions prop */}
             </tr>
           </thead>
           <tbody>
@@ -53,49 +56,49 @@ const MaterialTable = ({
                 <td>{material.name}</td>
                 <td>N$ {material.unitCost}</td>
                 <td>{material.quantity}</td>
-                <td>
-                  {status !== "Completed" && (
-                    <>
-                      <IconButton
-                        aria-label="edit"
-                        onClick={() => handleEdit(material)}
-                        style={{
-                          color: "black",
-                          padding: "8px",
-                          fontSize: "1rem",
-                        }}>
-                        <FontAwesomeIcon icon={faPencilAlt} />
-                      </IconButton>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={(e) => onDeleteMaterial(e, material.id)}
-                        style={{
-                          color: "black",
-                          padding: "8px",
-                          fontSize: "1rem",
-                        }}>
-                        <FontAwesomeIcon icon={faTrashAlt} />
-                      </IconButton>
-                    </>
-                  )}
-                </td>
+                {showActions && status !== "Completed" && (
+                  <td>
+                    <IconButton
+                      aria-label="edit"
+                      onClick={() => handleEdit(material)}
+                      style={{
+                        color: "black",
+                        padding: "8px",
+                        fontSize: "1rem",
+                      }}>
+                      <FontAwesomeIcon icon={faPencilAlt} />
+                    </IconButton>
+                    <IconButton
+                      aria-label="delete"
+                      onClick={(e) => onDeleteMaterial(e, material.id)}
+                      style={{
+                        color: "black",
+                        padding: "8px",
+                        fontSize: "1rem",
+                      }}>
+                      <FontAwesomeIcon icon={faTrashAlt} />
+                    </IconButton>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="pagination">
-        <button
-          onClick={() => handlePageChange("prev")}
-          disabled={currentPage === 1}>
-          Prev
-        </button>
-        <button
-          onClick={() => handlePageChange("next")}
-          disabled={endIndex >= materialList.length}>
-          Next
-        </button>
-      </div>
+      {showPagination && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange("prev")}
+            disabled={currentPage === 1}>
+            Prev
+          </button>
+          <button
+            onClick={() => handlePageChange("next")}
+            disabled={endIndex >= materialList.length}>
+            Next
+          </button>
+        </div>
+      )}
     </>
   );
 };

@@ -42,12 +42,12 @@ const ViewAllocatedJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
 
-  const handleArtesianChange = (value:string) => {
+  const handleArtesianChange = (value: string) => {
     setArtesianValue(value);
     setJobCard({ ...jobCard, artesian: value });
     // Additional logic if needed
   };
-  const handleTeamLeaderChange = (value:string) => {
+  const handleTeamLeaderChange = (value: string) => {
     setTeamLeaderValue(value);
     setJobCard({ ...jobCard, teamLeader: value });
     // Additional logic if needed
@@ -96,33 +96,15 @@ const ViewAllocatedJobCardModal = observer(() => {
       }),
     [users]
   );
-  // const measureOptions: IOption[] = useMemo(
-  //   () =>
-  //     measure.map((measure) => {
-  //       return {
-  //         label: measure.asJson.description || "",
-  //         value: measure.asJson.uid,
-  //       };
-  //     }),
-  //   [measure]
-  // );
-
-  const staticMeasures = [
-    { label: "Measure 1", value: "measure1" },
-    { label: "Measure 2", value: "measure2" },
-    { label: "Measure 3", value: "measure3" },
-    // Add more measures as needed
-  ];
-
   const measureOptions: IOption[] = useMemo(
     () =>
-      staticMeasures.map((measure) => {
+      measure.map((measure) => {
         return {
-          label: measure.label,
-          value: measure.value,
+          label: measure.asJson.description || "",
+          value: measure.asJson.uid,
         };
       }),
-    [] // No dependencies since staticMeasures is not expected to change
+    [measure]
   );
 
   const currentMeasure = store.measure;
@@ -341,45 +323,6 @@ const ViewAllocatedJobCardModal = observer(() => {
     setShowMaterialForm(true);
   };
 
-  const handleMaterialAdded = async (e) => {
-    e.preventDefault();
-
-    // Validate if unit cost or quantity is negative or zero
-    if (newMaterial.unitCost <= 0 || isNaN(newMaterial.unitCost)) {
-      setUnitCostErrorMessage("Unit cost must be a positive number.");
-      return; // Exit function if validation fails
-    }
-
-    if (newMaterial.quantity <= 0 || isNaN(newMaterial.quantity)) {
-      setQuantityErrorMessage("Quantity must be a positive number.");
-      return; // Exit function if validation fails
-    }
-
-    try {
-      // Create the material on the server
-      const id = jobCard.id;
-      await api.jobcard.material.create(
-        newMaterial,
-        id
-        // jobCard.id
-      );
-
-      // Clear the form
-      setNewMaterial({ ...defaultMaterial });
-    } catch (error) {
-      // Handle error appropriately
-      console.error("Error submitting form:", error);
-    } finally {
-      setLoading(false); // Make sure to reset loading state regardless of success or failure
-      onCancel();
-    }
-    // Clear any previous error messages
-    setUnitCostErrorMessage("");
-    setQuantityErrorMessage("");
-
-    setShowMaterialForm(false);
-  };
-
   // Function to handle changes for Material Name
   const handleMaterialNameChange = (e) => {
     const value = e.target.value;
@@ -391,42 +334,6 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   // Define function to handle changes in unit cost
   // State variables
-  const [unitCostErrorMessage, setUnitCostErrorMessage] = useState("");
-  const [quantityErrorMessage, setQuantityErrorMessage] = useState("");
-
-  // Define function to handle changes in unit cost
-  const handleUnitCostChange = (value) => {
-    // Ensure value is not negative or zero
-    if (value <= 0 || isNaN(value)) {
-      // Display error message
-      setUnitCostErrorMessage("Unit cost must be a positive number.");
-      return;
-    }
-    // Clear error message
-    setUnitCostErrorMessage("");
-    // Update state with new unit cost value
-    setNewMaterial({
-      ...newMaterial,
-      unitCost: value,
-    });
-  };
-
-  // Define function to handle changes in quantity
-  const handleQuantityChange = (value) => {
-    // Ensure value is not negative or zero
-    if (value <= 0 || isNaN(value)) {
-      // Display error message
-      setQuantityErrorMessage("Quantity must be a positive number.");
-      return;
-    }
-    // Clear error message
-    setQuantityErrorMessage("");
-    // Update state with new quantity value
-    setNewMaterial({
-      ...newMaterial,
-      quantity: value,
-    });
-  };
 
   // Function to get the display name based on the assignedTo ID
   const getDisplayName = (assignedToId) => {
@@ -470,21 +377,32 @@ const ViewAllocatedJobCardModal = observer(() => {
     }
   };
 
-const handleMarkAsCompleted = async () => {
-  const UpdateJobCard :IJobCard = { ...jobCard, status: "Completed" };
+  const handleMarkAsCompleted = async () => {
+    const UpdateJobCard: IJobCard = { ...jobCard, status: "Completed" };
 
-  try {
-    await api.jobcard.jobcard.update(UpdateJobCard);
-    console.log("Completed", UpdateJobCard);
-    
-  } finally {
-    onCancel();
-  }
-};
+    try {
+      await api.jobcard.jobcard.update(UpdateJobCard);
+      console.log("Completed", UpdateJobCard);
+    } finally {
+      onCancel();
+    }
+  };
+  const showOptionsColumn = true; // Set this to false to hide the Options column
 
-  // const handleFeedbackAndComments = () => {
-  //   // Your logic for handling feedback and comments goes here
-  // };
+  const [reworked, setReworked] = useState("No");
+
+  // code for adding material
+  const getBusinessUnitName = (businessId) => {
+    const unit = store.businessUnit.all.find(
+      (unit) => unit.asJson.id === businessId
+    );
+    return unit ? unit.asJson.name : "Unknown";
+  };
+
+  const getDepartmentName = (deptId) => {
+    const dept = store.department.all.find((user) => user.asJson.id === deptId);
+    return dept ? dept.asJson.name : "Unknown";
+  };
 
   useEffect(() => {
     const selectedJobCard = store.jobcard.jobcard.selected;
@@ -514,6 +432,10 @@ const handleMarkAsCompleted = async () => {
     jobCard,
   ]);
 
+  function handleOnEditJobCard(): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <ErrorBoundary>
       <div
@@ -525,44 +447,114 @@ const handleMarkAsCompleted = async () => {
           disabled={loading}
           type="button"
           data-uk-close></button>
-        <h3 className="main-title-small text-to-break">
+        {/* <h3 className="main-title-small text-to-break">
           {" "}
           Job Card Allocation view
-        </h3>
+        </h3> */}
+        <span style={{ fontSize: "1.4rem", fontWeight: "bold" }}>
+          Allocated Job Card Form
+        </span>
         <hr />
 
-        <div className="uk-grid">
-          <div className="uk-width-1-3">
-            {jobCard && (
-              <div className="uk-width-1-1 uk-margin-medium-top">
-                <h4>Selected Job Card Details</h4>
-                <div className="uk-grid uk-grid-small" data-uk-grid>
+        <div className="dialog-content uk-position-relative uk-width-1-1">
+          <h4 className="uk-text-bold">Job Card Management and allocation</h4>
+
+          <hr />
+          <form
+            className="uk-form uk-grid uk-grid-small"
+            onSubmit={handleSubmit}>
+            <>
+              <div className="uk-width-1-2">
+                {jobCard && (
+                  <div className="uk-width-1-1 ">
+                    <h4 style={{ fontWeight: "bold" }}>Job Card Details</h4>
+
+                    <div className="uk-grid uk-grid-small" data-uk-grid>
+                     
+                      <hr className="uk-width-1-1" />
+
+                      <div className="uk-width-1-3">
+                        <p>Section:</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{getDepartmentName(jobCard.section)}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+
+                      <div className="uk-width-1-3">
+                        <p>Division.</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{getBusinessUnitName(jobCard.division)}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+
+                      <div className="uk-width-1-3">
+                        <p>Urgency</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{jobCard.urgency}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+
+                      <div className="uk-width-1-3">
+                        <p>Unique ID.</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{jobCard.uniqueId}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+
+                      <div className="uk-width-1-3">
+                        <p>Task Description:</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{jobCard.taskDescription}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+                      <div className="uk-width-1-3">
+                        <p>Due Date:</p>
+                      </div>
+                      <div className="uk-width-1-1">
+                        <p>{jobCard.dueDate}</p>
+                      </div>
+                      <hr className="uk-width-1-1" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="uk-width-1-2 ">
+                <h4 style={{ fontWeight: "bold" }}>Team Details</h4>
+                <div
+                  className="uk-grid uk-grid-small uk-margin-left"
+                  data-uk-grid>
                   <div className="uk-width-1-3">
                     <p>Assigned To:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{getDisplayName(jobCard.assignedTo)}</p>
+                    <p>{getDisplayName(jobCard.teamLeader)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
-                    <p>Section:</p>
+                    <p>Team Leader:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.section}</p>
+                    <p>{getDepartmentName(jobCard.section)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
-                    <p>Division.</p>
+                    <p>Artesian</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.division}</p>
+                    <p>{getBusinessUnitName(jobCard.division)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
-                    <p>Urgency</p>
+                    <p>Artesian</p>
                   </div>
                   <div className="uk-width-2-3">
                     <p>{jobCard.urgency}</p>
@@ -570,329 +562,153 @@ const handleMarkAsCompleted = async () => {
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
-                    <p>Unique ID.</p>
+                    <p>Member (s).</p>
                   </div>
                   <div className="uk-width-2-3">
                     <p>{jobCard.uniqueId}</p>
                   </div>
                   <hr className="uk-width-1-1" />
-
-                  <div className="uk-width-1-3">
-                    <p>Task Description:</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.taskDescription}</p>
-                  </div>
-                  <hr className="uk-width-1-1" />
-
-                  <div className="uk-width-1-1">
-                    <p>{jobCard.dueDate}</p>
-                  </div>
                 </div>
               </div>
-            )}
-            {jobCard && (
-              <div className="uk-width-1-1 uk-margin-large-top">
-                <h4>Selected Job Card Client Details</h4>
-                <div className="uk-grid uk-grid-small" data-uk-grid>
-                  <div className="uk-width-1-3">
-                    <p>Full Name:</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.clientFullName}</p>
-                  </div>
-                  <hr className="uk-width-1-1" />
+              {jobCard && (
+                <div className="uk-width-1-2 uk-margin-large-top">
+                  <h4 style={{ fontWeight: "bold" }}>
+                    Job Card Client Details
+                  </h4>
 
-                  <div className="uk-width-1-3">
-                    <p>Address :</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.clientAddress}</p>
-                  </div>
-                  <hr className="uk-width-1-1" />
-
-                  <div className="uk-width-1-3">
-                    <p>Phone No.</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.clientMobileNumber}</p>
-                  </div>
-                  <hr className="uk-width-1-1" />
-
-                  <div className="uk-width-1-3">
-                    <p>Email</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{jobCard.clientEmail}</p>
-                  </div>
-                  <hr className="uk-width-1-1" />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="dialog-content uk-position-relative uk-width-2-3">
-            <h4>Job Card Management and allocation</h4>
-
-            <hr />
-            <form
-              className="uk-margin"
-              style={{ justifyContent: "center" }}
-              onSubmit={handleSubmit}>
-              <>
-                <div className="uk-grid">
-                  <div className="uk-width-1-3">
-                    <div>
-                      <label htmlFor="issuedDate">
-                        Artesian<span className="uk-text-danger">*</span>
-                      </label>
-                      <div className="uk-form-controls">
-                        <SingleSelect
-                          name="search-team"
-                          options={options}
-                          width="250px"
-                          onChange={handleArtesianChange}
-                          placeholder="Search by name"
-                          value={artesianValue}
-                          required
-                        />
-                      </div>
+                  <div className="uk-grid uk-grid-small" data-uk-grid>
+                    <div className="uk-width-1-3">
+                      <p>Full Name:</p>
                     </div>
-                  </div>
-
-                  <div className="uk-width-1-3">
-                    <div>
-                      <label htmlFor="issuedTime">
-                        Team Leader<span className="uk-text-danger">*</span>
-                      </label>
-                      <div className="uk-form-controls">
-                        <SingleSelect
-                          name="search-team"
-                          options={options}
-                          width="250px"
-                          onChange={handleTeamLeaderChange}
-                          placeholder="Search by name"
-                          value={teamLeaderValue}
-                          required
-                        />
-                      </div>
+                    <div className="uk-width-2-3">
+                      <p>{jobCard.clientFullName}</p>
                     </div>
-                  </div>
+                    <hr className="uk-width-1-1" />
 
-                  <div className="uk-width-1-3">
-                    <div>
-                      <label htmlFor="issuedTime">
-                        Please select your aligned KPI{" "}
-                        <span className="uk-text-danger">*</span>
-                      </label>
-                      <div className="uk-form-controls">
-                        <SingleSelect
-                          name="search-team"
-                          options={measureOptions}
-                          width="250px"
-                          onChange={handleMeasureChange}
-                          placeholder="Select KPI"
-                          value={jobCard.measure}
-                          required
-                        />
-                      </div>
+                    <div className="uk-width-1-3">
+                      <p>Address :</p>
+                    </div>
+                    <div className="uk-width-2-3">
+                      <p>{jobCard.clientAddress}</p>
+                    </div>
+                    <hr className="uk-width-1-1" />
+
+                    <div className="uk-width-1-3">
+                      <p>Phone No.</p>
+                    </div>
+                    <div className="uk-width-2-3">
+                      <p>{jobCard.clientMobileNumber}</p>
+                    </div>
+                    <hr className="uk-width-1-1" />
+
+                    <div className="uk-width-1-3">
+                      <p>Email</p>
+                    </div>
+                    <div className="uk-width-2-3">
+                      <p>{jobCard.clientEmail}</p>
                     </div>
                   </div>
                 </div>
-              </>
+              )}
+            </>
 
-              <div className="uk-width-1-2 uk-margin">
-                <div className="uk-margin">
-                  <label htmlFor="issuedTime">
-                    Select team Member(s)
-                    <span className="uk-text-danger">*</span>
-                  </label>
-                  <div className="uk-form-controls">
-                    {/* <SingleSelect
-                          name="search-team"
-                          options={options}
-                          width="250px"
-                          onChange={handleTeamMemberChange}
-                          placeholder="Search by name"
-                          value={teamMemberValue}
-                        /> */}
-                    <Select
-                      defaultValue={[]}
-                      isMulti
-                      name="colors"
-                      options={options}
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                      onChange={handleTeamMemberChange}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="uk-grid">
-                <div className="uk-width-1-1">
-                  {currentMaterialList.length !== 0 && (
-                    <>
-                      {" "}
-                      <h3>Material List</h3>
-                      <MaterialTable
-                        materialList={currentMaterialList}
-                        status={jobCard.status}
-                        handleEdit={handleEdit}
-                        onDeleteMaterial={onDeleteMaterial}
-                        defaultPage={1} // Specify the default page number
-                        defaultItemsPerPage={5} // Specify the default items per page
-                      />
-                    </>
-                  )}
-
-                  {!showMaterialForm && jobCard.isAllocated !== true && (
-                    <div
-                      className="uk-width-1-1 uk-text-right"
-                      style={{ marginTop: "20px" }}>
-                      <button
-                        className="btn btn-primary uk-margin"
-                        onClick={handleAddMaterialClick}>
-                        <span>Add Material&nbsp;&nbsp;</span>
-                        <FontAwesomeIcon
-                          icon={faPlus}
-                          className="icon uk-margin-small-right"
-                        />
-                      </button>
-                    </div>
-                  )}
-                  {showMaterialForm && (
-                    <div>
-                      <h4>Add New Material</h4>
-                      <div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialName">
-                            Material Name:
-                          </label>
-                          <input
-                            type="text"
-                            id="materialName"
-                            name="name"
-                            value={newMaterial.name}
-                            className="uk-input"
-                          />
-                        </div>
-                        <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
-                          <label
-                            className="uk-form-label required"
-                            htmlFor="amount">
-                            Cost Amount (min N$ cannot be less than 0)
-                          </label>
-                          <NumberInput
-                            id="amount"
-                            className="auto-save uk-input purchase-input uk-form-small"
-                            placeholder="-"
-                            value={newMaterial.unitCost}
-                            onChange={(value) => handleUnitCostChange(value)}
-                            decimalScale={2}
-                          />
-                          {unitCostErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{unitCostErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="uk-margin">
-                          <label
-                            className="uk-form-label"
-                            htmlFor="materialQuantity">
-                            Quantity:
-                          </label>
-                          <NumberInput
-                            id="materialQuantity"
-                            className="uk-input"
-                            value={newMaterial.quantity}
-                            onChange={(value) => handleQuantityChange(value)}
-                          />
-                          {quantityErrorMessage && (
-                            <div className="uk-alert-danger" data-uk-alert>
-                              <p>{quantityErrorMessage}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <button
-                          onClick={handleMaterialAdded}
-                          className="btn btn-primary">
-                          Add Material
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="uk-margin">
-                <label htmlFor="remarks">Remarks:</label>
-                <textarea
-                  id="remarks"
-                  className="uk-textarea"
-                  placeholder="Enter remarks..."
-                  value={jobCard.comment}
-                  onChange={(e) =>
-                    setJobCard({ ...jobCard, comment: e.target.value })
-                  }
-                />
-              </div>
-
-              <div
-                className="uk-width-1-1 uk-text-right"
-                style={{ marginTop: "20px" }}>
+            <div className="uk-width-1-1">
+              <h3>Material List</h3>
+              {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
+              <MaterialTable
+                materialList={materialList}
+                handleEdit={handleEdit}
+                onDeleteMaterial={onDeleteMaterial}
+                showActions={false}
+                showPagination={false} // Pass showActions prop with value false to hide the Actions column
+              />
+              {!showMaterialForm && jobCard.isAllocated !== true && (
                 <div
                   className="uk-width-1-1 uk-text-right"
-                  style={{ marginTop: "10px" }}>
-                  {jobCard.isAllocated !== true && (
+                  style={{ marginTop: "20px" }}>
+                  <button
+                    className="btn btn-primary uk-margin"
+                    onClick={handleAddMaterialClick}>
+                    <span>Add Material&nbsp;&nbsp;</span>
+                    <FontAwesomeIcon
+                      icon={faPlus}
+                      className="icon uk-margin-small-right"
+                    />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="uk-margin uk-width-1-1">
+              <label htmlFor="remarks">Remarks:</label>
+              <textarea
+                id="remarks"
+                className="uk-textarea"
+                placeholder="Enter remarks..."
+                value={jobCard.comment}
+                onChange={(e) =>
+                  setJobCard({ ...jobCard, comment: e.target.value })
+                }
+              />
+            </div>
+
+            <div
+              className="uk-width-1-1 uk-text-right"
+              style={{ marginTop: "20px" }}>
+              <div
+                className="uk-width-1-1 uk-text-right"
+                style={{ marginTop: "10px" }}>
+                {jobCard.isAllocated !== true && (
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    disabled={loading}>
+                    Allocate
+                    {loading && <div data-uk-spinner="ratio: .5"></div>}
+                  </button>
+                )}
+                {jobCard.isAllocated === true && (
+                  <div
+                    className="uk-width-1-1 uk-text-right"
+                    style={{ marginTop: "100px" }}>
                     <button
-                      className="btn btn-primary"
-                      type="submit"
-                      disabled={loading}>
-                      Allocate
+                      className="btn btn-primary uk-margin-right"
+                      type="button"
+                      disabled={loading}
+                      onClick={generatePDF}>
+                      Exported to pdf{" "}
                       {loading && <div data-uk-spinner="ratio: .5"></div>}
                     </button>
-                  )}
+                    {jobCard.status !== "Completed" && (
+                      <>
+                        <button
+                          className="btn btn-primary uk-margin-right"
+                          type="button"
+                          disabled={loading}
+                          onClick={handleOnEditJobCard}>
+                          Edit Job Card{" "}
+                          {loading && <div data-uk-spinner="ratio: .5"></div>}
+                        </button>
+                        <button
+                          className="btn btn-primary uk-margin-right"
+                          type="button"
+                          disabled={loading}
+                          onClick={handleDeleteJobCard}>
+                          Delete Job Card{" "}
+                          {loading && <div data-uk-spinner="ratio: .5"></div>}
+                        </button>
+                        <button
+                          className="btn btn-primary uk-margin-right"
+                          type="button"
+                          disabled={loading}
+                          onClick={handleMarkAsCompleted}>
+                          Mark As completed{" "}
+                          {loading && <div data-uk-spinner="ratio: .5"></div>}
+                        </button>
+                      </>
+                    )}
 
-                  {jobCard.isAllocated === true && (
-                    <div
-                      className="uk-width-1-1 uk-text-right"
-                      style={{ marginTop: "100px" }}>
-                      <button
-                        className="btn btn-primary uk-margin-right"
-                        type="button"
-                        disabled={loading}
-                        onClick={generatePDF}>
-                        Exported to pdf{" "}
-                        {loading && <div data-uk-spinner="ratio: .5"></div>}
-                      </button>
-                      {jobCard.status !== "Completed" && (
-                        <>
-                          <button
-                            className="btn btn-primary uk-margin-right"
-                            type="button"
-                            disabled={loading}
-                            onClick={handleDeleteJobCard}>
-                            Delete Job Card{" "}
-                            {loading && <div data-uk-spinner="ratio: .5"></div>}
-                          </button>
-                          <button
-                            className="btn btn-primary uk-margin-right"
-                            type="button"
-                            disabled={loading}
-                            onClick={handleMarkAsCompleted}>
-                            Mark As completed{" "}
-                            {loading && <div data-uk-spinner="ratio: .5"></div>}
-                          </button>
-                        </>
-                      )}
-
-                      {/* <button
+                    {/* <button
                         className="btn btn-primary"
                         type="button"
                         disabled={loading}
@@ -900,12 +716,11 @@ const handleMarkAsCompleted = async () => {
                         Feedback & Comments{" "}
                         {loading && <div data-uk-spinner="ratio: .5"></div>}
                       </button> */}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </ErrorBoundary>

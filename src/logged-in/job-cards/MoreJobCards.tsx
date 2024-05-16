@@ -18,6 +18,7 @@ import Toolbar from "../shared/components/toolbar/Toolbar";
 import JobCardTabs from "./dashboard/JobCardTabs";
 import { faCommentDots, faFileExcel, faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ViewMoreJobCardTabs from "./dashboard/ViewMoreJobCardTabs";
 
 
 
@@ -57,6 +58,7 @@ const MoreJobCards = observer(() => {
   // Assuming allJobCards is an array of job cards
   const allJobCards = store.jobcard.jobcard.all;
 
+   const all = store.jobcard.jobcard.all.map((job) => job.asJson);
   // Initialize an array to store time since issuance for each job card
   const timeSinceIssuanceArray: { jobCardId: string; timeDiff: number }[] = [];
 
@@ -181,14 +183,13 @@ const MoreJobCards = observer(() => {
         <ErrorBoundary>
           <Toolbar
             leftControls={
-              <JobCardTabs
+              <ViewMoreJobCardTabs
                 selectedTab={selectedTab}
                 setselectedTab={setselectedTab}
               />
             }
             rightControls={
               <ErrorBoundary>
-               
                 <div className="uk-inline">
                   <button
                     className="btn btn-primary"
@@ -242,14 +243,14 @@ const MoreJobCards = observer(() => {
             }
           />
         </ErrorBoundary>
-       
+
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
         <ErrorBoundary>
           {!loading && selectedTab === "strategy-tab" && (
             <>
               {" "}
               <JobCardTable
-                jobCards={JobCards}
+                jobCards={all}
                 handleEdit={onViewCreated}
                 onView={onViewCreated}
                 defaultPage={1} // Specify the default page number

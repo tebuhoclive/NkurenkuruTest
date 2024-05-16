@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
+import { dateFormat_YY_MM_DD } from "../../shared/utils/utils";
 
 const JobCardTable = ({
   jobCards,
@@ -85,14 +86,7 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
     return formattedTimeDifference;
   };
 
-  // Function to handle page change
-  const handlePageChange = (action) => {
-    if (action === "prev" && currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    } else if (action === "next" && endIndex < jobCards.length) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+ 
 
   return (
     <div className="people-tab-content uk-card uk-card-default uk-card-body">
@@ -102,7 +96,7 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
           <thead>
             <tr>
               <th>#</th>
-              <th>Assigned To</th>
+              <th>Due Date</th>
               <th>Division</th>
               <th>Section</th>
               <th>Date Issued</th>
@@ -120,7 +114,7 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
                   <td>{startIndex + index + 1}</td>
-                  <td>{getDisplayName(jobCard.assignedTo)}</td>
+               <td>  {dateFormat_YY_MM_DD(jobCard.dueDate)}</td> 
                   <td>{getBusinessUnitName(jobCard.division)}</td>
                   <td>{getDepartmentName(jobCard.section)}</td>
                   <td>{jobCard.dateIssued}</td>
@@ -149,7 +143,9 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
       {/* Show more button */}
       {!showMore && (
         <div className="pagination">
-          <button onClick={onViewMoreClick}>View More</button>
+          <button className="btn btn-primary" onClick={onViewMoreClick}>
+            View More
+          </button>
         </div>
       )}
     </div>

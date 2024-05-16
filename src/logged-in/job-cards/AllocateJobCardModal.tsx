@@ -126,6 +126,7 @@ const AllocateJobCardModal = observer(() => {
         jobcardCost: totalMaterialCost,
         teamLeader: teamLeaderValue,
         artesian: artesianValue,
+        assignedTo:teamLeaderValue,
         teamMembers: teamMemberValue,
         reworked: reworked,
         status: "In Progress",
@@ -566,7 +567,7 @@ const AllocateJobCardModal = observer(() => {
               onSubmit={handleSubmit}>
               <>
                 <div className="uk-grid">
-                  <div className="uk-width-1-3">
+                  <div className="uk-width-1-2">
                     <div>
                       <label htmlFor="issuedDate">
                         Artesian<span className="uk-text-danger">*</span>
@@ -575,7 +576,7 @@ const AllocateJobCardModal = observer(() => {
                         <SingleSelect
                           name="search-team"
                           options={options}
-                          width="250px"
+                          // width="250px"
                           onChange={handleArtesianChange}
                           placeholder="Search by name"
                           value={artesianValue}
@@ -585,7 +586,7 @@ const AllocateJobCardModal = observer(() => {
                     </div>
                   </div>
 
-                  <div className="uk-width-1-3">
+                  <div className="uk-width-1-2">
                     <div>
                       <label htmlFor="issuedTime">
                         Team Leader<span className="uk-text-danger">*</span>
@@ -594,7 +595,7 @@ const AllocateJobCardModal = observer(() => {
                         <SingleSelect
                           name="search-team"
                           options={options}
-                          width="250px"
+                          // width="250px"
                           onChange={handleTeamLeaderChange}
                           placeholder="Search by name"
                           value={teamLeaderValue}
@@ -604,7 +605,7 @@ const AllocateJobCardModal = observer(() => {
                     </div>
                   </div>
 
-                  <div className="uk-width-1-3">
+                  <div className="uk-width-1-2">
                     <div>
                       <label htmlFor="issuedTime">
                         Please select your aligned KPI{" "}
@@ -614,7 +615,7 @@ const AllocateJobCardModal = observer(() => {
                         <SingleSelect
                           name="search-team"
                           options={measureOptions}
-                          width="250px"
+                          // width="250px"
                           onChange={handleMeasureChange}
                           placeholder="Select KPI"
                           value={jobCard.measure}
@@ -623,22 +624,28 @@ const AllocateJobCardModal = observer(() => {
                       </div>
                     </div>
                   </div>
+                  <div className="uk-width-1-2">
+                    <div>
+                      <label className="uk-form-label" htmlFor="reworked">
+                        Re-worked Job Card :
+                        <span className="uk-text-danger">*</span>
+                      </label>
+                      <div className="uk-form-controls">
+                        <select
+                          id="reworked"
+                          className="uk-select"
+                          value={reworked}
+                          required
+                          onChange={(e) => setReworked(e.target.value)}>
+                          <option value="no">No</option>
+                          <option value="yes">Yes</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
-              <div className="uk-form-controls uk-width-1-2 uk-margin-bottom uk-margin-top">
-                <label className="uk-form-label" htmlFor="reworked">
-                  Re-worked Job Card :<span className="uk-text-danger">*</span>
-                </label>
-                <select
-                  id="reworked"
-                  className="uk-select"
-                  value={reworked}
-                  required
-                  onChange={(e) => setReworked(e.target.value)}>
-                  <option value="no">No</option>
-                  <option value="yes">Yes</option>
-                </select>
-              </div>
+            
 
               <div className="uk-width-1-2 uk-margin">
                 <div className="uk-margin">
