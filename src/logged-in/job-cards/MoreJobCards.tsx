@@ -12,15 +12,17 @@ import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary"
 import JobCardGridTabs from "./dashboard/JobCardGridTabs";
 
 import useBackButton from "../../shared/hooks/useBack";
-import JobCardTable from "./grids/JobCardTable copy 2";
+import JobCardTable from "./grids/AllocatedJobCardTable ";
 import Dropdown from "../../shared/components/dropdown/Dropdown";
 import Toolbar from "../shared/components/toolbar/Toolbar";
 import JobCardTabs from "./dashboard/JobCardTabs";
-import { faCommentDots, faFileExcel, faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCommentDots,
+  faFileExcel,
+  faFilePdf,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ViewMoreJobCardTabs from "./dashboard/ViewMoreJobCardTabs";
-
-
 
 const MoreJobCards = observer(() => {
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ const MoreJobCards = observer(() => {
   // Assuming allJobCards is an array of job cards
   const allJobCards = store.jobcard.jobcard.all;
 
-   const all = store.jobcard.jobcard.all.map((job) => job.asJson);
+  const all = store.jobcard.jobcard.all.map((job) => job.asJson);
   // Initialize an array to store time since issuance for each job card
   const timeSinceIssuanceArray: { jobCardId: string; timeDiff: number }[] = [];
 
@@ -161,21 +163,25 @@ const MoreJobCards = observer(() => {
 
   if (loading) return <LoadingEllipsis />;
 
-    function onCreateJobCard(): void {
-        throw new Error("Function not implemented.");
-    }
+  function onCreateJobCard(): void {
+    throw new Error("Function not implemented.");
+  }
 
-    function handleExportPDF(): void {
-        throw new Error("Function not implemented.");
-    }
+  function handleExportPDF(): void {
+    throw new Error("Function not implemented.");
+  }
 
-    function handleExportExcel(): void {
-        throw new Error("Function not implemented.");
-    }
+  function handleExportExcel(): void {
+    throw new Error("Function not implemented.");
+  }
 
-    function handleFeedback(): void {
-        throw new Error("Function not implemented.");
-    }
+  function handleFeedback(): void {
+    throw new Error("Function not implemented.");
+  }
+
+  function handleBack(): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <ErrorBoundary>
@@ -190,55 +196,14 @@ const MoreJobCards = observer(() => {
             }
             rightControls={
               <ErrorBoundary>
-                <div className="uk-inline">
-                  <button
-                    className="btn btn-primary"
-                    title="More Job Card Actions.">
-                    More <span data-uk-icon="icon: more; ratio:.8"></span>
-                  </button>
-
-                  <Dropdown pos="bottom-right">
-                    <li>
-                      <button
-                        className="kit-dropdown-btn"
-                        onClick={handleExportPDF}
-                        title="Export your scorecard as PDF.">
-                        <FontAwesomeIcon
-                          icon={faFilePdf}
-                          size="lg"
-                          className="icon uk-margin-small-right"
-                        />
-                        Export PDF
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="kit-dropdown-btn"
-                        onClick={handleExportExcel}
-                        title="Export your scorecard as EXCEL.">
-                        <FontAwesomeIcon
-                          icon={faFileExcel}
-                          size="lg"
-                          className="icon uk-margin-small-right"
-                        />
-                        Export Excel
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="kit-dropdown-btn"
-                        onClick={handleFeedback}
-                        title="Read Comments">
-                        <FontAwesomeIcon
-                          icon={faCommentDots}
-                          size="lg"
-                          className="icon uk-margin-small-right"
-                        />
-                        Feedback
-                      </button>
-                    </li>
-                  </Dropdown>
-                </div>
+                <button
+                  className="btn btn-primary uk-margin-right"
+                  type="button"
+                  disabled={loading}
+                  onClick={handleBack}>
+                  Back
+                  {loading && <div data-uk-spinner="ratio: .5"></div>}
+                </button>
               </ErrorBoundary>
             }
           />

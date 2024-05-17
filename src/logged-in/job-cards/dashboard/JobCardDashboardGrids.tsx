@@ -13,7 +13,6 @@ import MODAL_NAMES from "../../dialogs/ModalName";
 import Modal from "../../../shared/components/Modal";
 import "./Dashboard.css"; // Your custom styles
 
-
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
 
@@ -23,7 +22,7 @@ import JobCardGridTabs from "./JobCardGridTabs";
 import AllocateJobCardModal from "../dialogs/AllocateJobCardModal";
 import ViewAllocatedJobCardModal from "../dialogs/ViewAllocatedJobCardModal ";
 
-import JobCardTable from "../grids/JobCardTable";
+import JobCardTable from "../grids/DashboardJobCardTable";
 import showModalFromId from "../../../shared/functions/ModalShow";
 import DonutChart from "../charts/DonutChart";
 import { useNavigate } from "react-router-dom";
@@ -42,12 +41,16 @@ const JobCardDashboardGrids = observer(() => {
   useTitle("Job Cards");
   useBackButton();
 
-const me= store.auth.meJson
+  const me = store.auth.meJson;
   const totalJobcards = store.jobcard.jobcard.all.length;
 
   const completed = store.jobcard.jobcard.all
     .map((job) => job.asJson)
     .filter((job) => job.status === "Completed");
+  //stats
+  const createdJobCards = store.jobcard.jobcard.all
+    .map((job) => job.asJson)
+    .filter((job) => job.isAllocated !== true);
   //stats
   const allocatedJobCards = store.jobcard.jobcard.all
     .map((job) => job.asJson)
@@ -110,6 +113,7 @@ const me= store.auth.meJson
       )} hours, ${weeks.toFixed(2)} weeks, ${months.toFixed(2)} months`
     );
   });
+
   const onViewMore = () => {
     navigate(`/c/job-cards/create`);
   };
@@ -119,6 +123,12 @@ const me= store.auth.meJson
 
     showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
   };
+  const onViewAllocated = (selectedJobCard: IJobCard) => {
+    console.log("selected job card", selectedJobCard);
+    store.jobcard.jobcard.select(selectedJobCard);
+
+    showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
+  };
 
   const value = totalCompletedJobcards / totalJobcards;
 
@@ -127,12 +137,6 @@ const me= store.auth.meJson
   const totalPendingJobCards = pendingJobcards.length;
   const totalAllocatedJobcards = allocatedJobCards.length;
 
-  const onViewAllocated = (selectedJobCard: IJobCard) => {
-    console.log("selected job card", selectedJobCard);
-    store.jobcard.jobcard.select(selectedJobCard);
-
-    showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
-  };
   //donut code
   const backgroundColors = {
     pending: "rgb(255, 99, 132)", // Red
@@ -252,7 +256,7 @@ const me= store.auth.meJson
                   {/* Example content */}
                   <p className="uk-text-bold">Recently Added Job cards</p>
                   <JobCardTableViewMoreRecent
-                    jobCards={allocatedJobCards}
+                    jobCards={createdJobCards}
                     handleEdit={onViewCreated}
                     onView={onViewAllocated}
                     defaultPage={1} // Specify the default page number
@@ -307,9 +311,9 @@ const me= store.auth.meJson
           <ErrorBoundary>
             {!loading && selectedTab === "strategy-tab" && (
               <JobCardTable
-                jobCards={allocatedJobCards}
+                jobCards={createdJobCards}
                 handleEdit={onViewCreated}
-                onView={onViewAllocated}
+                onView={onViewCreated}
                 defaultPage={1} // Specify the default page number
                 defaultItemsPerPage={5} // Specify the default items per page
                 timeSinceIssuanceArray={timeSinceIssuanceArray}

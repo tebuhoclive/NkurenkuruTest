@@ -1,25 +1,18 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
-import {
-  IJobCard,
-  defaultJobCard,
-} from "../../../shared/models/job-card-model/Jobcard";
+
 import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
 import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 import "./Dashboard.css"; // Your custom styles
 
-import {
-  IClient,
-  defaultClient,
-} from "../../../shared/models/job-card-model/Client";
+
 import swal from "sweetalert";
 import useTitle from "../../../shared/hooks/useTitle";
 import useBackButton from "../../../shared/hooks/useBack";
 import JobCardTabs from "./JobCardTabs";
-import CreateJobCard from "../dialogs/CreateJobCardModal";
 import AllocateJobCard from "../dialogs/AllocateJobCardModal";
-import JobDashboardMain from "./JobCardDashboardGrids";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Toolbar from "../../shared/components/toolbar/Toolbar";
 import Dropdown from "../../../shared/components/dropdown/Dropdown";
@@ -31,13 +24,12 @@ import MODAL_NAMES from "../../dialogs/ModalName";
 import Modal from "../../../shared/components/Modal";
 import JobCardDashboardGrids from "./JobCardDashboardGrids";
 import JobCardReports from "../JobCardReports";
+import CreateJobCardModal from "../dialogs/CreateJobCardModal";
 
 const CompanyJobCard = observer(() => {
   const { api, store } = useAppContext();
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<string>("JobCards");
-  const [client, setClient] = useState<IClient>({ ...defaultClient });
-  const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
+
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -50,7 +42,7 @@ const CompanyJobCard = observer(() => {
   };
 
   const [selectedTab, setselectedTab] = useState("strategy-tab");
-  useTitle("Job Cards");
+  useTitle("Job Card Dashboard");
   useBackButton();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -164,13 +156,13 @@ const CompanyJobCard = observer(() => {
               <JobCardDashboardGrids />
             )}
             {!loading && selectedTab === "department-tab" && <JobCardReports />}
-            {!loading && selectedTab === "people-tab" && <CreateJobCard />}
+            {!loading && selectedTab === "people-tab" && <CreateJobCardModal />}
             {!loading && selectedTab === "execution-tab" && <AllocateJobCard />}
           </ErrorBoundary>
         </div>
       </div>
       <Modal modalId={MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL}>
-        <CreateJobCard />
+        <CreateJobCardModal />
       </Modal>
     </ErrorBoundary>
   );

@@ -25,6 +25,7 @@ import {
   defaultMaterial,
 } from "../../../shared/models/job-card-model/Material";
 import MaterialTable from "../grids/MaterialTable";
+import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
 
 const AllocateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -450,12 +451,17 @@ const AllocateJobCardModal = observer(() => {
                 <h4 style={{ fontWeight: "bold" }}>Job Card Details</h4>
 
                 <div className="uk-grid uk-grid-small" data-uk-grid>
-                  <div className="uk-width-1-3">
-                    <p>Assigned To:</p>
-                  </div>
-                  <div className="uk-width-2-3">
-                    <p>{getDisplayName(jobCard.assignedTo)}</p>
-                  </div>
+                  {teamLeaderValue !== "" && (
+                    <>
+                      <div className="uk-width-1-3">
+                        <p>Assigned To:</p>
+                      </div>
+                      <div className="uk-width-2-3">
+                        <p>{getDisplayName(teamLeaderValue)}</p>
+                      </div>
+                    </>
+                  )}
+
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-3">
@@ -497,11 +503,14 @@ const AllocateJobCardModal = observer(() => {
                     <p>{jobCard.taskDescription}</p>
                   </div>
                   <hr className="uk-width-1-1" />
-
-                  <div className="uk-width-1-1">
-                    <p>{jobCard.dueDate}</p>
+                  <div className="uk-width-1-3">
+                    <p>Due Date:</p>
                   </div>
-                  <hr className="uk-width-1-1" />
+                  <div className="uk-width-2-3">
+                    <p>{dateFormat_YY_MM_DY(jobCard.dueDate)}</p>
+                  </div>
+
+                 
                 </div>
               </div>
             )}

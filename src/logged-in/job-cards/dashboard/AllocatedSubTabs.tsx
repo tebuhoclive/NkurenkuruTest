@@ -20,7 +20,7 @@ interface IProps {
   selectedTab: string;
   setselectedTab: React.Dispatch<React.SetStateAction<string>>;
 }
-const JobCardTabs = (props: IProps) => {
+const AllocatedSubTabs = (props: IProps) => {
   const { selectedTab, setselectedTab } = props;
 
   const activeTab = (tab: string) => {
@@ -35,22 +35,26 @@ const JobCardTabs = (props: IProps) => {
     <div className="settings-filters uk-margin">
       <ul className="kit-tabs" data-uk-tab>
         <TabItem
-          label="strategy-tab"
-          name="Unallocated"
+          label="inprogress-tab"
+          name="In progress"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
         <TabItem
-          label="department-tab"
-          name="Allocated"
+          label="completed-tab"
+          name="completed "
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
-       
-       
+        <TabItem
+          label="deleted-tab"
+          name="Deleted"
+          activeTab={activeTab}
+          onClickTab={onClickTab}
+        />
       </ul>
     </div>
   );
 };
 
-export default JobCardTabs;
+export default AllocatedSubTabs;

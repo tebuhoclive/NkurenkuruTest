@@ -113,7 +113,7 @@ const JobCardTableViewMoreRecent = ({
           {/* Table headers */}
           <thead>
             <tr>
-              <th>#</th>
+              <th>Job Card No</th>
               <th>Due Date</th>
               <th>Division</th>
               <th>Section</th>

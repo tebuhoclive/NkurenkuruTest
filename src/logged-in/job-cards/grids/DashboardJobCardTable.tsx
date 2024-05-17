@@ -6,7 +6,7 @@ import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
 import { dateFormat_YY_MM_DD } from "../../shared/utils/utils";
 
-const JobCardTableViewMoreOld = ({
+const DashboardJobCardTable = ({
   jobCards,
   handleEdit,
   onView,
@@ -43,8 +43,7 @@ const JobCardTableViewMoreOld = ({
     return dept ? dept.asJson.name : "Unknown";
   };
 
-const sortedJobCards = [...jobCards]
-  .sort((a, b) => {
+  const sortedJobCards = [...jobCards].sort((a, b) => {
     // Find the time difference objects for the current job cards
     const timeDiffA = timeSinceIssuanceArray.find(
       (item) => item.jobCardId === a.id
@@ -55,17 +54,7 @@ const sortedJobCards = [...jobCards]
 
     // Compare the time differences for sorting
     return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
-  })
-  .filter((jobCard) => {
-    // Filter the sorted job cards to include only those over a day old
-    const timeDiff = timeSinceIssuanceArray.find(
-      (item) => item.jobCardId === jobCard.id
-    )?.timeDiff;
-
-    // Assuming over a day means 24 hours
-    return timeDiff >= 24 * 60 * 60 * 1000; // Convert 24 hours to milliseconds
   });
-
 
   // Function to render time difference for each job card
   const renderTimeDifference = (jobCardId) => {
@@ -103,12 +92,15 @@ const sortedJobCards = [...jobCards]
           <thead>
             <tr>
               <th>Job Card No</th>
+              <th>Date logged</th>
               <th>Due Date</th>
-              <th>Division</th>
-              <th>Section</th>
-              <th>Urgency</th>
+              <th>Due Time</th>
+              <th>Date Issued</th>
+              <th>Assigned To</th>
+              <th>Artisan/Foreman</th>
               <th>Status</th>
               <th>Time Since Issuance</th> {/* New column */}
+              <th>Actions</th>
             </tr>
           </thead>
           {/* Table body */}
@@ -117,14 +109,28 @@ const sortedJobCards = [...jobCards]
               .slice(startIndex, endIndex)
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
-                  <td>{startIndex + index + 1}</td>
+                  <td>{jobCard.uniqueId}</td>
                   <td> {dateFormat_YY_MM_DD(jobCard.dueDate)}</td>
                   <td>{getBusinessUnitName(jobCard.division)}</td>
                   <td>{getDepartmentName(jobCard.section)}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{jobCard.clientFullName}</td>
                   <td>{jobCard.urgency}</td>
                   <td>{jobCard.status}</td>
                   <td>{renderTimeDifference(jobCard.id)}</td>{" "}
                   {/* Render time difference */}
+                  <td>
+                    <IconButton
+                      aria-label="view"
+                      onClick={() => onView(jobCard)}
+                      style={{
+                        color: "black",
+                        padding: "8px",
+                        fontSize: "1rem",
+                      }}>
+                      <FontAwesomeIcon icon={faExternalLinkAlt} />
+                    </IconButton>
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -142,4 +148,4 @@ const sortedJobCards = [...jobCards]
   );
 };
 
-export default JobCardTableViewMoreOld;
+export default DashboardJobCardTable;

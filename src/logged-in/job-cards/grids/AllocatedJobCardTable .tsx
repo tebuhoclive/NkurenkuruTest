@@ -5,13 +5,13 @@ import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
 
-const JobCardTable = ({
+const AllocatedJobCardTable = ({
   jobCards,
   handleEdit,
   onView,
   defaultPage = 1,
   defaultItemsPerPage = 5,
-  timeSinceIssuanceArray, // Array containing time differences for each job card
+  timeSinceIssuanceArray = [], // Provide a default empty array
 }) => {
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
@@ -29,33 +29,30 @@ const JobCardTable = ({
     return user ? user.asJson.displayName : "Unknown";
   };
 
-   const getBusinessUnitName = (businessId) => {
-     const unit = store.businessUnit.all.find(
-       (unit) => unit.asJson.id === businessId
-     );
-     return unit ? unit.asJson.name : "Unknown";
-   };
+  const getBusinessUnitName = (businessId) => {
+    const unit = store.businessUnit.all.find(
+      (unit) => unit.asJson.id === businessId
+    );
+    return unit ? unit.asJson.name : "Unknown";
+  };
 
-   const getDepartmentName = (deptId) => {
-     const dept = store.department.all.find(
-       (user) => user.asJson.id === deptId
-     );
-     return dept ? dept.asJson.name : "Unknown";
-   };
+  const getDepartmentName = (deptId) => {
+    const dept = store.department.all.find((user) => user.asJson.id === deptId);
+    return dept ? dept.asJson.name : "Unknown";
+  };
 
+  const sortedJobCards = [...jobCards].sort((a, b) => {
+    // Find the time difference objects for the current job cards
+    const timeDiffA = timeSinceIssuanceArray.find(
+      (item) => item.jobCardId === a.id
+    );
+    const timeDiffB = timeSinceIssuanceArray.find(
+      (item) => item.jobCardId === b.id
+    );
 
-const sortedJobCards = [...jobCards].sort((a, b) => {
-  // Find the time difference objects for the current job cards
-  const timeDiffA = timeSinceIssuanceArray.find(
-    (item) => item.jobCardId === a.id
-  );
-  const timeDiffB = timeSinceIssuanceArray.find(
-    (item) => item.jobCardId === b.id
-  );
-
-  // Compare the time differences for sorting
-  return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
-});
+    // Compare the time differences for sorting
+    return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
+  });
   // Function to render time difference for each job card
   const renderTimeDifference = (jobCardId) => {
     const timeDiffObject = timeSinceIssuanceArray.find(
@@ -100,15 +97,14 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
           {/* Table headers */}
           <thead>
             <tr>
-              <th>#</th>
+              <th>Job Card No</th>
+              <th>Date logged</th>
+              <th>Time logged</th>
+              <th>Due Date</th>
+              <th>Time Due</th>
               <th>Assigned To</th>
-              <th>Division</th>
-              <th>Section</th>
-              <th>Date Issued</th>
-              <th>Client Name</th>
-              <th>Urgency</th>
+              <th>Artisan/Foreman</th>
               <th>Status</th>
-              <th>Time Since Issuance</th> {/* New column */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -118,15 +114,15 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
               .slice(startIndex, endIndex)
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
-                  <td>{startIndex + index + 1}</td>
-                  <td>{getDisplayName(jobCard.assignedTo)}</td>
-                  <td>{getBusinessUnitName(jobCard.division)}</td>
-                  <td>{getDepartmentName(jobCard.section)}</td>
+                  <td>{jobCard.uniqueId}</td>
                   <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.clientFullName}</td>
-                  <td>{jobCard.urgency}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{getDisplayName(jobCard.assignedTo)}</td>
+                  <td>{getDisplayName(jobCard.artisan)}</td>
                   <td>{jobCard.status}</td>
-                  <td>{renderTimeDifference(jobCard.id)}</td>{" "}
+
                   {/* Render time difference */}
                   <td>
                     <IconButton
@@ -162,4 +158,4 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
   );
 };
 
-export default JobCardTable;
+export default AllocatedJobCardTable;

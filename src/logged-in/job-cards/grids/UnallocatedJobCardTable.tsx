@@ -4,25 +4,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
-import { dateFormat_YY_MM_DD } from "../../shared/utils/utils";
 
-const JobCardTable = ({
+const UnallocatedJobCardTable = ({
   jobCards,
   handleEdit,
   onView,
   defaultPage = 1,
   defaultItemsPerPage = 5,
-  timeSinceIssuanceArray, // Array containing time differences for each job card
-  onViewMoreClick, // Function prop for handling "View More" button click
+  timeSinceIssuanceArray = [], // Provide a default empty array
 }) => {
-  const [showMore, setShowMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
-  const { api, store } = useAppContext();
 
   // Calculate pagination indices
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = showMore ? jobCards.length : startIndex + itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const { api, store } = useAppContext();
 
   // Function to get display name from assignedToId
   const getDisplayName = (assignedToId) => {
@@ -31,33 +28,31 @@ const JobCardTable = ({
     );
     return user ? user.asJson.displayName : "Unknown";
   };
-   const getBusinessUnitName = (businessId) => {
-     const unit = store.businessUnit.all.find(
-       (unit) => unit.asJson.id === businessId
-     );
-     return unit ? unit.asJson.name : "Unknown";
-   };
 
-    const getDepartmentName = (deptId) => {
-      const dept = store.department.all.find(
-        (user) => user.asJson.id === deptId
-      );
-      return dept ? dept.asJson.name : "Unknown";
-    };
+  const getBusinessUnitName = (businessId) => {
+    const unit = store.businessUnit.all.find(
+      (unit) => unit.asJson.id === businessId
+    );
+    return unit ? unit.asJson.name : "Unknown";
+  };
 
-const sortedJobCards = [...jobCards].sort((a, b) => {
-  // Find the time difference objects for the current job cards
-  const timeDiffA = timeSinceIssuanceArray.find(
-    (item) => item.jobCardId === a.id
-  );
-  const timeDiffB = timeSinceIssuanceArray.find(
-    (item) => item.jobCardId === b.id
-  );
+  const getDepartmentName = (deptId) => {
+    const dept = store.department.all.find((user) => user.asJson.id === deptId);
+    return dept ? dept.asJson.name : "Unknown";
+  };
 
-  // Compare the time differences for sorting
-  return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
-});
+  const sortedJobCards = [...jobCards].sort((a, b) => {
+    // Find the time difference objects for the current job cards
+    const timeDiffA = timeSinceIssuanceArray.find(
+      (item) => item.jobCardId === a.id
+    );
+    const timeDiffB = timeSinceIssuanceArray.find(
+      (item) => item.jobCardId === b.id
+    );
 
+    // Compare the time differences for sorting
+    return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
+  });
   // Function to render time difference for each job card
   const renderTimeDifference = (jobCardId) => {
     const timeDiffObject = timeSinceIssuanceArray.find(
@@ -86,7 +81,14 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
     return formattedTimeDifference;
   };
 
- 
+  // Function to handle page change
+  const handlePageChange = (action) => {
+    if (action === "prev" && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    } else if (action === "next" && endIndex < jobCards.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <div className="people-tab-content uk-card uk-card-default uk-card-body">
@@ -95,15 +97,14 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
           {/* Table headers */}
           <thead>
             <tr>
-              <th>#</th>
-              <th>Due Date</th>
-              <th>Division</th>
-              <th>Section</th>
-              <th>Date Issued</th>
-              <th>Client Name</th>
+              <th>Job Card No</th>
+              <th>Date logged</th>
+              <th>Time logged</th>
               <th>Urgency</th>
+              <th>Section</th>
+              <th>Division</th>
+              <th>Assigned To</th>
               <th>Status</th>
-              <th>Time Since Issuance</th> {/* New column */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -113,19 +114,20 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
               .slice(startIndex, endIndex)
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
-                  <td>{startIndex + index + 1}</td>
-               <td>  {dateFormat_YY_MM_DD(jobCard.dueDate)}</td> 
+                  <td>{jobCard.uniqueId}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{jobCard.dateIssued}</td>
+                  <td>{jobCard.urgency}</td>
                   <td>{getBusinessUnitName(jobCard.division)}</td>
                   <td>{getDepartmentName(jobCard.section)}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.clientFullName}</td>
-                  <td>{jobCard.urgency}</td>
+                  <td>{getDisplayName(jobCard.assignedTo)}</td>
                   <td>{jobCard.status}</td>
-                  <td>{renderTimeDifference(jobCard.id)}</td>{" "}
+
                   {/* Render time difference */}
                   <td>
                     <IconButton
                       aria-label="view"
+                      data-uk-tooltip="Allocate Job Card"
                       onClick={() => onView(jobCard)}
                       style={{
                         color: "black",
@@ -140,16 +142,21 @@ const sortedJobCards = [...jobCards].sort((a, b) => {
           </tbody>
         </table>
       </div>
-      {/* Show more button */}
-      {!showMore && (
-        <div className="pagination">
-          <button className="btn btn-primary" onClick={onViewMoreClick}>
-            View More
-          </button>
-        </div>
-      )}
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange("prev")}
+          disabled={currentPage === 1}>
+          Prev
+        </button>
+        <button
+          onClick={() => handlePageChange("next")}
+          disabled={endIndex >= jobCards.length}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };
 
-export default JobCardTable;
+export default UnallocatedJobCardTable;

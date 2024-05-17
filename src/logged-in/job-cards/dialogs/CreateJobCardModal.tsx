@@ -28,7 +28,7 @@ const CreateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
   const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
 
-  const users = store.user.all;
+
 
   const generateUniqueId = () => {
     const existingUid = store.jobcard.jobcard.all;
@@ -79,9 +79,17 @@ const CreateJobCardModal = observer(() => {
     hideModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
   };
 
-  //Naftal comments
-  const businessUnit = store.businessUnit.all;
+  //filter users 
+    const users = store.user.all
+    const businessUnit = store.businessUnit.all;
 
+     const filteredUsers = users.filter(
+       (users) => users.asJson.department === jobCard.section
+     );
+
+
+  //Naftal comments
+  
   const businessUnitOptions: IOption[] = useMemo(
     () =>
       businessUnit.map((bu) => {
@@ -93,10 +101,25 @@ const CreateJobCardModal = observer(() => {
     [businessUnit]
   );
 
+   const userOptions: IOption[] = useMemo(
+     () =>
+       filteredUsers.map((bu) => {
+         return {
+           label: bu.asJson.displayName || "",
+           value: bu.asJson.uid,
+         };
+       }),
+     [filteredUsers]
+   );
+
   const handleBusinessUnitOptions = (value: string) => {
     setJobCard({ ...jobCard, division: value });
     // Additional logic if needed
   };
+   const handleUserOptions = (value: string) => {
+     setJobCard({ ...jobCard, assignedTo: value });
+     // Additional logic if needed
+   };
 
   const departments = store.department.all;
 
@@ -224,6 +247,20 @@ const CreateJobCardModal = observer(() => {
               placeholder="Select section"
               value={jobCard.division}
               // required
+            />
+          </div>
+          <div className="uk-form-controls uk-width-1-2 ">
+            <label className="uk-form-label" htmlFor="division">
+              Assigned To<span className="uk-text-danger">*</span>
+            </label>
+            {/* Place the SingleSelect component here */}
+            <SingleSelect
+              name="search-team"
+              options={userOptions}
+              // width="250px"
+              onChange={handleUserOptions}
+              placeholder="Select Division"
+              value={jobCard.assignedTo}
             />
           </div>
           <div className="uk-form-controls uk-width-1-2 ">

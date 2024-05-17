@@ -1,0 +1,19 @@
+/* Rating.css */
+.star {
+  font-size: 1.5rem;
+  color: #ffbf00;
+}
+
+.on .star {
+  color: #ffbf00;
+}
+
+.off .star {
+  color: #e4e5e9;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

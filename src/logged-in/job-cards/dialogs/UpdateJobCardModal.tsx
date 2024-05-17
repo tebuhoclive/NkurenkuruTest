@@ -26,7 +26,7 @@ import {
   defaultMaterial,
 } from "../../../shared/models/job-card-model/Material";
 import MaterialTable from "../grids/MaterialTable";
-import { CustomTransactionOpenAccordion } from "../Accordion.tsx/Accordion";
+import { CustomTransactionOpenAccordion } from "../Components/Accordion";
 import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
 
 
@@ -578,7 +578,7 @@ const UpdatedJobCardModal = observer(() => {
                   <hr className="uk-width-1-1" />
 
                   <div className="uk-width-1-1">
-                    <p>{jobCard.dueDate}</p>
+                    <p>{dateFormat_YY_MM_DY(jobCard.dueDate)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
                 </div>
@@ -691,7 +691,7 @@ const UpdatedJobCardModal = observer(() => {
                       id="dueDate"
                       type="date"
                       name="dueDate"
-                      value={dateFormat_YY_MM_DY(editedJobCard.dueDate )|| ""}
+                      value={dateFormat_YY_MM_DY(editedJobCard.dueDate) || ""}
                       onChange={(e) => handleDateChange(e.target.valueAsNumber)}
                       min={today} // Set the minimum date to today's date
                       // required

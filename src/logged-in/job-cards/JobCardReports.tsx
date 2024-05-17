@@ -7,8 +7,9 @@ import "../../logged-in/project-management/styles/statistics.style.scss";
 import { useAppContext } from "../../shared/functions/Context";
 import Loading from "../../shared/components/loading/Loading";
 import {  projectRiskStatistics } from "../project-management/utils/common";
-import { JobCardBarChart } from "../project-management/utils/charts";
+
 import { IProject } from "../../shared/models/ProjectManagement";
+import { BarChart } from "./charts/BarChart";
 
 const JobCardReports: FC = observer(() => {
   const { api, store } = useAppContext();
@@ -81,7 +82,7 @@ const jobcardData = store.jobcard.jobcard.all.map((r)=>r.asJson);
               <h4 className="uk-text-center uk-font-bold">
                 Job Card Section and Costs
               </h4>
-              <JobCardBarChart jobCard={jobcardData} />
+              <BarChart jobCard={jobcardData} />
             </div>
             <div className="uk-card uk-card-default uk-card-body uk-width-1-2@s uk-flex uk-flex-center">
               {/* Second column content */}

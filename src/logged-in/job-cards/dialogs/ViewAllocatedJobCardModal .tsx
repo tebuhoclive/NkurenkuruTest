@@ -164,45 +164,65 @@ const ViewAllocatedJobCardModal = observer(() => {
                widths: ["30%", "70%"],
                body: [
                  [
-                   { text: "Assigned To:", },
-                   getDisplayName(jobCard.assignedTo),
+                   { text: "Assigned To:", fontSize: 9 },
+                   { text: getDisplayName(jobCard.assignedTo), fontSize: 9 },
                  ],
                  [
-                   { text: "Section:"},
-                   getDepartmentName(jobCard.section),
+                   { text: "Section:", fontSize: 9 },
+                   { text: getDepartmentName(jobCard.section), fontSize: 9 },
                  ],
                  [
-                   { text: "Division:" },
-                   getBusinessUnitName(jobCard.division),
-                 ],
-                 [{ text: "Urgency:" }, jobCard.urgency],
-                 [{ text: "Unique ID:",  }, jobCard.uniqueId],
-                 [
-                   { text: "Task Description:"},
-                   jobCard.taskDescription,
+                   { text: "Division:", fontSize: 9 },
+                   { text: getBusinessUnitName(jobCard.division), fontSize: 9 },
                  ],
                  [
-                   { text: "Due Date:"},
-                   dateFormat_YY_MM_DD(jobCard.dueDate),
+                   { text: "Urgency:", fontSize: 9 },
+                   { text: jobCard.urgency, fontSize: 9 },
+                 ],
+                 [
+                   { text: "Unique ID:", fontSize: 9 },
+                   { text: jobCard.uniqueId, fontSize: 9 },
+                 ],
+                 [
+                   { text: "Task Description:", fontSize: 9 },
+                   { text: jobCard.taskDescription, fontSize: 9 },
+                 ],
+                 [
+                   { text: "Due Date:", fontSize: 9 },
+                   { text: dateFormat_YY_MM_DD(jobCard.dueDate), fontSize: 9 },
                  ],
                ],
              },
            },
          ],
        },
+
        "\n",
        { text: "Client Details: " },
        {
          table: {
            widths: ["30%", "70%"],
            body: [
-             [{ text: "Full Name:"}, jobCard.clientFullName],
-             [{ text: "Address:"},  jobCard.clientAddress],
-             [{ text: "Phone No.:"}, jobCard.clientMobileNumber],
-             [{ text: "Email:"}, jobCard.clientEmail],
+             [
+               { text: "Full Name:", fontSize: 9 },
+               { text: jobCard.clientFullName, fontSize: 9 },
+             ],
+             [
+               { text: "Address:", fontSize: 9 },
+               { text: jobCard.clientAddress, fontSize: 9 },
+             ],
+             [
+               { text: "Phone No.:", fontSize: 9 },
+               { text: jobCard.clientMobileNumber, fontSize: 9 },
+             ],
+             [
+               { text: "Email:", fontSize: 9 },
+               { text: jobCard.clientEmail, fontSize: 9 },
+             ],
            ],
          },
        },
+
        "\n",
        { text: "Team Details: " },
        {
@@ -212,11 +232,11 @@ const ViewAllocatedJobCardModal = observer(() => {
                widths: ["30%", "70%"],
                body: [
                  [
-                   { text: "Team Leader:",fontSize: 9 }, // Adjust font size
+                   { text: "Team Leader:", fontSize: 9 }, // Adjust font size
                    getDisplayName(jobCard.teamLeader),
                  ],
                  [
-                   { text: "Artesian:",  fontSize: 9 }, // Adjust font size
+                   { text: "Artesian:", fontSize: 9 }, // Adjust font size
                    getDisplayName(jobCard.artesian),
                  ],
                  [
@@ -227,10 +247,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                      ),
                    },
                  ],
-                 [
-                   { text: "KPI Measure:", fontSize: 9 },
-                   jobCard.measure,
-                 ], // Adjust font size
+                 [{ text: "KPI Measure:", fontSize: 9 }, jobCard.measure], // Adjust font size
                  // Add more rows as needed
                ],
              },
