@@ -16,8 +16,8 @@ import { IClient } from "../../models/job-card-model/Client";
   export default class ClientApi {
     constructor(private api: AppApi, private store: AppStore) {}
   
-    async getAll(jid: string) {
-      const myPath = `jobcards/${jid}/Clients`;
+    async getAll() {
+      const myPath = `/ClientsAccounts`;
   
       const $query = query(collection(db, myPath));
       // new promise
@@ -43,8 +43,8 @@ import { IClient } from "../../models/job-card-model/Client";
       });
     }
   
-    async getById(id: string, jid:string) {
-      const myPath = `jobcards/${jid}/Clients`;
+    async getById(id: string) {
+       const myPath = `/ClientsAccounts`;
   
       const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
         if (!doc.exists) return;
@@ -56,8 +56,8 @@ import { IClient } from "../../models/job-card-model/Client";
       return unsubscribe;
     }
   
-    async create(item: IClient, jid:string) {
-      const myPath = `jobcards/${jid}/Clients`;
+    async create(item: IClient) {
+       const myPath = `/ClientsAccounts`;
   
       const itemRef = doc(collection(db, myPath));
       item.id = itemRef.id;
@@ -74,8 +74,8 @@ import { IClient } from "../../models/job-card-model/Client";
       }
     }
   
-    async update(item: IClient, jid: string) {
-      const myPath = `jobcards/${jid}/Clients`;
+    async update(item: IClient) {
+      const myPath = `/ClientsAccounts`;
       try {
         await updateDoc(doc(db, myPath, item.id), {
           ...item,
@@ -85,8 +85,8 @@ import { IClient } from "../../models/job-card-model/Client";
       } catch (error) {}
     }
   
-    async delete(id: string,jid:string) {
-      const myPath = `jobcards/${jid}/Clients`;
+    async delete(id: string) {
+      const myPath = `/ClientsAccounts`;
       try {
         await deleteDoc(doc(db, myPath, id));
         this.store.jobcard.client.remove(id);

@@ -76,8 +76,9 @@ export interface IJobCard {
   measure: string;
   isAllocated?: boolean;
   comment?: string;
-  reworked:string;
-  rating?:number;
+  reworked: string;
+  rating?: number;
+  dateCompleted?: number;
 }
   export default class JobCardModel {
     private JobCard: IJobCard;

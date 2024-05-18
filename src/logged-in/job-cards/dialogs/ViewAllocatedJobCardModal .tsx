@@ -375,7 +375,7 @@ const ViewAllocatedJobCardModal = observer(() => {
   };
 
   const handleMarkAsCompleted = async () => {
-    const UpdateJobCard: IJobCard = { ...jobCard, status: "Completed" };
+    const UpdateJobCard: IJobCard = { ...jobCard, status: "Completed",dateCompleted: Date.now() };
 
     try {
       await api.jobcard.jobcard.update(UpdateJobCard);

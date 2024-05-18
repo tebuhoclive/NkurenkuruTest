@@ -94,7 +94,7 @@ const MODAL_NAMES = {
     FOLDER_FILE_UPLOADER_MODAL: "folder-file-uploader-modal",
   },
   ADMIN: {
-    JOBCARD_USER_MODAL: "job-card-user-modal",
+    TEAM_MEMBER_MODAL: "team-member-modal",
     USER_MODAL: "user-modal",
     ROLE_MODAL: "role-modal",
     SCORECARD_BATCH_MODAL: "scorecard-batch-modal",

@@ -11,14 +11,14 @@ import {
   import AppApi from "../AppApi";
   import AppStore from "../../stores/AppStore";
   import { db } from "../../config/firebase-config";
-import { IStandard } from "../../models/job-card-model/PrecautionAndStandard";
-  
-  export default class StandardApi {
+import { IMember } from "../../models/job-card-model/Members";
+
+  export default class MemberApi {
     constructor(private api: AppApi, private store: AppStore) {}
-  
-    async getAll(jid: string) {
-      const myPath = `jobcards/${jid}/Standard`;
-  
+
+    async getAll() {
+      const myPath = `/jobCardMembers`;
+
       const $query = query(collection(db, myPath));
       // new promise
       return await new Promise<Unsubscribe>((resolve, reject) => {
@@ -27,12 +27,12 @@ import { IStandard } from "../../models/job-card-model/PrecautionAndStandard";
           $query,
           // onNext
           (querySnapshot) => {
-            const items: IStandard[] = [];
+            const items: IMember[] = [];
             querySnapshot.forEach((doc) => {
-              items.push({ id: doc.id, ...doc.data() } as IStandard);
+              items.push({ id: doc.id, ...doc.data() } as IMember);
             });
-  
-            this.store.jobcard.standard.load(items);
+
+            this.store.jobcard.client.load(items);
             resolve(unsubscribe);
           },
           // onError
@@ -42,54 +42,54 @@ import { IStandard } from "../../models/job-card-model/PrecautionAndStandard";
         );
       });
     }
-  
-    async getById(id: string, jid: string) {
-      const myPath = `jobcards/${jid}/Standard`;
-  
+
+    async getById(id: string) {
+      const myPath = `/jobCardMembers`;
+
       const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
         if (!doc.exists) return;
-        const item = { id: doc.id, ...doc.data() } as IStandard;
-  
-        this.store.jobcard.standard.load([item]);
+        const item = { id: doc.id, ...doc.data() } as IMember;
+
+        this.store.jobcard.member.load([item]);
       });
-  
+
       return unsubscribe;
     }
-  
-    async create(item: IStandard, jid: string) {
-      const myPath = `jobcards/${jid}/Standard`;
-  
+
+    async create(item: IMember) {
+      const myPath = `/jobCardMembers`;
+
       const itemRef = doc(collection(db, myPath));
       item.id = itemRef.id;
-  
+
       // create in db
       try {
         await setDoc(itemRef, item, {
           merge: true,
         });
         // create in store
-        this.store.jobcard.standard.load([item]);
+        this.store.jobcard.member.load([item]);
       } catch (error) {
         // console.log(error);
       }
     }
-  
-    async update(item: IStandard, jid: string) {
-      const myPath = `jobcards/${jid}/Standard`;
+
+    async update(item: IMember) {
+      const myPath = `/jobCardMembers`;
       try {
         await updateDoc(doc(db, myPath, item.id), {
           ...item,
         });
-  
-        this.store.jobcard.standard.load([item]);
+
+        this.store.jobcard.member.load([item]);
       } catch (error) {}
     }
-  
-    async delete(id: string, jid: string) {
-      const myPath = `jobcards/${jid}/Standard`;
+
+    async delete(id: string) {
+      const myPath = `/jobCardMembers`;
       try {
         await deleteDoc(doc(db, myPath, id));
-        this.store.jobcard.standard.remove(id);
+        this.store.jobcard.client.remove(id);
       } catch (error) {
         console.log(error);
       }

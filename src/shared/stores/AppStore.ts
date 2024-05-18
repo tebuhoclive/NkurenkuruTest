@@ -40,8 +40,8 @@ import ClientStore from "./job-card-stores/Client";
 import LabourStore from "./job-card-stores/Labour";
 import MaterialStore from "./job-card-stores/Material";
 import OtherExpenseStore from "./job-card-stores/OtherExpense";
-import StandardStore from "./job-card-stores/Standard";
-import PrecautionStore from "./job-card-stores/Precaution";
+import StandardStore from "./job-card-stores/Section";
+import PrecautionStore from "./job-card-stores/Division";
 import TaskStore from "./job-card-stores/Task";
 import ToolStore from "./job-card-stores/Tool";
 import TeamMemberStore from "./job-card-stores/TeamMember";
@@ -80,8 +80,8 @@ export default class AppStore {
   report = new ReportStore(this);
   folder = new FolderStore(this);
   folderFile = new FolderFileStore(this);
-  jobcard = new JobCardStore(this)
- 
+  jobcard = new JobCardStore(this);
+
   //jobCard = new JobCardStore(this);
   //jobCardMember= new JobCardMemberStore(this)
   // upload manager

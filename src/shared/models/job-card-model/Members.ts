@@ -1,7 +1,7 @@
 import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
-export interface IClient {
+export interface IMember {
   id: string;
   name: string;
   telephone: string;
@@ -15,7 +15,7 @@ export interface IClient {
 }
 
 
-  export const defaultClient: IClient = {
+  export const defaultMember: IMember = {
     id: "",
     name: "",
     telephone: "",
@@ -24,18 +24,18 @@ export interface IClient {
     email: "",
     location: "",
     city: "",
-    physicalAddress: ""
+    physicalAddress: "",
+  };
+
+  export default class Member {
+    private member: IMember;
+
+    constructor(private store: AppStore, member: IMember) {
+      makeAutoObservable(this);
+      this.member = member;
+    }
+
+    get asJson(): IMember {
+      return toJS(this.member);
+    }
   }
-
-  export default class Client {
-    private client: IClient;
-
-    constructor(private store: AppStore, client: IClient) {
-        makeAutoObservable(this);
-        this.client = client;
-    }
-
-    get asJson(): IClient {
-        return toJS(this.client);
-    }
-}
