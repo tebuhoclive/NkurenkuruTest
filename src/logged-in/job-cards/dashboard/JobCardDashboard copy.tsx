@@ -1,4 +1,3 @@
-
 import { observer } from "mobx-react-lite";
 import { CircularProgressbar } from "react-circular-progressbar";
 import { useNavigate } from "react-router-dom";
@@ -13,9 +12,8 @@ import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
 import DonutChart from "../charts/DonutChart";
 import JobCardGridTabs from "./JobCardGridTabs";
-import JobCardTableViewMoreRecent from "../grids/JobCardTableViewMoreRecent";
-import JobCardTableViewMoreOld from "../grids/JobCardTableViewMoreOld";
-import AllocatedJobCardTable from "../grids/AllocatedJobCardTable ";
+import SectionJobCardStats from "../Components/SectionJobCardStats";
+import AssignedUserJobCardStats from "../Components/AssignedUserJobCardStats";
 
 const JobCardDashboard = observer(() => {
   const navigate = useNavigate();
@@ -53,24 +51,27 @@ const JobCardDashboard = observer(() => {
   const totalCompletedJobcards = completedJobcards.length;
 
   // Assuming allJobCards is an array of job cards
-  const allJobCards = store.jobcard.jobcard.all;
+  const allJobCards = store.jobcard.jobcard.all.map(
+    (jobCard) => jobCard.asJson
+  );
+  const sections = store.jobcard.section.all.map((section) => section.asJson);
 
   // Initialize an array to store time since issuance for each job card
   const timeSinceIssuanceArray: { jobCardId: string; timeDiff: number }[] = [];
 
   // Loop through each job card
-  allJobCards.forEach((jobCard) => {
-    // Convert dateIssued to a Date object
-    const dateIssued = new Date(jobCard.asJson.dateIssued);
-    // Get the current date
-    const now = new Date();
+  // allJobCards.forEach((jobCard) => {
+  //   // Convert dateIssued to a Date object
+  //   const dateIssued = new Date(jobCard.asJson.dateIssued);
+  //   // Get the current date
+  //   const now = new Date();
 
-    // Calculate the time difference in milliseconds
-    const timeDiff = now.getTime() - dateIssued.getTime(); // Use getTime() to get the time in milliseconds
+  //   // Calculate the time difference in milliseconds
+  //   const timeDiff = now.getTime() - dateIssued.getTime(); // Use getTime() to get the time in milliseconds
 
-    // Store time difference for the current job card
-    timeSinceIssuanceArray.push({ jobCardId: jobCard.asJson.id, timeDiff });
-  });
+  //   // Store time difference for the current job card
+  //   timeSinceIssuanceArray.push({ jobCardId: jobCard.asJson.id, timeDiff });
+  // });
 
   // Helper function to convert milliseconds to decimal hours
   function millisecondsToDecimalHours(ms: number): number {
@@ -128,7 +129,12 @@ const JobCardDashboard = observer(() => {
     completed: "rgb(54, 162, 235)", // Blue
     total: "rgb(255, 205, 86)", // Yellow
   };
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
+  // Function to handle user selection
+  const handleUserSelect = (userId) => {
+    setSelectedUserId(userId);
+  };
   const data = {
     labels: ["Pending", "Completed", "Total"],
     datasets: [
@@ -156,6 +162,7 @@ const JobCardDashboard = observer(() => {
       setLoading(true);
       try {
         await api.jobcard.jobcard.getAll();
+        await api.jobcard.section.getAll();
 
         setLoading(false);
       } catch (error) {}
@@ -173,6 +180,7 @@ const JobCardDashboard = observer(() => {
             <div className="uk-card uk-card-default uk-card-body">
               {/* Content for the first card */}
               <div className="content">
+                <h3>Overview</h3>
                 <DonutChart chartData={data} />
               </div>
             </div>
@@ -224,125 +232,18 @@ const JobCardDashboard = observer(() => {
           </div>
         </div>
 
-        {/* Job Cards Statistics */}
-
-        <JobCardGridTabs
-          selectedTab={selectedTab}
-          setselectedTab={setselectedTab}
-        />
         <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
 
-        {me.role === "Employee" && (
-          <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && (
-              <div className="uk-grid uk-grid-small" data-uk-grid>
-                <div className="uk-width-1-2">
-                  {/* First column with body cards */}
-                  {/* Example content */}
-                  <p className="uk-text-bold">Recently Added Job cards</p>
-                  <JobCardTableViewMoreRecent
-                    jobCards={createdJobCards}
-                    handleEdit={onViewCreated}
-                    onView={onViewAllocated}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                    timeSinceIssuanceArray={timeSinceIssuanceArray}
-                    onViewMoreClick={onViewMore}
-                  />
-                </div>
-                <div className="uk-width-1-2">
-                  {/* Second column with body cards */}
-
-                  {/* Example content */}
-                  <p className="uk-text-bold">Job Cards Older than 1 Day </p>
-                  <JobCardTableViewMoreOld
-                    jobCards={allocatedJobCards}
-                    handleEdit={onViewCreated}
-                    onView={onViewAllocated}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                    timeSinceIssuanceArray={timeSinceIssuanceArray}
-                    onViewMoreClick={onViewMore}
-                  />
-                </div>
-              </div>
-            )}
-            {/* {!loading && selectedTab === "department-tab" && (
-              <JobCardTable
-                jobCards={allocatedJobCards}
-                handleEdit={onViewCreated}
-                onView={onViewAllocated}
-                defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
-                timeSinceIssuanceArray={timeSinceIssuanceArray}
-                onViewMoreClick={onViewMore}
-              />
-            )}
-            {!loading && selectedTab === "people-tab" && (
-              <JobCardTable
-                jobCards={completed}
-                handleEdit={onViewCreated}
-                onView={onViewAllocated}
-                defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
-                timeSinceIssuanceArray={timeSinceIssuanceArray}
-                onViewMoreClick={onViewMore}
-              />
-            )} */}
-          </ErrorBoundary>
-        )}
-        {me.role !== "Employee" && me.role !== "Guest User" && (
-          <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && (
-              <AllocatedJobCardTable
-                jobCards={createdJobCards}
-                handleEdit={onViewCreated}
-                onView={onViewCreated}
-                defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
-                timeSinceIssuanceArray={timeSinceIssuanceArray}
-                // onViewMoreClick={onViewMore}
-              />
-            )}
-            {!loading && selectedTab === "department-tab" && (
-              <AllocatedJobCardTable
-                jobCards={allocatedJobCards}
-                handleEdit={onViewCreated}
-                onView={onViewAllocated}
-                defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
-                timeSinceIssuanceArray={timeSinceIssuanceArray}
-                // onViewMoreClick={onViewMore}
-              />
-            )}
-            {!loading && selectedTab === "people-tab" && (
-              <AllocatedJobCardTable
-                jobCards={completed}
-                handleEdit={onViewCreated}
-                onView={onViewAllocated}
-                defaultPage={1} // Specify the default page number
-                defaultItemsPerPage={5} // Specify the default items per page
-                timeSinceIssuanceArray={timeSinceIssuanceArray}
-                // onViewMoreClick={onViewMore}
-              />
-            )}
-            {/* {!loading && selectedTab === "execution-tab" && <AllocateJobCard />} */}
-          </ErrorBoundary>
-        )}
+        <ErrorBoundary>
+          <div className="uk-grid uk-grid-small" data-uk-grid>
+            <div className="uk-width-1-1">
+              {/* First column with body cards */}
+              <SectionJobCardStats sections={sections} jobCards={allJobCards} />
+            </div>
+            <div className="uk-width-1-2"> </div>
+          </div>
+        </ErrorBoundary>
       </div>
-
-      {/* <Modal modalId={MODAL_NAMES.EXECUTION.VIEWJOBCARD_MODAL}>
-        <ViewJobCardModal />
-      </Modal> */}
-      {/* <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
-        <UpdatedJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
-        <AllocateJobCardModal />
-      </Modal>
-      <Modal modalId={MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL}>
-        <ViewAllocatedJobCardModal />
-      </Modal> */}
     </ErrorBoundary>
   );
 });

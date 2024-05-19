@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
+import { formatDate, formatTime } from "../../shared/utils/utils";
 
 const AllocatedJobCardTable = ({
   jobCards,
@@ -115,12 +116,12 @@ const AllocatedJobCardTable = ({
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
                   <td>{jobCard.uniqueId}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
+                  <td>{formatDate(jobCard.dateIssued)}</td>
+                  <td>{formatTime(jobCard.dateIssued)}</td>
+                  <td>{formatDate(jobCard.dueDate)}</td>
+                  <td>{formatTime(jobCard.dueDate)}</td>
                   <td>{getDisplayName(jobCard.assignedTo)}</td>
-                  <td>{getDisplayName(jobCard.artisan)}</td>
+                  <td>{getDisplayName(jobCard.artesian)}</td>
                   <td>{jobCard.status}</td>
 
                   {/* Render time difference */}
@@ -157,5 +158,6 @@ const AllocatedJobCardTable = ({
     </div>
   );
 };
+
 
 export default AllocatedJobCardTable;

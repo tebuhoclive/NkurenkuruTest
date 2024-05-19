@@ -4,21 +4,22 @@ import showModalFromId from "../../../shared/functions/ModalShow";
 import MODAL_NAMES from "../../dialogs/ModalName";
 
 import { IMember } from "../../../shared/models/job-card-model/Members";
+import { ITeamMember } from "../../../shared/models/job-card-model/TeamMember";
 
 
 interface IProps {
-  member: IMember;
+  teamMember: ITeamMember;
 }
 
 const MemberItem = (props: IProps) => {
   const { api, store } = useAppContext();
 
-  const { member } = props;
+  const { teamMember } = props;
 
- const cssClass = member.id ? "user" : "user user__not-verified";
+ const cssClass = teamMember.id ? "user" : "user user__not-verified";
 
   const handleEdit = () => {
-    store.jobcard.member.select(member); // set selected user
+    store.jobcard.member.select(teamMember); // set selected user
     showModalFromId(MODAL_NAMES.ADMIN.USER_MODAL); // show modal
   };
 
@@ -78,28 +79,28 @@ const MemberItem = (props: IProps) => {
         <div className="uk-flex uk-flex-middle uk-width-1-1 uk-width-expand@m">
           <h6 className="name">
             <span className="span-label">name</span>
-            {member.name}
+            {teamMember.name}
           </h6>
         </div>
 
         <div className="uk-flex uk-flex-middle uk-width-1-2 uk-width-1-6@m">
           <p className="role">
             <span className="span-label">Email</span>
-            {member.email || "-"}
+            {teamMember.email || "-"}
           </p>
         </div>
 
         <div className="uk-flex uk-flex-middle uk-width-1-2 uk-width-1-6@m">
           <p className="role">
             <span className="span-label">Mobile Number</span>
-            {member.mobileNumber || "-"}
+            {teamMember.mobileNumber || "-"}
           </p>
         </div>
 
         <div className="uk-flex uk-flex-middle uk-width-1-2 uk-width-1-6@m">
           <p className="department-name">
             <span className="span-label">City</span>
-            {member.city || "-"}
+            {teamMember.city || "-"}
           </p>
         </div>
 

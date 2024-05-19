@@ -22,9 +22,10 @@ import MaterialTable from "../grids/MaterialTable";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { dateFormat_YY_MM_DD } from "../../shared/utils/utils";
+import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
 const ViewAllocatedJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-
+  const [client, setClient] = useState<IClient>({ ...defaultClient });
 
   // Additional state or logic specific to Step 2
 
@@ -57,7 +58,7 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
-    return total + material.unitCost;
+    return total + material.asJson.unitCost;
   }, 0);
 
   const users = store.user.all;
@@ -65,9 +66,10 @@ const ViewAllocatedJobCardModal = observer(() => {
 
 
   const currentMeasure = store.measure;
-  // const taskList = store.jobcard.task.all;
-  const materialList = store.jobcard.material.all;
 
+   const materialList = store.jobcard.material.all.map(
+     (material) => material.asJson
+   );
   const currentMaterialList = materialList.filter(
     (material) => material.jId === jobCard.id
   );
@@ -271,7 +273,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                { text: "Name", style: "tableHeader", fontSize: 9 },
                { text: "Unit Cost", style: "tableHeader", fontSize: 9 },
              ],
-             ...materialList.map((material) => [
+             ...currentMaterialList.map((material) => [
                material.quantity,
                material.name,
                { text: `N$${material.unitCost}`, alignment: "right" }, // Add "N$" to the unit cost price
@@ -351,7 +353,7 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   const handleEdit = async (materialId: string) => {
     if (materialId) {
-      const currentMaterial = store.jobcard.material.getById(materialId);
+      const currentMaterial = store.jobcard.material.getById(materialId).asJson;
       store.jobcard.material.select(currentMaterial);
       store.jobcard.jobcard.select(jobCard);
     }
@@ -362,17 +364,25 @@ const ViewAllocatedJobCardModal = observer(() => {
     }
   };
 
-  const handleDeleteJobCard = async () => {
-    try {
-      const id = jobCard.id;
-      if (id) {
-        await api.jobcard.jobcard.delete(id);
-      }
-      onCancel();
-    } catch (error) {
-      console.error("Error deleting material:", error);
-    }
-  };
+ const handleDeleteJobCard = async () => {
+   try {
+     // Confirm deletion with the user
+     const confirmDelete = window.confirm(
+       "Are you sure you want to delete this job card?"
+     );
+
+     if (confirmDelete) {
+       // Proceed with deletion if user confirms
+       const updated: IJobCard = { ...jobCard, status: "Deleted" };
+       if (jobCard) {
+         await api.jobcard.jobcard.update(updated);
+       }
+       onCancel();
+     }
+   } catch (error) {
+     console.error("Error deleting material:", error);
+   }
+ };
 
   const handleMarkAsCompleted = async () => {
     const UpdateJobCard: IJobCard = { ...jobCard, status: "Completed",dateCompleted: Date.now() };
@@ -401,9 +411,16 @@ const ViewAllocatedJobCardModal = observer(() => {
 
   useEffect(() => {
     const selectedJobCard = store.jobcard.jobcard.selected;
-    if (selectedJobCard) {
-      setJobCard(selectedJobCard);
-    }
+      if (selectedJobCard) {
+        setJobCard(selectedJobCard);
+
+        if (jobCard.clientId) {
+          const selectedClient = store.jobcard.client.getById(jobCard.clientId);
+          if (selectedClient) {
+            setClient(selectedClient.asJson);
+          }
+        }
+      }
     const loadData = async () => {
       await api.user.getAll();
       await api.jobcard.jobcard.getAll;
@@ -418,14 +435,7 @@ const ViewAllocatedJobCardModal = observer(() => {
       await api.department.getAll();
     };
     loadData();
-  }, [
-    api.user,
-    api.jobcard,
-    api.department,
-    store.jobcard.jobcard.selected,
-    api.measure,
-    jobCard,
-  ]);
+  }, [api.user, api.jobcard, api.department, store.jobcard.jobcard.selected, api.measure, jobCard, store.jobcard.client]);
 
 
 
@@ -588,7 +598,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <p>Full Name:</p>
                     </div>
                     <div className="uk-width-2-3">
-                      <p>{jobCard.clientFullName}</p>
+                      <p>{client.name}</p>
                     </div>
                     <hr className="uk-width-1-1" />
 
@@ -596,7 +606,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <p>Address :</p>
                     </div>
                     <div className="uk-width-2-3">
-                      <p>{jobCard.clientAddress}</p>
+                      <p>{client.physicalAddress}</p>
                     </div>
                     <hr className="uk-width-1-1" />
 
@@ -604,7 +614,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <p>Phone No.</p>
                     </div>
                     <div className="uk-width-2-3">
-                      <p>{jobCard.clientMobileNumber}</p>
+                      <p>{client.mobileNumber}</p>
                     </div>
                     <hr className="uk-width-1-1" />
 
@@ -612,7 +622,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                       <p>Email</p>
                     </div>
                     <div className="uk-width-2-3">
-                      <p>{jobCard.clientEmail}</p>
+                      <p>{client.email}</p>
                     </div>
                   </div>
                 </div>
@@ -623,7 +633,7 @@ const ViewAllocatedJobCardModal = observer(() => {
               <h3 style={{ fontWeight: "bold" }}>Material List</h3>
               {/* <MaterialsGrid data={materialList} jobCard={jobCard} /> */}
               <MaterialTable
-                materialList={materialList}
+                materialList={currentMaterialList}
                 handleEdit={handleEdit}
                 onDeleteMaterial={onDeleteMaterial}
                 showActions={false}
@@ -661,48 +671,52 @@ const ViewAllocatedJobCardModal = observer(() => {
                     {loading && <div data-uk-spinner="ratio: .5"></div>}
                   </button>
                 )}
-                {jobCard.isAllocated === true && (
-                  <div
-                    className="uk-width-1-1 uk-text-right"
-                    style={{ marginTop: "100px" }}>
-                    <button
-                      className="btn btn-primary uk-margin-right"
-                      type="button"
-                      disabled={loading}
-                      onClick={generatePDF}>
-                      Exported to pdf{" "}
-                      {loading && <div data-uk-spinner="ratio: .5"></div>}
-                    </button>
-                    {jobCard.status !== "Completed" && (
-                      <>
-                        <button
-                          className="btn btn-primary uk-margin-right"
-                          type="button"
-                          disabled={loading}
-                          onClick={handleOnEditJobCard}>
-                          Edit Job Card{" "}
-                          {loading && <div data-uk-spinner="ratio: .5"></div>}
-                        </button>
-                        <button
-                          className="btn btn-primary uk-margin-right"
-                          type="button"
-                          disabled={loading}
-                          onClick={handleDeleteJobCard}>
-                          Delete Job Card{" "}
-                          {loading && <div data-uk-spinner="ratio: .5"></div>}
-                        </button>
-                        <button
-                          className="btn btn-primary uk-margin-right"
-                          type="button"
-                          disabled={loading}
-                          onClick={handleMarkAsCompleted}>
-                          Mark As completed{" "}
-                          {loading && <div data-uk-spinner="ratio: .5"></div>}
-                        </button>
-                      </>
-                    )}
+                {jobCard.isAllocated === true &&
+                  jobCard.status !== "Deleted" && (
+                    <div
+                      className="uk-width-1-1 uk-text-right"
+                      style={{ marginTop: "100px" }}>
+                      <button
+                        className="btn btn-primary uk-margin-right"
+                        type="button"
+                        disabled={loading}
+                        onClick={generatePDF}>
+                        Exported to pdf{" "}
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                      {jobCard.status !== "Completed" && (
+                        <>
+                          <button
+                            className="btn btn-primary uk-margin-right"
+                            type="button"
+                            disabled={loading}
+                            onClick={handleOnEditJobCard}>
+                            Edit Job Card{" "}
+                            {loading && <div data-uk-spinner="ratio: .5"></div>}
+                          </button>
+                          <button
+                            className="btn btn-primary uk-button-danger uk-margin-right"
+                            type="button"
+                            disabled={loading}
+                            onClick={handleDeleteJobCard}>
+                            Delete Job Card
+                            {loading && (
+                              <div data-uk-spinner="ratio: 0.5"></div>
+                            )}
+                          </button>
 
-                    {/* <button
+                          <button
+                            className="btn btn-primary uk-margin-right"
+                            type="button"
+                            disabled={loading}
+                            onClick={handleMarkAsCompleted}>
+                            Mark As completed{" "}
+                            {loading && <div data-uk-spinner="ratio: .5"></div>}
+                          </button>
+                        </>
+                      )}
+
+                      {/* <button
                         className="btn btn-primary"
                         type="button"
                         disabled={loading}
@@ -710,8 +724,8 @@ const ViewAllocatedJobCardModal = observer(() => {
                         Feedback & Comments{" "}
                         {loading && <div data-uk-spinner="ratio: .5"></div>}
                       </button> */}
-                  </div>
-                )}
+                    </div>
+                  )}
               </div>
             </div>
           </form>

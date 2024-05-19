@@ -52,7 +52,7 @@ import Statistics from "./logged-in/project-management/Statistics";
 import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinate-scorecards/SubordinateScorecaard";
 // import CompanyJobCard from "./logged-in/company-job-card/CompanyJobCard";
 
-import JobDashboard from "./logged-in/job-cards/dashboard/JobDashboard";
+import JobDashboard from "./logged-in/job-cards/dashboard/JobCardDashboard";
 import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
 import AllocateJobCardMain from "./logged-in/job-cards/AllocateJobCardMain";
 

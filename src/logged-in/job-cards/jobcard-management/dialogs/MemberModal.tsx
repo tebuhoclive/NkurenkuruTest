@@ -16,20 +16,30 @@ const MemberModal = observer(() => {
   const [member, setMember] = useState({ ...defaultMember });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const selected = store.jobcard.member.selected;
+ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+   e.preventDefault();
+   setLoading(true);
+   const selected = store.jobcard.teamMember.selected;
 
-    if (selected) await update(member);
-    else await create(member);
-    setLoading(false);
-    onCancel();
-  };
+   try {
+     if (selected) {
+       await update(member);
+       alert("Member updated successfully!");
+     } else {
+       await create(member);
+       alert("Member created successfully!");
+     }
+   } catch (error) {
+     alert("An error occurred while processing your request.");
+   } finally {
+     setLoading(false);
+     onCancel();
+   }
+ };
 
   const update = async (member: IMember) => {
     try {
-      await api.jobcard.member.update(member);
+      await api.jobcard.teamMember.update(member);
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
@@ -41,7 +51,7 @@ const MemberModal = observer(() => {
 
   const create = async (member: IMember) => {
     try {
-      await api.jobcard.member.create(member);
+      await api.jobcard.teamMember.create(member);
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
@@ -57,15 +67,15 @@ const MemberModal = observer(() => {
     // reset form
     setMember({ ...defaultMember });
     // hide modal
-    hideModalFromId(MODAL_NAMES.ADMIN.USER_MODAL);
+    hideModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
   };
 
   // if selected user, set form values
   useEffect(() => {
-    if (store.jobcard.member.selected)
-      setMember({ ...store.jobcard.member.selected });
+    if (store.jobcard.teamMember.selected)
+      setMember({ ...store.jobcard.teamMember.selected });
     else setMember({ ...defaultMember });
-  }, [ store.jobcard.member.selected]);
+  }, [store.jobcard.member.selected, store.jobcard.teamMember.selected]);
 
   return (
     <div className="user-modal uk-modal-dialog uk-modal-body uk-margin-auto-vertical">

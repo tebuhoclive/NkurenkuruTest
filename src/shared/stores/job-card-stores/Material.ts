@@ -1,12 +1,11 @@
 import { runInAction } from "mobx";
 import AppStore from "../AppStore";
 import Store from "../Store";
-import { IMaterial } from "../../models/job-card-model/Material";
-import { sortAlphabetically } from "../../../logged-in/shared/utils/utils";
+import Material, { IMaterial } from "../../models/job-card-model/Material";
 
 
-export default class MaterialStore extends Store<IMaterial, IMaterial> {
-  items = new Map<string, IMaterial>();
+export default class MaterialStore extends Store<IMaterial, Material> {
+  items = new Map<string, Material>();
 
   constructor(store: AppStore) {
     super(store);
@@ -15,16 +14,11 @@ export default class MaterialStore extends Store<IMaterial, IMaterial> {
 
   load(items: IMaterial[] = []) {
     runInAction(() => {
-      items.forEach((item) => this.items.set(item.id, item));
+      items.forEach((item) =>
+        this.items.set(item.id, new Material(this.store, item))
+      );
     });
   }
-
-  // get all measures by uid
-  getAllMaterialById(uid: string) {
-    return this.all
-      .filter((item) => item.id === uid)
-      .sort((a, b) =>
-        sortAlphabetically(a.id, b.id)
-      );
-  }
 }
+
+

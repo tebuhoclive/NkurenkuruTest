@@ -19,9 +19,9 @@ const DivisionItem = (props: IProps) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Remove business unit?")) return; // TODO: confirmation dialog
+    if (!window.confirm("Remove this Division?")) return; // TODO: confirmation dialog
     // remove business unit
-    api.businessUnit.delete(division);
+    api.jobcard.division.delete(division);
   };
 
   return (

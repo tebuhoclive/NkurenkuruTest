@@ -86,13 +86,19 @@ export default class DivisionApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `/Division`;
+   // delete businessUnit
+  async delete(item: IDivision) {
+      const myPath = `/Division`;
+    if (!myPath) return;
+
+    // remove from db
     try {
-      await deleteDoc(doc(db, myPath, id));
-      this.store.jobcard.division.remove(id);
+      await deleteDoc(doc(db, myPath, item.id));
+      // remove from store
+      this.store.jobcard.division.remove(item.id); // Remove from memory
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 }
+

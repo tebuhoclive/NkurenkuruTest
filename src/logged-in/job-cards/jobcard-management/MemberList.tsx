@@ -8,13 +8,14 @@ import EmptyError from "../../admin-settings/EmptyError";
 import { useAppContext } from "../../../shared/functions/Context";
 import Member from "../../../shared/models/job-card-model/Members";
 import MemberItem from "./MemberItem";
+import TeamMember from "../../../shared/models/job-card-model/TeamMember";
 
 
 const MemberList = observer(() => {
   const { store } = useAppContext();
   const [search, setSearch] = useState("");
 
-  const sortByName = (a: Member, b: Member) => {
+  const sortByName = (a: TeamMember, b: TeamMember) => {
     if ((a.asJson.name || "") < (b.asJson.name || "")) return -1;
     if ((a.asJson.name || "") > (b.asJson.name || "")) return 1;
     return 0;
@@ -22,10 +23,10 @@ const MemberList = observer(() => {
 
   const me = store.auth.meJson;
 
-  const members = useMemo(() => {
+  const teamMember = useMemo(() => {
     const _clients =
       (me &&
-        store.jobcard.member.all.filter(($users) => {
+        store.jobcard.teamMember.all.filter(($users) => {
           if (!process.env.NODE_ENV || process.env.NODE_ENV === "development")
             return $users;
           else return !$users.asJson.name;
@@ -35,15 +36,16 @@ const MemberList = observer(() => {
     return search !== ""
       ? _clients.filter((u) => u.asJson.id === search)
       : _clients;
-  }, [me, search, store.jobcard.member.all]);
+  }, [me, search, store.jobcard.teamMember.all]);
 
   const options: IOption[] = useMemo(
     () =>
-      members.map((members) => {
+      teamMember.map((members) => {
         return { label: members.asJson.name || "", value: members.asJson.id };
       }),
-    [members]
+    [teamMember]
   );
+console.log("log all members ", teamMember);
 
   const onSearch = (value: string) => setSearch(value);
 
@@ -63,9 +65,9 @@ const MemberList = observer(() => {
       />
       <div className="users-list">
         <ErrorBoundary>
-          {members.sort(sortByName).map((members) => (
+          {teamMember.sort(sortByName).map((members) => (
             <div key={members.asJson.id}>
-              <MemberItem member={members.asJson} />
+              <MemberItem teamMember={members.asJson} />
             </div>
           ))}
         </ErrorBoundary>

@@ -3,6 +3,7 @@ import {
   faBell,
   faCheck,
   faComment,
+  faCopy,
   faExternalLinkAlt,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
@@ -11,11 +12,12 @@ import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
 import { OpenInNew } from "@mui/icons-material";
 import Rating from "../Components/Rating";
+import { formatDate, formatTime } from "../../shared/utils/utils";
 // import Rating from "../Components/Rating";
 
 const CompletedJobCardTable = ({
   jobCards,
-  handleEdit,
+
   onView,
   defaultPage = 1,
   defaultItemsPerPage = 5,
@@ -29,6 +31,7 @@ const CompletedJobCardTable = ({
   handleCommentChange,
   handleCommentSubmit,
   handleCancel,
+  onDuplicate,
 }) => {
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
@@ -157,12 +160,12 @@ const CompletedJobCardTable = ({
               .map((jobCard, index) => (
                 <tr key={jobCard.id}>
                   <td>{jobCard.uniqueId}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
-                  <td>{jobCard.dateIssued}</td>
+                  <td>{formatDate(jobCard.dateIssued)}</td>
+                  <td>{formatTime(jobCard.dateIssued)}</td>
+                  <td>{formatDate(jobCard.dueDate)}</td>
+                  <td>{formatTime(jobCard.dueDate)}</td>
                   <td>{getDisplayName(jobCard.assignedTo)}</td>
-                  <td>{getDisplayName(jobCard.artisan)}</td>
+                  <td>{getDisplayName(jobCard.artesian)}</td>
                   <td>
                     <Rating
                       value={jobCard.rating || 0}
@@ -236,6 +239,16 @@ const CompletedJobCardTable = ({
                         fontSize: "1rem",
                       }}>
                       <FontAwesomeIcon icon={faExternalLinkAlt} />
+                    </IconButton>
+                    <IconButton
+                      aria-label="duplicate"
+                      onClick={() => onDuplicate(jobCard)}
+                      style={{
+                        color: "black",
+                        padding: "8px",
+                        fontSize: "1rem",
+                      }}>
+                      <FontAwesomeIcon icon={faCopy} />
                     </IconButton>
                   </td>
                 </tr>

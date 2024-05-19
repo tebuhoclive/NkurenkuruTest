@@ -26,6 +26,7 @@ import {
 } from "../../../shared/models/job-card-model/Material";
 import MaterialTable from "../grids/MaterialTable";
 import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
+import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
 
 const AllocateJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
@@ -33,7 +34,7 @@ const AllocateJobCardModal = observer(() => {
   const [teamLeaderValue, setTeamLeaderValue] = useState(""); // State for Team Leader input
   const [teamMemberValue, setTeamMemberValue] = useState([]); // State for Team Member input
   const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
-
+  const [client, setClient] = useState<IClient>({ ...defaultClient });
   // Additional state or logic specific to Step 2
 
   const [loading, setLoading] = useState(false);
@@ -74,12 +75,10 @@ const AllocateJobCardModal = observer(() => {
   //calculate material cost
   // test store
   const currentid = jobCard.id;
-  const allMaterial = store.jobcard.material.getAllMaterialById(currentid);
-  console.log("Current id ", allMaterial);
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
-    return total + material.unitCost;
+    return total + material.asJson.unitCost;
   }, 0);
 
   const users = store.user.all;
@@ -106,10 +105,15 @@ const AllocateJobCardModal = observer(() => {
   );
 
   // const taskList = store.jobcard.task.all;
-  const materialList = store.jobcard.material.all;
+  // Assuming allJobCards is an array of job cards
+  const materialList = store.jobcard.material.all.map(
+    (material) => material.asJson
+  );
   const currentMaterialList = materialList.filter(
     (material) => material.jId === jobCard.id
   );
+
+  console.log("log current material list", currentMaterialList);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -290,6 +294,25 @@ const AllocateJobCardModal = observer(() => {
     });
   };
 
+   const handleDeleteJobCard = async () => {
+     try {
+       // Confirm deletion with the user
+       const confirmDelete = window.confirm(
+         "Are you sure you want to delete this job card?"
+       );
+
+       if (confirmDelete) {
+         // Proceed with deletion if user confirms
+         const updated: IJobCard = { ...jobCard, status: "Deleted" };
+         if (jobCard) {
+           await api.jobcard.jobcard.update(updated);
+         }
+         onCancel();
+       }
+     } catch (error) {
+       console.error("Error deleting material:", error);
+     }
+   };
   const SendEmailNotification = async () => {
     try {
       const htmlContent = `
@@ -355,16 +378,18 @@ const AllocateJobCardModal = observer(() => {
     return user ? user.asJson.displayName : "Unknown";
   };
 
-  const getBusinessUnitName = (businessId) => {
-    const unit = store.businessUnit.all.find(
-      (unit) => unit.asJson.id === businessId
+  const getDivisionName = (divisionId) => {
+    const division = store.jobcard.division.all.find(
+      (unit) => unit.asJson.id === divisionId
     );
-    return unit ? unit.asJson.name : "Unknown";
+    return division ? division.asJson.name : "Unknown";
   };
 
-  const getDepartmentName = (deptId) => {
-    const dept = store.department.all.find((user) => user.asJson.id === deptId);
-    return dept ? dept.asJson.name : "Unknown";
+  const getSectionName = (secId) => {
+    const section = store.jobcard.section.all.find(
+      (section) => section.asJson.id === secId
+    );
+    return section ? section.asJson.name : "Unknown";
   };
 
   const onDeleteMaterial = async (e, materialId: string) => {
@@ -405,6 +430,13 @@ const AllocateJobCardModal = observer(() => {
     const selectedJobCard = store.jobcard.jobcard.selected;
     if (selectedJobCard) {
       setJobCard(selectedJobCard);
+
+      if (jobCard.clientId) {
+        const selectedClient = store.jobcard.client.getById(jobCard.clientId);
+        if (selectedClient) {
+          setClient(selectedClient.asJson);
+        }
+      }
     }
     const loadData = async () => {
       await api.user.getAll();
@@ -415,7 +447,9 @@ const AllocateJobCardModal = observer(() => {
         await api.jobcard.material.getAll(id);
       }
       await api.measure.getAll();
-      await api.department.getAll();
+      await api.jobcard.client.getAll();
+      await api.jobcard.division.getAll();
+      await api.jobcard.section.getAll();
     };
     loadData();
   }, [
@@ -425,6 +459,7 @@ const AllocateJobCardModal = observer(() => {
     store.jobcard.jobcard.selected,
     api.measure,
     jobCard,
+    store.jobcard.client,
   ]);
 
   return (
@@ -468,7 +503,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Section:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{getDepartmentName(jobCard.section)}</p>
+                    <p>{getSectionName(jobCard.section)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -476,7 +511,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Division.</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{getBusinessUnitName(jobCard.division)}</p>
+                    <p>{getDivisionName(jobCard.division)}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -509,8 +544,6 @@ const AllocateJobCardModal = observer(() => {
                   <div className="uk-width-2-3">
                     <p>{dateFormat_YY_MM_DY(jobCard.dueDate)}</p>
                   </div>
-
-                 
                 </div>
               </div>
             )}
@@ -525,7 +558,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Full Name:</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.clientFullName}</p>
+                    <p>{client.name}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -533,7 +566,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Address :</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.clientAddress}</p>
+                    <p>{client.physicalAddress}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -541,7 +574,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Phone No.</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.clientMobileNumber}</p>
+                    <p>{client.mobileNumber}</p>
                   </div>
                   <hr className="uk-width-1-1" />
 
@@ -549,7 +582,7 @@ const AllocateJobCardModal = observer(() => {
                     <p>Email</p>
                   </div>
                   <div className="uk-width-2-3">
-                    <p>{jobCard.clientEmail}</p>
+                    <p>{client.email}</p>
                   </div>
                 </div>
               </div>
@@ -624,48 +657,28 @@ const AllocateJobCardModal = observer(() => {
                       </div>
                     </div>
                   </div>
-                  <div className="uk-width-1-2">
-                    <div>
-                      <label className="uk-form-label" htmlFor="reworked">
-                        Re-worked Job Card :
+                  <div className="uk-width-1-2 ">
+                    <div className="uk-margin">
+                      <label htmlFor="issuedTime">
+                        Select team Member(s){" "}
                         <span className="uk-text-danger">*</span>
                       </label>
                       <div className="uk-form-controls">
-                        <select
-                          id="reworked"
-                          className="uk-select"
-                          value={reworked}
+                        <Select
+                          defaultValue={[]}
+                          isMulti
+                          name="colors"
+                          options={options}
+                          className="basic-multi-select"
+                          classNamePrefix="select"
+                          onChange={handleTeamMemberChange}
                           required
-                          onChange={(e) => setReworked(e.target.value)}>
-                          <option value="no">No</option>
-                          <option value="yes">Yes</option>
-                        </select>
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
               </>
-
-              <div className="uk-width-1-2 uk-margin">
-                <div className="uk-margin">
-                  <label htmlFor="issuedTime">
-                    Select team Member(s){" "}
-                    <span className="uk-text-danger">*</span>
-                  </label>
-                  <div className="uk-form-controls">
-                    <Select
-                      defaultValue={[]}
-                      isMulti
-                      name="colors"
-                      options={options}
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                      onChange={handleTeamMemberChange}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
 
               <div className="uk-width-1-1">
                 <h3>Material List</h3>
@@ -846,15 +859,26 @@ const AllocateJobCardModal = observer(() => {
                 style={{ marginTop: "20px" }}>
                 <div
                   className="uk-width-1-1 uk-text-right"
-                  style={{ marginTop: "10px" }}>
-                  {jobCard.isAllocated !== true && (
-                    <button
-                      className="btn btn-primary"
-                      type="submit"
-                      disabled={loading}>
-                      Allocate
-                      {loading && <div data-uk-spinner="ratio: .5"></div>}
-                    </button>
+                  style={{ marginTop: "100px" }}>
+                  {jobCard.status !== "Completed" && (
+                    <>
+                      <button
+                        className="btn btn-primary uk-button-danger uk-margin-right"
+                        type="button"
+                        disabled={loading}
+                        onClick={handleDeleteJobCard}>
+                        Delete Job Card
+                        {loading && <div data-uk-spinner="ratio: 0.5"></div>}
+                      </button>
+
+                      <button
+                        className="btn btn-primary"
+                        type="submit"
+                        disabled={loading}>
+                        Allocate
+                        {loading && <div data-uk-spinner="ratio: .5"></div>}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

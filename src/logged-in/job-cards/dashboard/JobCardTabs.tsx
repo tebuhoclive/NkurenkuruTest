@@ -36,13 +36,13 @@ const JobCardTabs = (props: IProps) => {
       <ul className="kit-tabs" data-uk-tab>
         <TabItem
           label="strategy-tab"
-          name="Unallocated"
+          name="New Job Cards"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />
         <TabItem
           label="department-tab"
-          name="Allocated"
+          name="Allocated Job Cards"
           activeTab={activeTab}
           onClickTab={onClickTab}
         />

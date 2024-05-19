@@ -77,12 +77,10 @@ const UpdatedJobCardModal = observer(() => {
   //calculate material cost
   // test store
   const currentid = jobCard.id;
-  const allMaterial = store.jobcard.material.getAllMaterialById(currentid);
-  console.log("Current id ", allMaterial);
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
-    return total + material.unitCost;
+    return total + material.asJson.unitCost;
   }, 0);
 
   const users = store.user.all;
@@ -109,7 +107,9 @@ const UpdatedJobCardModal = observer(() => {
   );
 
   // const taskList = store.jobcard.task.all;
-  const materialList = store.jobcard.material.all;
+  const materialList = store.jobcard.material.all.map(
+    (material) => material.asJson
+  );
   const currentMaterialList = materialList.filter(
     (material) => material.jId === jobCard.id
   );

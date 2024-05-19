@@ -6,7 +6,7 @@ export type IStatus =
   | "In Progress"
   | "Completed"
   | "Assigned"
-  | "Closed"
+  | "Deleted"
   | "Pending"
   | "Cancelled";
 
@@ -21,7 +21,7 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     jobcardType: "General",
     jobcardCost: 0,
     dueDate: Date.now(),
-    dateIssued: "",
+    dateIssued: 0,
     urgency: "Normal",
     status: "Not Started",
 
@@ -53,7 +53,7 @@ export interface IJobCard {
   jobcardType: IJobCardType;
   jobcardCost: number;
   dueDate: number;
-  dateIssued: string;
+  dateIssued: number;
   urgency: IUrgency;
   status: IStatus;
   acknowledged: boolean;
@@ -79,6 +79,9 @@ export interface IJobCard {
   reworked: string;
   rating?: number;
   dateCompleted?: number;
+  clientId?:string
+  isDuplicated?:boolean;
+  isDuplicatedCount?:number;
 }
   export default class JobCardModel {
     private JobCard: IJobCard;

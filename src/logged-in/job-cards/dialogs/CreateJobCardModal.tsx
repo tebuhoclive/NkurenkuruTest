@@ -21,12 +21,14 @@ import SingleSelect, {
   IOption,
 } from "../../../shared/components/single-select/SingleSelect";
 import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
+import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
 
 const CreateJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
   const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
+  const [client, setClient] = useState<IClient>({ ...defaultClient });
 
 
 
@@ -60,7 +62,7 @@ const CreateJobCardModal = observer(() => {
       const updatedJobCard = {
         ...jobCard,
         uniqueId: uniqueId,
-        dateIssued: dateTimeLogged,
+        dateIssued: Date.now(),
       };
       setJobCard(updatedJobCard);
       await api.jobcard.jobcard.create(updatedJobCard);
@@ -81,64 +83,87 @@ const CreateJobCardModal = observer(() => {
 
   //filter users 
     const users = store.user.all
-    const businessUnit = store.businessUnit.all;
 
-     const filteredUsers = users.filter(
-       (users) => users.asJson.department === jobCard.section
-     );
+    const clients=store.jobcard.client.all
+
+ const clientOptions: IOption[] = useMemo(
+   () =>
+     clients.map((bu) => {
+       return {
+         label: bu.asJson.name || "",
+         value: bu.asJson.id,
+       };
+     }),
+   [clients]
+ );
+  
+    const division = store.jobcard.division.all;
+
+    //  const filteredUsers = users.filter(
+    //    (users) => users.asJson.department === jobCard.section
+    //  );
 
 
   //Naftal comments
   
-  const businessUnitOptions: IOption[] = useMemo(
+  const divisionOptions: IOption[] = useMemo(
     () =>
-      businessUnit.map((bu) => {
+      division.map((bu) => {
         return {
           label: bu.asJson.name || "",
           value: bu.asJson.id,
         };
       }),
-    [businessUnit]
+    [division]
   );
 
    const userOptions: IOption[] = useMemo(
      () =>
-       filteredUsers.map((bu) => {
+       users.map((bu) => {
          return {
            label: bu.asJson.displayName || "",
            value: bu.asJson.uid,
          };
        }),
-     [filteredUsers]
+     [users]
    );
 
-  const handleBusinessUnitOptions = (value: string) => {
+  const handleDivisionOptions = (value: string) => {
     setJobCard({ ...jobCard, division: value });
     // Additional logic if needed
   };
    const handleUserOptions = (value: string) => {
      setJobCard({ ...jobCard, assignedTo: value });
+   
+     // Additional logic if needed
+   };
+   const handleSelectedAccount = (value: string) => {
+    setJobCard({ ...jobCard, clientId: value });
+    const selectedClient= store.jobcard.client.getById(value).asJson
+
+     setClient(selectedClient);
      // Additional logic if needed
    };
 
-  const departments = store.department.all;
+
+  const section = store.jobcard.section.all
 
   // Filter departments based on jobCard.division value
-  const filteredDepartments = departments.filter(
-    (department) => department.asJson.businessUnit === jobCard.division
+  const filteredSection = section.filter(
+    (section) => section.asJson.division === jobCard.division
   );
 
-  const departmentOptions: IOption[] = useMemo(
+  const sectionOptions: IOption[] = useMemo(
     () =>
-      filteredDepartments.map((dept) => {
+      filteredSection.map((dept) => {
         return {
           label: dept.asJson.name || "",
           value: dept.asJson.id,
         };
       }),
-    [filteredDepartments]
+    [filteredSection]
   );
-  const handleDepartmentOptions = (value: string) => {
+  const handleSectionOptions = (value: string) => {
     setJobCard({ ...jobCard, section: value });
     // Additional logic if needed
   };
@@ -155,7 +180,7 @@ const CreateJobCardModal = observer(() => {
       await api.user.getAll();
       await api.jobcard.jobcard.getAll();
       await api.user.getAll();
-
+      await api.jobcard.client.getAll()
       await api.department.getAll();
     };
     loadData();
@@ -193,9 +218,7 @@ const CreateJobCardModal = observer(() => {
     });
   };
 
-  // Get the current date and time
-  const dateTimeLogged = new Date().toLocaleString();
-
+ 
   return (
     <>
       <div className="view-modal custom-modal-style uk-modal-dialog uk-modal-body uk-width-1-2">
@@ -228,9 +251,9 @@ const CreateJobCardModal = observer(() => {
             {/* Place the SingleSelect component here */}
             <SingleSelect
               name="search-team"
-              options={businessUnitOptions}
+              options={divisionOptions}
               // width="250px"
-              onChange={handleBusinessUnitOptions}
+              onChange={handleDivisionOptions}
               placeholder="Select Division"
               value={jobCard.division}
             />
@@ -241,11 +264,11 @@ const CreateJobCardModal = observer(() => {
             </label>
             <SingleSelect
               name="search-team"
-              options={departmentOptions}
+              options={sectionOptions}
               // width="250px"
-              onChange={handleDepartmentOptions}
+              onChange={handleSectionOptions}
               placeholder="Select section"
-              value={jobCard.division}
+              value={jobCard.section}
               // required
             />
           </div>
@@ -259,8 +282,9 @@ const CreateJobCardModal = observer(() => {
               options={userOptions}
               // width="250px"
               onChange={handleUserOptions}
-              placeholder="Select Division"
+              placeholder="Assign "
               value={jobCard.assignedTo}
+              required
             />
           </div>
           <div className="uk-form-controls uk-width-1-2 ">
@@ -321,8 +345,24 @@ const CreateJobCardModal = observer(() => {
             {" "}
             <h4 className="uk-text-bold">Client Details</h4>
           </div>
+          <div className="uk-width-1-1">
+            {" "}
+            <div className="uk-form-controls uk-width-1-2">
+              <label className="uk-form-label" htmlFor="division">
+                Select A client<span className="uk-text-danger">*</span>
+              </label>
+              {/* Place the SingleSelect component here */}
+              <SingleSelect
+                name="search-team"
+                options={clientOptions}
+                // width="250px"
+                onChange={handleSelectedAccount}
+                placeholder="Select Division"
+                value={jobCard.assignedTo}
+              />
+            </div>
+          </div>
 
-          {/* Form fields for the first column */}
           <div className="uk-form-controls uk-width-1-2 ">
             <label className="uk-form-label required" htmlFor="amount">
               Full Name<span className="uk-text-danger">*</span>
@@ -332,13 +372,13 @@ const CreateJobCardModal = observer(() => {
               className="uk-input uk-form-small"
               id="client-mobile"
               placeholder="Full Name"
-              value={jobCard.clientFullName}
-              onChange={(e) =>
-                setJobCard({
-                  ...jobCard,
-                  clientFullName: e.target.value,
-                })
-              }
+              value={client.name}
+              // onChange={(e) =>
+              //   setJobCard({
+              //     ...jobCard,
+              //     clientFullName: e.target.value,
+              //   })
+              // }
               required
             />
           </div>
@@ -351,7 +391,7 @@ const CreateJobCardModal = observer(() => {
               className="uk-input uk-form-small"
               id="client-mobile"
               placeholder="Cellphone"
-              value={jobCard.clientMobileNumber}
+              value={client.mobileNumber}
               onChange={(e) => {
                 const input = e.target.value;
                 // Allow only numbers and limit the length to 10 digits
@@ -381,7 +421,7 @@ const CreateJobCardModal = observer(() => {
               className="uk-input uk-form-small"
               id="client-mobile"
               placeholder="Cellphone"
-              value={jobCard.clientTelephone}
+              value={client.secondaryMobile}
               onChange={(e) => {
                 const input = e.target.value;
                 // Allow only numbers and limit the length to 10 digits
@@ -412,13 +452,13 @@ const CreateJobCardModal = observer(() => {
               className="uk-input uk-form-small"
               id="client-address"
               placeholder="Address"
-              value={jobCard.clientAddress}
-              onChange={(e) =>
-                setJobCard({
-                  ...jobCard,
-                  clientAddress: e.target.value,
-                })
-              }
+              value={client.physicalAddress}
+              // onChange={(e) =>
+              //   setJobCard({
+              //     ...jobCard,
+              //     clientAddress: e.target.value,
+              //   })
+              // }
             />
           </div>
           <div className="uk-form-controls uk-width-1-2 ">
@@ -430,13 +470,13 @@ const CreateJobCardModal = observer(() => {
               className="uk-input uk-form-small"
               id="client-email"
               placeholder="Email"
-              value={jobCard.clientEmail}
-              onChange={(e) =>
-                setJobCard({
-                  ...jobCard,
-                  clientEmail: e.target.value,
-                })
-              }
+              value={client.email}
+              // onChange={(e) =>
+              //   setJobCard({
+              //     ...jobCard,
+              //     clientEmail: e.target.value,
+              //   })
+              // }
             />
           </div>
 

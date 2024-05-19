@@ -30,6 +30,9 @@ const JobCardManagement = observer(() => {
   const [loading, setLoading] = useState(false);
   const scorecard = store.scorecard.active;
 
+  const member=store.jobcard.teamMember.all
+  console.log("log all members in main",member);
+  
   useTitle("Job Card Management");
   useBackButton();
 
@@ -52,15 +55,7 @@ const JobCardManagement = observer(() => {
     store.businessUnit.clearSelected(); // clear selected business unit
     showModalFromId(MODAL_NAMES.ADMIN.BUSINESS_UNIT_MODAL); // show modal
   };
-  const handleNewVM = () => {
-    store.businessUnit.clearSelected(); // clear selected business unit
-    showModalFromId(MODAL_NAMES.ADMIN.VM_MODAL); // show modal
-  };
-
-  const handleNewTheme = () => {
-    store.strategicTheme.clearSelected(); // clear selected business unit
-    showModalFromId(MODAL_NAMES.ADMIN.STRATEGIC_THEME_MODAL); // show modal
-  };
+ 
   useEffect(() => {
     // load data from db
     const loadAll = async () => {
@@ -71,7 +66,7 @@ const JobCardManagement = observer(() => {
         await api.jobcard.section.getAll();
         await api.jobcard.division.getAll();
         await api.jobcard.client.getAll();
-        await api.jobcard.member.getAll();
+        await api.jobcard.teamMember.getAll();
 
       } catch (error) {
         // console.log("Error: ", error);
@@ -79,7 +74,7 @@ const JobCardManagement = observer(() => {
       setLoading(false); // stop loading
     };
     loadAll();
-  }, [api.businessUnit, api.department, api.user, api.jobcard.division, api.jobcard.section, api.jobcard.client, api.jobcard.member]);
+  }, [api.businessUnit, api.department, api.user, api.jobcard.division, api.jobcard.section, api.jobcard.client, api.jobcard.teamMember]);
 
   return (
     <ErrorBoundary>

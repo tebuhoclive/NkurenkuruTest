@@ -70,7 +70,7 @@ const DivisionModal = observer(() => {
         type="button"
         data-uk-close></button>
 
-      <h3 className="uk-modal-title">Section</h3>
+      <h3 className="uk-modal-title">Division</h3>
 
       <div className="dialog-content uk-position-relative">
         <form

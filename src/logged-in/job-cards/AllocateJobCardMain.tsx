@@ -11,15 +11,7 @@ import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary"
 import Modal from "../../shared/components/Modal";
 import JobCardTabs from "./dashboard/JobCardTabs";
 import Toolbar from "../shared/components/toolbar/Toolbar";
-import Dropdown from "../../shared/components/dropdown/Dropdown";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCommentDots,
-  faFileExcel,
-  faFilePdf,
-} from "@fortawesome/free-solid-svg-icons";
-import JobCardReports from "./JobCardReports";
-import JobCardDashboardGrids from "./dashboard/JobCardDashboardGrids";
+
 import CreateJobCardModal from "./dialogs/CreateJobCardModal";
 import AllocateJobCardModal from "./dialogs/AllocateJobCardModal";
 
@@ -27,12 +19,13 @@ import {
   IJobCard,
   defaultJobCard,
 } from "../../shared/models/job-card-model/Jobcard";
-import JobCardTable from "./grids/AllocatedJobCardTable ";
+
 import AllocatedSubTabs from "./dashboard/AllocatedSubTabs";
 import ViewAllocatedJobCardModal from "./dialogs/ViewAllocatedJobCardModal ";
 import AllocatedJobCardTable from "./grids/AllocatedJobCardTable ";
 import UnallocatedJobCardTable from "./grids/UnallocatedJobCardTable";
 import CompletedJobCardTable from "./grids/CompletedJobCardTable";
+import UpdatedJobCardModal from "./dialogs/UpdateJobCardModal";
 
 const AllocateJobCardMain = observer(() => {
   const { api, store } = useAppContext();
@@ -40,9 +33,8 @@ const AllocateJobCardMain = observer(() => {
   const [tab, setTab] = useState<string>("JobCards");
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
-  const [ratingJobCard, setRatingJobCard] = useState<IJobCard>({
-    ...defaultJobCard,
-  });
+
+    // const [material, setMaterial] = useState<IMaterial>({ ...defaultMaterial });
 
   const handleTabChange = (index) => {
     setActiveTab(index);
@@ -56,11 +48,15 @@ const AllocateJobCardMain = observer(() => {
 
   const createdJobCards = store.jobcard.jobcard.all
     .map((job) => job.asJson)
-    .filter((job) => job.isAllocated !== true);
+    .filter((job) => job.isAllocated !== true&& job.status!=="Deleted");
   //stats
   const allocatedJobCards = store.jobcard.jobcard.all
     .map((job) => job.asJson)
     .filter((job) => job.isAllocated && job.status === "In Progress");
+
+     const deletedJobCards = store.jobcard.jobcard.all
+       .map((job) => job.asJson)
+       .filter((job) =>  job.status === "Deleted");
 
   const onCreateJobCard = () => {
     showModalFromId(MODAL_NAMES.EXECUTION.CREATEJOBCARD_MODAL);
@@ -72,9 +68,7 @@ const AllocateJobCardMain = observer(() => {
   useBackButton();
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+ 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -96,9 +90,7 @@ const AllocateJobCardMain = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
   };
 
-  const onViewMore = () => {
-    navigate(`/c/job-cards/create`);
-  };
+
   const onViewAllocated = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
     store.jobcard.jobcard.select(selectedJobCard);
@@ -106,65 +98,69 @@ const AllocateJobCardMain = observer(() => {
     showModalFromId(MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL);
   };
 
+
+
+    const onDuplicate = async (selectedJobCard) => {
+      console.log("selected job card for duplication", selectedJobCard);
+
+      // Assuming allJobCards is an array of job cards
+      const materialList = store.jobcard.material.all;
+      const currentMaterialList = materialList.filter(
+        (material) => material.asJson.jId === selectedJobCard.id
+      );
+
+      const oldJobCard = {
+        ...selectedJobCard,
+        isDuplicated: true,
+        isDuplicatedCount: (selectedJobCard.isDuplicatedCount || 0) + 1,
+        // status: "In Progress",
+      };
+
+      const duplicatedJobCard = {
+        ...selectedJobCard,
+        status: "In Progress",
+      };
+
+      if (oldJobCard.isDuplicatedCount > 3) {
+        alert(
+          "You can not duplicate a job card more than 3 times. Please create a new one."
+        );
+      } else {
+        try {
+          // Update the old job card
+          await api.jobcard.jobcard.update(oldJobCard);
+
+          // Create the duplicated job card and get its new ID
+           await api.jobcard.jobcard.create(
+            duplicatedJobCard
+          );
+          const newJobCardId = duplicatedJobCard.id // Assuming the created job card's ID is returned
+
+          // Create materials for the duplicated job card
+          for (const material of currentMaterialList) {
+            const newMaterial = {
+              ...material.asJson, // Use the JSON representation of the material
+              jId: newJobCardId, // Set the new job card ID
+            };
+            await api.jobcard.material.create(newMaterial, newJobCardId);
+          }
+
+          alert("Job card duplicated successfully.");
+        } catch (error) {
+          console.error("Error duplicating job card or materials:", error);
+          alert(
+            "There was an error duplicating the job card or materials. Please try again."
+          );
+        }
+      }
+    };
+
   //code for time since created
 
-  // Assuming allJobCards is an array of job cards
-  // const allJobCards = store.jobcard.jobcard.all;
-
-  // // Initialize an array to store time since issuance for each job card
-  // const timeSinceIssuanceArray: { jobCardId: string; timeDiff: number }[] = [];
-
-  // // Loop through each job card
-  // allJobCards.forEach((jobCard) => {
-  //   // Convert dateIssued to a Date object
-  //   const dateIssued = new Date(jobCard.asJson.dateIssued);
-  //   // Get the current date
-  //   const now = new Date();
-
-  //   // Calculate the time difference in milliseconds
-  //   const timeDiff = now.getTime() - dateIssued.getTime(); // Use getTime() to get the time in milliseconds
-
-  //   // Store time difference for the current job card
-  //   timeSinceIssuanceArray.push({ jobCardId: jobCard.asJson.id, timeDiff });
-  // });
-
-  // // Helper function to convert milliseconds to decimal hours
-  // function millisecondsToDecimalHours(ms: number): number {
-  //   return ms / (1000 * 60 * 60); // Convert milliseconds to hours
-  // }
-
-  // // Helper function to convert milliseconds to weeks
-  // function millisecondsToWeeks(ms: number): number {
-  //   return ms / (1000 * 60 * 60 * 24 * 7); // Convert milliseconds to weeks
-  // }
-
-  // // Helper function to convert milliseconds to months
-  // function millisecondsToMonths(ms: number): number {
-  //   return ms / (1000 * 60 * 60 * 24 * 30.44); // Average days in a month = 365.25 / 12
-  // }
-
-  // // Example usage
-  // timeSinceIssuanceArray.forEach(({ jobCardId, timeDiff }) => {
-  //   const decimalHours = millisecondsToDecimalHours(timeDiff);
-  //   const weeks = millisecondsToWeeks(timeDiff);
-  //   const months = millisecondsToMonths(timeDiff);
-  //   console.log(
-  //     `Job Card ID: ${jobCardId}, Time Difference: ${decimalHours.toFixed(
-  //       2
-  //     )} hours, ${weeks.toFixed(2)} weeks, ${months.toFixed(2)} months`
-  //   );
-  // });
+ 
 
   //rating code
   const [ratings, setRatings] = useState({});
-  //  useEffect(() => {
-  //    // Initialize ratings from completed job cards
-  //    const initialRatings = {};
-  //    completed.forEach((jobCard) => {
-  //      initialRatings[jobCard.id] = jobCard.rating || 0;
-  //    });
-  //    setRatings(initialRatings);
-  //  }, [completed]);
 
 const handleRatingChange = async (jobCardId, newRating) => {
   console.log("rating", newRating);
@@ -265,19 +261,8 @@ const handleRatingChange = async (jobCardId, newRating) => {
                   />
                 )}
                 {!loading && selectedSubTab === "completed-tab" && (
-                  // <CompletedJobCardTable
-                  //   jobCards={completed}
-                  //   handleEdit={onViewCreated}
-                  //   onView={onViewAllocated}
-                  //   defaultPage={1}
-                  //   defaultItemsPerPage={5}
-                  //   // timeSinceIssuanceArray={timeSinceIssuanceArray}
-                  //   ratings={ratings}
-                  //   handleRatingChange={handleRatingChange}
-                  // />
                   <CompletedJobCardTable
                     jobCards={completed}
-                    handleEdit={onViewCreated}
                     onView={onViewAllocated}
                     defaultPage={1}
                     defaultItemsPerPage={5}
@@ -291,11 +276,12 @@ const handleRatingChange = async (jobCardId, newRating) => {
                     handleCommentChange={handleCommentChange}
                     handleCommentSubmit={handleCommentSubmit}
                     handleCancel={handleCancel}
+                    onDuplicate={onDuplicate}
                   />
                 )}
                 {!loading && selectedSubTab === "deleted-tab" && (
                   <AllocatedJobCardTable
-                    jobCards={createdJobCards}
+                    jobCards={deletedJobCards}
                     handleEdit={onViewCreated}
                     onView={onViewAllocated}
                     defaultPage={1} // Specify the default page number
@@ -317,6 +303,9 @@ const handleRatingChange = async (jobCardId, newRating) => {
       </Modal>
       <Modal modalId={MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL}>
         <AllocateJobCardModal />
+      </Modal>
+      <Modal modalId={MODAL_NAMES.EXECUTION.EDITJOBCARD_MODAL}>
+        <UpdatedJobCardModal />
       </Modal>
       <Modal modalId={MODAL_NAMES.EXECUTION.VIEWALLOCATEDJOBCARD_MODAL}>
         <ViewAllocatedJobCardModal />

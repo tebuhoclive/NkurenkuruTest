@@ -16,8 +16,8 @@ import { ITeamMember } from "../../models/job-card-model/TeamMember";
   export default class TeamMemberApi {
     constructor(private api: AppApi, private store: AppStore) {}
   
-    async getAll(jid: string) {
-      const myPath = `jobcards/${jid}/TeamMember`;
+    async getAll() {
+      const myPath = `/TeamMember`;
   
       const $query = query(collection(db, myPath));
       // new promise
@@ -43,8 +43,8 @@ import { ITeamMember } from "../../models/job-card-model/TeamMember";
       });
     }
   
-    async getById(id: string, jid: string) {
-      const myPath = `jobcards/${jid}/TeamMember`;
+    async getById(id: string) {
+      const myPath = `/TeamMember`;
   
       const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
         if (!doc.exists) return;
@@ -56,8 +56,8 @@ import { ITeamMember } from "../../models/job-card-model/TeamMember";
       return unsubscribe;
     }
   
-    async create(item: ITeamMember, jid: string) {
-      const myPath = `jobcards/${jid}/TeamMember`;
+    async create(item: ITeamMember) {
+      const myPath = `/TeamMember`;
   
       const itemRef = doc(collection(db, myPath));
       item.id = itemRef.id;
@@ -74,8 +74,8 @@ import { ITeamMember } from "../../models/job-card-model/TeamMember";
       }
     }
   
-    async update(item: ITeamMember, jid: string) {
-      const myPath = `jobcards/${jid}/TeamMember`;
+    async update(item: ITeamMember) {
+      const myPath = `/TeamMember`;
       try {
         await updateDoc(doc(db, myPath, item.id), {
           ...item,
@@ -85,8 +85,8 @@ import { ITeamMember } from "../../models/job-card-model/TeamMember";
       } catch (error) {}
     }
   
-    async delete(id: string, jid: string) {
-      const myPath = `jobcards/${jid}/TeamMember`;
+    async delete(id: string) {
+      const myPath = `/TeamMember`;
       try {
         await deleteDoc(doc(db, myPath, id));
         this.store.jobcard.teamMember.remove(id);
