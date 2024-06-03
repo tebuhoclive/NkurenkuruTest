@@ -38,6 +38,8 @@ const ScorecardBatchModal = observer(() => {
   const create = async (batch: IScorecardBatch) => {
     try {
       await api.scorecard.create(batch);
+      console.log("created scorecard", batch);
+      
     } catch (error) {
       console.log("Failed to create> Error: ", error);
     }

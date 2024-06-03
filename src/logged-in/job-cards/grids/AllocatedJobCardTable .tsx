@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import { faExternalLinkAlt, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../shared/functions/Context";
-import { OpenInNew } from "@mui/icons-material";
 import { formatDate, formatTime } from "../../shared/utils/utils";
+import "./UnallocatedJobCardTable.css"; // Import your custom CSS file
 
 const AllocatedJobCardTable = ({
   jobCards,
@@ -16,11 +16,12 @@ const AllocatedJobCardTable = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(defaultPage);
   const [itemsPerPage] = useState(defaultItemsPerPage);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { api, store } = useAppContext();
 
   // Calculate pagination indices
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const { api, store } = useAppContext();
 
   // Function to get display name from assignedToId
   const getDisplayName = (assignedToId) => {
@@ -30,59 +31,52 @@ const AllocatedJobCardTable = ({
     return user ? user.asJson.displayName : "Unknown";
   };
 
-  const getBusinessUnitName = (businessId) => {
-    const unit = store.businessUnit.all.find(
-      (unit) => unit.asJson.id === businessId
+  const getDivisionName = (divisionId) => {
+    const division = store.jobcard.division.all.find(
+      (unit) => unit.asJson.id === divisionId
     );
-    return unit ? unit.asJson.name : "Unknown";
+    return division ? division.asJson.name : "Unknown";
   };
 
-  const getDepartmentName = (deptId) => {
-    const dept = store.department.all.find((user) => user.asJson.id === deptId);
-    return dept ? dept.asJson.name : "Unknown";
+  const getSectionName = (secId) => {
+    const section = store.jobcard.section.all.find(
+      (section) => section.asJson.id === secId
+    );
+    return section ? section.asJson.name : "Unknown";
   };
 
-  const sortedJobCards = [...jobCards].sort((a, b) => {
-    // Find the time difference objects for the current job cards
-    const timeDiffA = timeSinceIssuanceArray.find(
-      (item) => item.jobCardId === a.id
+  const filteredJobCards = jobCards.filter((jobCard) => {
+    return (
+      jobCard.uniqueId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      formatDate(jobCard.dateIssued)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      formatTime(jobCard.dateIssued)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      jobCard.urgency.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getDivisionName(jobCard.division)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      getSectionName(jobCard.section)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      getDisplayName(jobCard.assignedTo)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      jobCard.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const timeDiffB = timeSinceIssuanceArray.find(
-      (item) => item.jobCardId === b.id
-    );
-
-    // Compare the time differences for sorting
-    return timeDiffA?.timeDiff - timeDiffB?.timeDiff;
   });
-  // Function to render time difference for each job card
-  const renderTimeDifference = (jobCardId) => {
-    const timeDiffObject = timeSinceIssuanceArray.find(
-      (item) => item.jobCardId === jobCardId
-    );
-    if (!timeDiffObject) return null;
 
-    const { timeDiff } = timeDiffObject;
-    const millisecondsToMinutes = timeDiff / (1000 * 60);
-    const millisecondsToHours = millisecondsToMinutes / 60;
-    const millisecondsToDays = millisecondsToHours / 24;
-    const millisecondsToWeeks = millisecondsToDays / 7;
-    const millisecondsToMonths = millisecondsToDays / 30.44;
+  const sortedJobCards = [...filteredJobCards].sort((a, b) => {
+    // Convert dateIssued strings to Date objects for comparison
+    const dateA = new Date(a.dateIssued).getTime();
+    const dateB = new Date(b.dateIssued).getTime();
 
-    const formattedTimeDifference =
-      millisecondsToMinutes < 60
-        ? `${Math.floor(millisecondsToMinutes)} minutes`
-        : millisecondsToHours < 24
-        ? `${Math.floor(millisecondsToHours)} hours`
-        : millisecondsToDays < 7
-        ? `${Math.floor(millisecondsToDays)} days`
-        : millisecondsToWeeks < 4
-        ? `${Math.floor(millisecondsToWeeks)} weeks`
-        : `${Math.floor(millisecondsToMonths)} months`;
+    // Compare the dates for sorting: most recent first
+    return dateB - dateA;
+  });
 
-    return formattedTimeDifference;
-  };
-
-  // Function to handle page change
   const handlePageChange = (action) => {
     if (action === "prev" && currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -91,65 +85,96 @@ const AllocatedJobCardTable = ({
     }
   };
 
+  const fixedRowCount = 8; // Define a fixed number of rows
+  const displayedJobCards = sortedJobCards.slice(startIndex, endIndex);
+  const emptyRowsCount = fixedRowCount - displayedJobCards.length;
+
   return (
-    <div className="people-tab-content uk-card uk-card-default uk-card-body">
-      <div style={{ height: "400px", overflowY: "auto" }}>
-        <table className="kit-table uk-table uk-table-small uk-table-striped">
+    <div className="people-tab-content">
+      <div className="top-bar">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search by Job Card No, Date, Assigned To, etc."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="custom-input"
+          />
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
+        </div>
+      </div>
+      <div className="table-wrapper">
+        {" "}
+        <table className="custom-table">
           {/* Table headers */}
           <thead>
             <tr>
-              <th>Job Card No</th>
-              <th>Date logged</th>
-              <th>Time logged</th>
-              <th>Due Date</th>
-              <th>Time Due</th>
-              <th>Assigned To</th>
-              <th>Artisan/Foreman</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th className="header-cell">Job Card No</th>
+              <th className="header-cell">Date logged</th>
+              <th className="header-cell">Time logged</th>
+              <th className="header-cell">Due Date</th>
+              <th className="header-cell">Time Due</th>
+              <th className="header-cell">Assigned To</th>
+              <th className="header-cell">Artisan/Foreman</th>
+              <th className="header-cell">Status</th>
+              <th className="header-cell">Actions</th>
             </tr>
           </thead>
           {/* Table body */}
           <tbody>
-            {sortedJobCards
-              .slice(startIndex, endIndex)
-              .map((jobCard, index) => (
-                <tr key={jobCard.id}>
-                  <td>{jobCard.uniqueId}</td>
-                  <td>{formatDate(jobCard.dateIssued)}</td>
-                  <td>{formatTime(jobCard.dateIssued)}</td>
-                  <td>{formatDate(jobCard.dueDate)}</td>
-                  <td>{formatTime(jobCard.dueDate)}</td>
-                  <td>{getDisplayName(jobCard.assignedTo)}</td>
-                  <td>{getDisplayName(jobCard.artesian)}</td>
-                  <td>{jobCard.status}</td>
-
-                  {/* Render time difference */}
-                  <td>
-                    <IconButton
-                      aria-label="view"
-                      onClick={() => onView(jobCard)}
-                      style={{
-                        color: "black",
-                        padding: "8px",
-                        fontSize: "1rem",
-                      }}>
-                      <FontAwesomeIcon icon={faExternalLinkAlt} />
-                    </IconButton>
-                  </td>
-                </tr>
-              ))}
+            {displayedJobCards.map((jobCard) => (
+              <tr key={jobCard.id}>
+                <td>{jobCard.uniqueId}</td>
+                <td>{formatDate(jobCard.dateIssued)}</td>
+                <td>{formatTime(jobCard.dateIssued)}</td>
+                <td>{formatDate(jobCard.dueDate)}</td>
+                <td>{formatTime(jobCard.dueDate)}</td>
+                <td>{getDisplayName(jobCard.assignedTo)}</td>
+                <td>{getDisplayName(jobCard.artesian)}</td>
+                <td>{jobCard.status}</td>
+                <td>
+                  <IconButton
+                    aria-label="view"
+                    data-uk-tooltip="View"
+                    onClick={() => onView(jobCard)}
+                    style={{
+                      color: "black",
+                      padding: "8px",
+                      fontSize: "1rem",
+                    }}>
+                    <FontAwesomeIcon icon={faExternalLinkAlt} />
+                  </IconButton>
+                </td>
+              </tr>
+            ))}
+            {/* Add empty rows if necessary */}
+            {Array.from({ length: emptyRowsCount }).map((_, index) => (
+              <tr key={`empty-${index}`}>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      {/* Pagination */}
+   
+
       <div className="pagination">
         <button
+          className="pagination-button"
           onClick={() => handlePageChange("prev")}
           disabled={currentPage === 1}>
           Prev
         </button>
         <button
+          className="pagination-button"
           onClick={() => handlePageChange("next")}
           disabled={endIndex >= jobCards.length}>
           Next
@@ -158,6 +183,5 @@ const AllocatedJobCardTable = ({
     </div>
   );
 };
-
 
 export default AllocatedJobCardTable;

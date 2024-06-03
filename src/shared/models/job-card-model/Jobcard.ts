@@ -29,11 +29,9 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     expectedOutcomes: "",
     division: "",
     section: "",
-    clientFullName: "",
-    clientTelephone: "",
-    clientMobileNumber: "",
-    clientAddress: "",
-    clientEmail: "",
+
+ 
+ 
     erf: "",
     typeOfWork: "",
     assignedTo: "",
@@ -43,7 +41,7 @@ export type IJobCardType = "Ad-hoc"|"Sewer" | "Roads" | "Building" | "General"
     remark: "",
     measure: "",
     acknowledged: false,
-    reworked: ""
+  
   };
 export interface IJobCard {
   id: string;
@@ -62,11 +60,8 @@ export interface IJobCard {
   expectedOutcomes: string;
   division: string;
   section: string;
-  clientFullName: string;
-  clientTelephone: string;
-  clientMobileNumber: string;
-  clientAddress: string;
-  clientEmail: string;
+
+ 
   erf: string;
   typeOfWork: string;
   artesian: string;
@@ -76,8 +71,9 @@ export interface IJobCard {
   measure: string;
   isAllocated?: boolean;
   comment?: string;
-  reworked: string;
-  rating?: number;
+
+  clientRating?: number;
+  teamRating?:number;
   dateCompleted?: number;
   clientId?:string
   isDuplicated?:boolean;

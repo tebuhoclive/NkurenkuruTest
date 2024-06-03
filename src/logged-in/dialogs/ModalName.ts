@@ -83,6 +83,8 @@ const MODAL_NAMES = {
     VIEWALLOCATEDJOBCARD_MODAL: "view-allocated-jobcard-modal",
     ADDJOBCARDMATERIAL_MODAL: "add-material-modal",
     ONEDITMATERIAL_MODAL: "edit-material-modal",
+    TEAM_RATING_MODAL: "team-rating",
+    CLIENT_RATING_MODAL: "client-rating",
   },
   PERFORMANCE_REVIEW: {
     REVIEW_MODAL: "performance-review-modal",
@@ -100,6 +102,7 @@ const MODAL_NAMES = {
     SCORECARD_BATCH_MODAL: "scorecard-batch-modal",
     DEPARTMENT_MODAL: "department-modal",
     BUSINESS_UNIT_MODAL: "business-unit-modal",
+
     VM_MODAL: "vision-mission-modal",
     STRATEGIC_THEME_MODAL: "strategic-theme-modal",
   },

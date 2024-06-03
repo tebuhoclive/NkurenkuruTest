@@ -54,10 +54,10 @@ import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinat
 
 import JobDashboard from "./logged-in/job-cards/dashboard/JobCardDashboard";
 import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
-import AllocateJobCardMain from "./logged-in/job-cards/AllocateJobCardMain";
+import AllocateJobCardMain from "./logged-in/job-cards/allocate-jobcard/AllocateJobCardMain";
 
 import JobCardManagement from "./logged-in/job-cards/jobcard-management/JobCardManagement";
-import CreatedJoCardMain from "./logged-in/job-cards/CreateJobCardMain";
+import CreatedJoCardMain from "./logged-in/job-cards/create-jobcard/CreateJobCardMain";
 
 // Lazy load components
 const LoggedIn = lazy(() => import("./logged-in/LoggedIn"));
