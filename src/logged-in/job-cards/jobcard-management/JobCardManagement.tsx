@@ -15,37 +15,40 @@ import ClientAccountModal from "./dialogs/ClientAccountModal";
 import SectionModal from "./dialogs/SectionModal";
 import DivisionModal from "./dialogs/DivisionModal";
 import TeamMemberJobCardTable from "./grids/TeamMemberJobCardTable";
-import { ITeamMember } from "../../../shared/models/job-card-model/TeamMember";
+import {
+  ITeamMember,
+  defaultTeamMember,
+} from "../../../shared/models/job-card-model/TeamMember";
 import SectionJobCardTable from "./grids/SectionJobCardTable";
 import DivisionJobCardTable from "./grids/DivisionJobCardTable";
 import BlueButton from "../create-jobcard/Button";
 import { ISection } from "../../../shared/models/job-card-model/Section";
-import { IClient } from "../../../shared/models/job-card-model/Client";
+import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
 import MemberModal from "./dialogs/MemberModal";
 import { IDivision } from "../../../shared/models/job-card-model/Division";
+import { Alert, AlertColor, Stack } from "@mui/material";
 
-
+interface AlertState {
+  type: AlertColor;
+  message: string;
+}
 const JobCardManagement = observer(() => {
   const { api, store } = useAppContext();
   const [selectedTab, setselectedTab] = useState("client-tab");
+ 
+ 
   const [loading, setLoading] = useState(false);
   const scorecard = store.scorecard.active;
 
-  
-
-  
   useTitle("Job Card Management");
   useBackButton();
 
   const handleNewUser = () => {
     showModalFromId(MODAL_NAMES.ADMIN.USER_MODAL);
   };
-   const handleNewMember = () => {
-     showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
-   };
-
-
-
+  const handleNewMember = () => {
+    showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
+  };
 
   const handleNewDepartment = () => {
     store.department.clearSelected(); // clear selected department
@@ -68,25 +71,28 @@ const JobCardManagement = observer(() => {
 
     showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
   };
- const onViewDivision = (selectedDivision: IDivision) => {
-   console.log("selected job card", selectedDivision);
-   store.jobcard.division.select(selectedDivision);
+  const onViewDivision = (selectedDivision: IDivision) => {
+    console.log("selected job card", selectedDivision);
+    store.jobcard.division.select(selectedDivision);
 
-   showModalFromId(MODAL_NAMES.ADMIN.BUSINESS_UNIT_MODAL);
- };
+    showModalFromId(MODAL_NAMES.ADMIN.BUSINESS_UNIT_MODAL);
+  };
 
+ 
+  const activeTeamMembers = store.jobcard.teamMember.all
+    .filter((member) => member.asJson.status !== "Archived")
+    .map((member) => member.asJson);
 
-   const teamMemberList = store.jobcard.teamMember.all.map(
-     (teamMember) => teamMember.asJson
-   );
-     const sectionList = store.jobcard.section.all.map(
-       (section) => section.asJson
-     );
-       const devisionList = store.jobcard.division.all.map(
-         (section) => section.asJson
-       );
-   
-   const clients = store.jobcard.client.all.map((clients) => clients.asJson);
+  const sectionList = store.jobcard.section.all.map(
+    (section) => section.asJson
+  );
+  const devisionList = store.jobcard.division.all.map(
+    (section) => section.asJson
+  );
+
+  const activeClients = store.jobcard.client.all
+    .filter((client) => client.asJson.status !== "Archived")
+    .map((client) => client.asJson);
 
 
   useEffect(() => {
@@ -100,40 +106,92 @@ const JobCardManagement = observer(() => {
         await api.jobcard.division.getAll();
         await api.jobcard.client.getAll();
         await api.jobcard.teamMember.getAll();
-
       } catch (error) {
         // console.log("Error: ", error);
       }
       setLoading(false); // stop loading
     };
     loadAll();
-  }, [api.businessUnit, api.department, api.user, api.jobcard.division, api.jobcard.section, api.jobcard.client, api.jobcard.teamMember]);
+  }, [
+    api.businessUnit,
+    api.department,
+    api.user,
+    api.jobcard.division,
+    api.jobcard.section,
+    api.jobcard.client,
+    api.jobcard.teamMember,
+  ]);
 
+  // new handling function
 
+  const handleEditSection = (section: ISection) => {
+    store.jobcard.section.select(section); // set selected department
+    showModalFromId(MODAL_NAMES.ADMIN.DEPARTMENT_MODAL); // show modal
+  };
 
-  
-  // new handling function 
+  const handleDeleteSection = async (section: ISection) => {
+    if (!window.confirm("Remove department?")) return; // TODO: confirmation dialog
+    api.jobcard.section.delete(section); // remove department
+  };
 
-   const handleEditSection = (section:ISection) => {
-     store.jobcard.section.select(section); // set selected department
-     showModalFromId(MODAL_NAMES.ADMIN.DEPARTMENT_MODAL); // show modal
-   };
+  const handleEditTeamMember = (teamMember: ITeamMember) => {
+    store.jobcard.teamMember.select(teamMember); // set selected user
+    showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL); // show modal
+  };
+   const [alert, setAlert] = useState<AlertState | null>(null);
 
-   const handleDeleteSection = async (section: ISection) => {
-     if (!window.confirm("Remove department?")) return; // TODO: confirmation dialog
-     api.jobcard.section.delete(section); // remove department
-   };
+ 
+ const handleArchiveMember = async (teamMember: ITeamMember) => {
+   try {
+     // Your logic to archive the team member
+     const currentTeamMember = store.jobcard.teamMember.select(teamMember);
+     if (store.jobcard.teamMember.selected) {
+       const selectedTeamMember = store.jobcard.teamMember.selected;
+       if (selectedTeamMember) {
+         const updatedTeamMember: IClient = {
+           ...selectedTeamMember,
+           status: "Archived",
+         };
+         await api.jobcard.teamMember.update(updatedTeamMember);
 
-    const handleEditTeamMember = (teamMember:ITeamMember) => {
-      store.jobcard.teamMember.select(teamMember); // set selected user
-      showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL); // show modal
-    };
+         // Show success alert
+         setAlert({
+           type: "success",
+           message: `Archived member: ${selectedTeamMember.name}`,
+         });
+       }
+     }
+   } catch (error) {
+     // Show error alert
+     setAlert({
+       type: "error",
+       message: `Error archiving member: ${error.message}`,
+     });
+   }
+ };
 
-    const handleArchive = (teamMember) => {
+  const handleArchiveClient = async (client) => {
+    try {
       // Your logic to archive the team member
-      console.log(`Archiving team member: ${teamMember.name}`);
-      // Add your archive functionality here
-    };
+      const currentClient = store.jobcard.client.select(client);
+      if (store.jobcard.client.selected) {
+        const selectedClient = store.jobcard.client.selected;
+        if (selectedClient) {
+          const updatedClient :IClient= {
+            ...selectedClient,
+            status: "Archived",
+          };
+          await api.jobcard.client.update(updatedClient);
+
+          // Show success alert
+          setAlert({ type: 'success', message: `Archived client: ${client.name}` });
+        }
+      }
+    } catch (error) {
+      // Show error alert
+      setAlert({ type: 'error', message: `Error archiving client: ${error.message}` });
+    }
+  };
   return (
     <ErrorBoundary>
       <div className="admin-settings uk-section uk-section-small">
@@ -199,13 +257,21 @@ const JobCardManagement = observer(() => {
             {!loading && (
               <div className="uk-margin">
                 {selectedTab === "team-members-tab" && (
-                  <TeamMemberJobCardTable
-                    teamMembers={teamMemberList}
-                    handleEdit={handleEditTeamMember}
-                    handleArchive={handleArchive}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                  />
+                  <>
+                    {" "}
+                    <TeamMemberJobCardTable
+                      teamMembers={activeTeamMembers}
+                      handleEdit={handleEditTeamMember}
+                      handleArchive={handleArchiveMember}
+                      defaultPage={1} // Specify the default page number
+                      defaultItemsPerPage={5} // Specify the default items per page
+                    />
+                    <Stack sx={{ width: "100%" }} spacing={2}>
+                      {alert && (
+                        <Alert severity={alert.type}>{alert.message}</Alert>
+                      )}
+                    </Stack>
+                  </>
                 )}
                 {selectedTab === "sections-tab" && (
                   <SectionJobCardTable
@@ -217,13 +283,21 @@ const JobCardManagement = observer(() => {
                   />
                 )}
                 {selectedTab === "client-tab" && (
-                  <TeamMemberJobCardTable
-                    teamMembers={clients}
-                    handleEdit={onViewCreatedClient}
-                    handleArchive={handleArchive}
-                    defaultPage={1} // Specify the default page number
-                    defaultItemsPerPage={5} // Specify the default items per page
-                  />
+                  <>
+                    {" "}
+                    <TeamMemberJobCardTable
+                      teamMembers={activeClients}
+                      handleEdit={onViewCreatedClient}
+                      handleArchive={handleArchiveClient}
+                      defaultPage={1} // Specify the default page number
+                      defaultItemsPerPage={5} // Specify the default items per page
+                    />
+                    <Stack sx={{ width: "100%" }} spacing={2}>
+                      {alert && (
+                        <Alert severity={alert.type}>{alert.message}</Alert>
+                      )}
+                    </Stack>
+                  </>
                 )}
                 {selectedTab === "division-tab" && (
                   <DivisionJobCardTable

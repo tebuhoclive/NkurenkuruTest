@@ -14,9 +14,10 @@ export interface ITeamMember {
   physicalAddress: string;
   city: string;
   secondaryMobile?: string;
+  status?: IStatus;
 }
 
-  
+ export type IStatus = "Archived"; 
 export const defaultTeamMember: ITeamMember ={
   id: "", // Assuming the user id is a string
   name: "",
@@ -27,6 +28,7 @@ export const defaultTeamMember: ITeamMember ={
   location: "",
   physicalAddress: "",
   city: ""
+  
 }
 
   export default class TeamMember {

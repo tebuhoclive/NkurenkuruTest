@@ -72,12 +72,10 @@ const AllocateJobCardModal = observer(() => {
 
   //Kpi measures here
   const measure = store.measure.getByUid(jobCard.teamLeader);
-  console.log("all me in measures", measure);
+
   const materialCost = store.jobcard.material.all;
 
-  //calculate material cost
-  // test store
-  const currentid = jobCard.id;
+
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
@@ -85,7 +83,22 @@ const AllocateJobCardModal = observer(() => {
   }, 0);
 
   const users = store.user.all;
-  const team = store.jobcard.teamMember.all;
+ 
+  const teamMemberList = store.jobcard.teamMember.all.filter(
+    (teamMember) => teamMember.asJson.status !== "Archived"
+  );
+ 
+
+ const optionsMember: IOption[] = useMemo(
+   () =>
+     teamMemberList.map((user) => {
+       return {
+         label: user.asJson.name || "",
+         value: user.asJson.id,
+       };
+     }),
+   [teamMemberList]
+ );
 
   const options: IOption[] = useMemo(
     () =>
@@ -619,7 +632,7 @@ const AllocateJobCardModal = observer(() => {
                       defaultValue={[]}
                       isMulti
                       name="colors"
-                      options={options}
+                      options={optionsMember}
                       className="basic-multi-select"
                       classNamePrefix="select"
                       onChange={handleTeamMemberChange}

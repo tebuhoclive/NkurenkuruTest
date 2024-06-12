@@ -22,14 +22,12 @@ import SingleSelect, {
 } from "../../../shared/components/single-select/SingleSelect";
 import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
 import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import "./CreateModal.css"; // Import your custom styles
 const CreateJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
-  const [selectedUser, setSelectedUser] = useState(jobCard.assignedTo);
+
  
  const [addNewClient, setAddNewClient] = useState(false);
   const [client, setClient] = useState<IClient>({ ...defaultClient });
@@ -86,7 +84,9 @@ const CreateJobCardModal = observer(() => {
   //filter users 
     const users = store.user.all
 
-    const clients=store.jobcard.client.all
+  const clients = store.jobcard.client.all.filter(
+    (clients) => clients.asJson.status !== "Archived"
+  );
 
  const clientOptions: IOption[] = useMemo(
    () =>

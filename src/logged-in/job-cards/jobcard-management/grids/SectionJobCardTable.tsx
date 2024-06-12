@@ -29,7 +29,7 @@ const SectionJobCardTable = ({
   console.log("team member in table", section);
 
   const filteredSections = section.filter((section) => {
-    return section.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return section.name?.toLowerCase().includes(searchTerm.toLowerCase());
   });
  const getDivisionName = (divisionId) => {
    const division = store.jobcard.division.all.find(

@@ -29,21 +29,10 @@ const DivisionJobCardTable = ({
   console.log("team member in table", section);
 
   const filteredSections = section.filter((section) => {
-    return section.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return section.name?.toLowerCase().includes(searchTerm.toLowerCase());
   });
-  const getDivisionName = (divisionId) => {
-    const division = store.jobcard.division.all.find(
-      (unit) => unit.asJson.id === divisionId
-    );
-    return division ? division.asJson.name : "Unknown";
-  };
 
-  const getSectionName = (secId) => {
-    const section = store.jobcard.section.all.find(
-      (section) => section.asJson.id === secId
-    );
-    return section ? section.asJson.name : "Unknown";
-  };
+
   const sortedSection = [...filteredSections].sort((a, b) => {
     // Convert dateIssued strings to Date objects for comparison
     const dateA = new Date(a.dateIssued).getTime();

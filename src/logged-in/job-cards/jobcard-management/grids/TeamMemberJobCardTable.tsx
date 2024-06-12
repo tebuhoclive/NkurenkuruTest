@@ -26,10 +26,8 @@ const TeamMemberJobCardTable = ({
 
   // Function to get display name from assignedToId
 
-  console.log("team member in table", teamMembers);
-
   const filteredTeamMembers = teamMembers.filter((teamMembers) => {
-    return teamMembers.email.toLowerCase().includes(searchTerm.toLowerCase());
+    return teamMembers.name?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const sortedTeamMembers = [...filteredTeamMembers].sort((a, b) => {

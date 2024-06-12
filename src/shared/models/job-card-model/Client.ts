@@ -12,8 +12,12 @@ export interface IClient {
   physicalAddress: string;
   city: string;
   secondaryMobile?: string;
+    status?: IStatus;
 }
 
+
+
+ export type IStatus = "Archived"; 
 
   export const defaultClient: IClient = {
     id: "",

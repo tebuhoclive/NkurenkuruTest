@@ -621,7 +621,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                     { text: "Team Members:", fontSize: 9 },
                     {
                       ul: jobCard.teamMembers.map((member) => ({
-                        text: getDisplayName(member),
+                        text: getDisplayTeamMemberName(member),
                       })),
                     },
                   ],
@@ -749,6 +749,15 @@ const ViewAllocatedJobCardModal = observer(() => {
     );
     return user ? user.asJson.displayName : "Unknown";
   };
+  
+ 
+ 
+   const getDisplayTeamMemberName = (assignedToId) => {
+     const member = store.jobcard.teamMember.all.find(
+       (member) => member.asJson.id === assignedToId
+     );
+     return member ? member.asJson.name: "Unknown";
+   };
 
   const onDeleteMaterial = async (materialId: string) => {
     try {
@@ -970,7 +979,7 @@ const ViewAllocatedJobCardModal = observer(() => {
                           <td>Members:</td>
                           <td>
                             {jobCard.teamMembers
-                              .map((id) => getDisplayName(id))
+                              .map((id) => getDisplayTeamMemberName(id))
                               .join(", ")}
                           </td>
                         </tr>
