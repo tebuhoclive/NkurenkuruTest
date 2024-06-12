@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconButton, TextField } from "@mui/material";
-import { OpenInNew } from "@mui/icons-material";
 
+import ArchiveIcon from "@mui/icons-material/Archive";
 import "./TeamMemberJobCardTable.css"; // Import your custom CSS file
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useAppContext } from "../../../../shared/functions/Context";
@@ -11,7 +11,7 @@ import { useAppContext } from "../../../../shared/functions/Context";
 const TeamMemberJobCardTable = ({
   teamMembers,
   handleEdit,
-  onView,
+  handleArchive,
   defaultPage = 1,
   defaultItemsPerPage = 5,
 }) => {
@@ -89,14 +89,25 @@ const TeamMemberJobCardTable = ({
                 <td>
                   <IconButton
                     aria-label="view"
-                    data-uk-tooltip="Allocate Job Card"
-                    onClick={() => onView(teamMember)}
+                    data-uk-tooltip="Edit"
+                    onClick={() => handleEdit(teamMember)}
                     style={{
                       color: "black",
                       padding: "8px",
                       fontSize: "1rem",
                     }}>
-                    <FontAwesomeIcon icon={faExternalLinkAlt} />
+                    <span uk-icon="pencil"></span>
+                  </IconButton>
+                  <IconButton
+                    aria-label="archive"
+                    data-uk-tooltip="Archive"
+                    onClick={() => handleArchive(teamMember)}
+                    style={{
+                      color: "black",
+                      padding: "8px",
+                      fontSize: "1rem",
+                    }}>
+                    <ArchiveIcon />
                   </IconButton>
                 </td>
               </tr>

@@ -1,27 +1,29 @@
 .cost-chart-container {
   position: relative;
-  width: 60%;
+  width: 50%;
   margin: 0 auto;
   text-align: center;
-     border-radius: 10px; // Adjust as needed
 }
 
 .chart-title {
+  position: absolute;
+  top: 0;
+  left: 0;
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 20px;
 }
 
 .total-cost {
-  font-size: 20px;
-  font-weight: 600px;
-
-  margin-bottom: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .doughnut-chart {
   position: relative;
-    width: 80%;
+  margin-top: 40px; /* Adjust based on your layout */
 }
 
 .chart-middle-text {
@@ -31,5 +33,4 @@
   transform: translate(-50%, -50%);
   font-size: 14px;
   font-weight: bold;
-  text-align: center;
 }

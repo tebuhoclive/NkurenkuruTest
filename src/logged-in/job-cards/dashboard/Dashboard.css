@@ -44,7 +44,9 @@
     background-color: #00ff00; 
     color: #ffffff; 
   }
-
+/* .reports-margin{
+  margin-left: 100px;
+} */
   .issues {
     font-weight: 800;
     text-align: center;
@@ -91,3 +93,47 @@
     outline: none;
   }
 }
+
+.vertical-line {
+  position: absolute;
+  top: 2;
+  bottom: 0;
+  left: 33.33%; /* Adjust this to match the exact position */
+  width: 0.2px;
+    height: 90%;
+  background-color: #dfdcdc; /* Light grey color */
+  border-radius: 10px;
+}
+.vertical-line1 {
+  position: absolute;
+  top: 5;
+  height: 90%;
+  bottom: 0;
+  right: 33.33%; /* Adjust this to match the exact position */
+  width: 0.2px;
+    border-radius: 10px;
+  background-color:#dfdcdc;  /* Light grey color */
+}
+
+.vertical-line3 {
+  position: absolute;
+  top: 2;
+  bottom: 0;
+  left: 34.33%; /* Adjust this to match the exact position */
+  width: 0.2px;
+    height: 90%;
+  background-color: #dfdcdc; /* Light grey color */
+  border-radius: 10px;
+}
+.vertical-line4 {
+  position: absolute;
+  top: 5;
+  height: 90%;
+  bottom: 0;
+  right: 31.33%; /* Adjust this to match the exact position */
+  width: 0.2px;
+    border-radius: 10px;
+  background-color:#dfdcdc;  /* Light grey color */
+}
+
+

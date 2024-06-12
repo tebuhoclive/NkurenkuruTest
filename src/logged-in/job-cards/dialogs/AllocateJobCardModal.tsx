@@ -81,7 +81,7 @@ const AllocateJobCardModal = observer(() => {
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
-    return total + material.asJson.unitCost;
+    return total + material.asJson.quantity * material.asJson.unitCost;
   }, 0);
 
   const users = store.user.all;
@@ -526,7 +526,7 @@ const AllocateJobCardModal = observer(() => {
             {jobCard && (
               <div className="uk-width-1-1 uk-margin-large-top">
                 <h4 style={{ fontWeight: "bold" }}>Job Card Client Details</h4>
-               
+
                 <table className="uk-table uk-table-small uk-table-divider custom-table">
                   <tbody>
                     <tr className="custom-row">

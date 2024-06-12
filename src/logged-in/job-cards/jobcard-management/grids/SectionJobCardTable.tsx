@@ -98,14 +98,25 @@ const SectionJobCardTable = ({
                 <td>
                   <IconButton
                     aria-label="view"
-                    data-uk-tooltip="Allocate Job Card"
+                    data-uk-tooltip="Delete"
                     onClick={() => onView(section)}
                     style={{
                       color: "black",
                       padding: "8px",
                       fontSize: "1rem",
                     }}>
-                    <FontAwesomeIcon icon={faExternalLinkAlt} />
+                    <span uk-icon="trash"></span>
+                  </IconButton>
+                  <IconButton
+                    aria-label="view"
+                    data-uk-tooltip="Edit"
+                    onClick={() => handleEdit(section)}
+                    style={{
+                      color: "black",
+                      padding: "8px",
+                      fontSize: "1rem",
+                    }}>
+                    <span uk-icon="pencil"></span>
                   </IconButton>
                 </td>
               </tr>

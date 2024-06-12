@@ -89,18 +89,28 @@ const JobCardDashboard = observer(() => {
 
   const users = store.user.all.map((u) => u.asJson);
 
+  const userOptions: IOption[] = useMemo(
+    () =>
+      users.map((bu) => {
+        return {
+          label: bu.displayName || "",
+          value: bu.uid,
+        };
+      }),
+    [users]
+  );
+
   // const userOptions: IOption[] = useMemo(
   //   () =>
   //     users.map((bu) => {
   //       return {
-  //         label: bu.displayName || "",
-  //         value: bu.uid,
+  //         label: bu.asJson.displayName || "",
+  //         value: bu.asJson.uid,
   //       };
   //     }),
   //   [users]
   // );
-
-
+  //donut code
   const backgroundColors = {
     pending: "rgb(255, 99, 132)", // Red
     completed: "rgb(54, 162, 235)", // Blue
@@ -177,6 +187,7 @@ const JobCardDashboard = observer(() => {
       (j) => j.asJson.section === sectionId
     );
 
+    console.log("filtered jobcards in here ", currentSectionJobCards);
     
  
     // Count the completed, pending, and overdue job cards
@@ -223,28 +234,6 @@ const JobCardDashboard = observer(() => {
     );
     return section ? section.asJson.name : "Unknown";
   };
-// to filter jobcards per section
-   const usersInSection = (sectionId, jobCards) => {
-     // Get all unique user IDs assigned to job cards in the section
-     const userIds = jobCards
-       .filter((jobCard) => jobCard.asJson.section === sectionId)
-       .map((jobCard) => jobCard.asJson.assignedTo);
-
-     // Filter users based on whether they are assigned to job cards in the section
-     const filteredUsers = store.user.all.filter((user) =>
-       userIds.includes(user.asJson.uid)
-     );
-
-     return filteredUsers.map((user) => ({
-       label: user.asJson.displayName || "",
-       value: user.asJson.uid,
-     }));
-   };
-
-   // Usage
-   const userOptionsWater = usersInSection(waterSection?.asJson.id, jobcards);
- const userOptionsSewage = usersInSection(sewageSection?.asJson.id, jobcards);
- const userOptionsCleaners = usersInSection(cleanersSection?.asJson.id, jobcards);
 
   useEffect(() => {
     const loadData = async () => {
@@ -417,31 +406,26 @@ const JobCardDashboard = observer(() => {
         {!loading && selectedTab === "reports" && (
           <>
             <>
-              <h3 className="uk-text-bold" style={{ color: "grey" }}>
-                JOB CARD PERFORMANCE
-              </h3>
-
               <div
-                className="uk-grid-small uk-grid-match uk-position-relative uk-margin"
+                className="uk-grid-small uk-grid-match uk-position-relative"
                 data-uk-grid>
-                {/* Vertical Line Divider */}
-
                 <div className="uk-width-1-3@m">
                   <div>
-                    <h2 className="uk-text-bold">Water Section</h2>
                     <div>
+                      <label className="uk-form-label" htmlFor="division">
+                        Select User to see Performance
+                      </label>
                       {/* Place the SingleSelect component here */}
                       <SingleSelect
-                        options={userOptionsWater}
+                        options={userOptions}
                         onChange={handleUserSelect}
                         placeholder="Assign "
                         value={selectedUserId}
-                        label="Select User to see Performance "
+                        label="Select User to see Performance under Water Section"
                         // required
                       />
                     </div>
-
-                    <div className="uk-width 1-3">
+                    <div className="uk-width-1-3@m">
                       <AssignedUserJobCardStats
                         userId={selectedUserId}
                         userName={selectedUser}
@@ -451,19 +435,51 @@ const JobCardDashboard = observer(() => {
                   </div>
                 </div>
 
-                <div className="vertical-line3 uk-visible@m"></div>
+                {/* Vertical Line Divider */}
+                <div className="vertical-line uk-visible@m"></div>
 
                 <div className="uk-width-1-3@m">
                   <div>
-                    <h2 className="uk-text-bold">Sewage Section</h2>
                     <div>
+                      <label className="uk-form-label" htmlFor="division">
+                        Select User to see Performance
+                      </label>
                       {/* Place the SingleSelect component here */}
                       <SingleSelect
-                        options={userOptionsSewage}
+                        options={userOptions}
+                        onChange={handleUserSelect1}
+                        placeholder="Assign "
+                        value={selectedUserId1}
+                        label="Select User to see Performance under Water Section"
+                        // required
+                      />
+                    </div>
+                    <div className="uk-width 1-1">
+                      <AssignedUserJobCardStats
+                        userId={selectedUserId1}
+                        userName={selectedUser1}
+                        jobCards={allJobCards}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vertical Line Divider */}
+                <div className="vertical-line uk-visible@m"></div>
+
+                <div className="uk-width-1-3@m">
+                  <div>
+                    <div>
+                      <label className="uk-form-label" htmlFor="division">
+                        Select User to see Performance
+                      </label>
+                      {/* Place the SingleSelect component here */}
+                      <SingleSelect
+                        options={userOptions}
                         onChange={handleUserSelect2}
                         placeholder="Assign "
                         value={selectedUserId2}
-                        label="Select User to see Performance under Sewage Section"
+                        label="Select User to see Performance under Water Section"
                         // required
                       />
                     </div>
@@ -471,30 +487,6 @@ const JobCardDashboard = observer(() => {
                       <AssignedUserJobCardStats
                         userId={selectedUserId2}
                         userName={selectedUser2}
-                        jobCards={allJobCards}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="vertical-line4 uk-visible@m"></div>
-                <div className="uk-width-1-3@m">
-                  <div>
-                    <h2 className="uk-text-bold">Cleaner Section</h2>
-                    <div>
-                      {/* Place the SingleSelect component here */}
-                      <SingleSelect
-                        options={userOptionsCleaners}
-                        onChange={handleUserSelect1}
-                        placeholder="Assign "
-                        value={selectedUserId1}
-                        label="Select User to see Performance under Cleaner Section"
-                        // required
-                      />
-                    </div>
-                    <div className="uk-width 1-3">
-                      <AssignedUserJobCardStats
-                        userId={selectedUserId1}
-                        userName={selectedUser1}
                         jobCards={allJobCards}
                       />
                     </div>

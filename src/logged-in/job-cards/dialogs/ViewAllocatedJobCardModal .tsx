@@ -29,6 +29,7 @@ import {
   IClient,
   defaultClient,
 } from "../../../shared/models/job-card-model/Client";
+import { Height } from "@mui/icons-material";
 const ViewAllocatedJobCardModal = observer(() => {
   const [jobCard, setJobCard] = useState<IJobCard>({ ...defaultJobCard });
   const [client, setClient] = useState<IClient>({ ...defaultClient });
@@ -130,260 +131,323 @@ const ViewAllocatedJobCardModal = observer(() => {
   // Register fonts with pdfMake
   pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-  const generatePDF1 = async () => {
-    const dataURL = await getBase64ImageFromURL(logo);
-    const docDefinition: any = {
-      content: [
-        {
-          columns: [
-            {
-              image: dataURL,
-              fit: [100, 100], // Adjust fit as needed
-              alignment: "center",
-            },
-          ],
-        },
-        {
-          text: "JOB CARD FOR MUNICIPAL SERVICES",
-          style: "header",
-          fontSize: 10,
-        },
-        {
-          text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
-          alignment: "center", // Align the text to the center
-          style: "italic",
-          fontSize: 10,
-        },
-
-        {
-          columns: [
-            { width: "*", text: "" }, // Empty cell to push the next column to the right
-            {
-              text: "Job Card Tittle: " + jobCard.uniqueId,
-              fontSize: 9,
-              alignment: "center",
-            },
-
-            { width: "*", text: "" }, // Empty cell to push the next column to the right
-          ],
-        },
-        {
-          columns: [
-            { width: "*", text: "" }, // Empty cell to push the next column to the right
-
-            {
-              text: "Date Logged: " + dateFormat_YY_MM_DY(jobCard.dateIssued),
-              alignment: "center",
-              fontSize: 9,
-            },
-            { width: "*", text: "" }, // Empty cell to push the next column to the right // Align date text to the right
-          ],
-        },
-        "\n",
-        {
-          columns: [
-            {
-              table: {
-                widths: ["30%", "70%"],
-                body: [
-                  [
-                    { text: "Assigned To:", fontSize: 9 },
-                    { text: getDisplayName(jobCard.assignedTo), fontSize: 9 },
-                  ],
-                  [
-                    { text: "Section:", fontSize: 9 },
-                    { text: getSectionName(jobCard.section), fontSize: 9 },
-                  ],
-                  [
-                    { text: "Division:", fontSize: 9 },
-                    { text: getDivisionName(jobCard.division), fontSize: 9 },
-                  ],
-                  [
-                    { text: "Urgency:", fontSize: 9 },
-                    { text: jobCard.urgency, fontSize: 9 },
-                  ],
-
-                  [
-                    { text: "Task Description:", fontSize: 9 },
-                    { text: jobCard.taskDescription, fontSize: 9 },
-                  ],
-                  [
-                    { text: "Due Date:", fontSize: 9 },
-                    { text: dateFormat_YY_MM_DD(jobCard.dueDate), fontSize: 9 },
-                  ],
-                ],
-              },
-            },
-          ],
-        },
-
-        "\n",
-
-        {
-          columns: [
-            // First Table: Team Details
-            {
-              width: "50%",
-              alignment: "center",
-              table: {
-                widths: ["30%", "50%"],
-                body: [
-                  [
-                    { text: "Team Leader:", fontSize: 9 },
-                    getDisplayName(jobCard.teamLeader),
-                  ],
-                  [
-                    { text: "Artesian:", fontSize: 9 },
-                    getDisplayName(jobCard.artesian),
-                  ],
-                  [
-                    { text: "Team Members:", fontSize: 9 },
-                    {
-                      ul: jobCard.teamMembers.map((member) =>
-                        getDisplayName(member)
-                      ),
-                    },
-                  ],
-                  [{ text: "KPI Measure:", fontSize: 9 }, jobCard.measure],
-                  // Add more rows as needed
-                ],
-              },
-              fontSize: 8,
-              margin: [0, 10, 0, 0],
-              // Add title for Team Details
-              layout: {
-                fillColor: function (rowIndex, node, columnIndex) {
-                  return rowIndex === 0 ? "#CCCCCC" : null; // Gray background for title row
-                },
-              },
-              headerRows: 1, // Ensure title row is repeated on page breaks
-              dontBreakRows: true, // Don't break title row across pages
-              // Add title for Team Details
-              body: [
-                [
-                  {
-                    text: "Team Details",
-                    colSpan: 2,
-                    bold: true,
-                    alignment: "center",
-                  },
-                ],
-              ],
-            },
-            // Second Table: Client Details
-            {
-              width: "50%",
-              alignment: "center",
-              table: {
-                widths: ["30%", "50%"],
-                body: [
-                  [
-                    { text: "Full Name:", fontSize: 9 },
-                    { text: client.name, fontSize: 9 },
-                  ],
-                  [
-                    { text: "Address:", fontSize: 9 },
-                    { text: client.address, fontSize: 9 },
-                  ],
-                  [
-                    { text: "Phone No.:", fontSize: 9 },
-                    { text: client.mobileNumber, fontSize: 9 },
-                  ],
-                  [
-                    { text: "Email:", fontSize: 9 },
-                    { text: client.email, fontSize: 9 },
-                  ],
-                  // Add more rows as needed
-                ],
-              },
-              fontSize: 8,
-              margin: [0, 10, 0, 0],
-              // Add title for Client Details
-              layout: {
-                fillColor: function (rowIndex, node, columnIndex) {
-                  return rowIndex === 0 ? "#CCCCCC" : null; // Gray background for title row
-                },
-              },
-              headerRows: 1, // Ensure title row is repeated on page breaks
-              dontBreakRows: true, // Don't break title row across pages
-              // Add title for Client Details
-              body: [
-                [
-                  {
-                    text: "Client Details",
-                    colSpan: 2,
-                    bold: true,
-                    alignment: "center",
-                  },
-                ],
-              ],
-            },
-          ],
-        },
-        "\n",
-        {
-          text: "Material List",
-        },
-
-        // Add material list here
-        {
-          table: {
-            headerRows: 1,
-            widths: ["30%", "40%", "30%"], // Adjust column widths as needed
-            body: [
-              [
-                { text: "Quantity", style: "tableHeader", fontSize: 9 },
-                { text: "Name", style: "tableHeader", fontSize: 9 },
-                { text: "Unit Cost", style: "tableHeader", fontSize: 9 },
-              ],
-              ...currentMaterialList.map((material) => [
-                material.quantity,
-                material.name,
-                { text: `N$${material.unitCost}`, alignment: "right" }, // Add "N$" to the unit cost price
-              ]),
-            ],
-          },
-          layout: {
-            fillColor: "#fff", // Background color for the table cells
-            hLineWidth: () => 0.1, // Adjust the thickness of horizontal lines
-            vLineWidth: () => 0.1, // Adjust the thickness of vertical lines
-          },
-          margin: [0, 10, 0, 10],
-          fontSize: 8,
-          style: "table",
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 10,
-          bold: true,
-          alignment: "center",
-          margin: [0, 0, 0, 10],
-        },
-        italic: {
-          fontStyle: "italic",
-          margin: [0, 0, 0, 10],
-        },
-        remarks: {
-          margin: [0, 10, 0, 0],
-        },
-        tableHeader: {
-          bold: true,
-        },
-      },
-    };
-
-    pdfMake.createPdf(docDefinition).download("job_card.pdf");
-  };
+ 
   const generatePDF = async () => {
-    const fonts = {
-      Helvetica: {
-        normal: "Helvetica",
-        bold: "./Helvetica-Bold-Font.ttf", // Provide the path to the Helvetica-Bold font file
-      },
-    };
     const dataURL = await getBase64ImageFromURL(logo);
+    //  const docDefinition: any = {
+    //    content: [
+    //      {
+    //        columns: [
+    //          {
+    //            image: dataURL,
+    //            fit: [100, 100], // Adjust fit as needed
+    //            alignment: "center",
+    //          },
+    //        ],
+    //      },
+    //      {
+    //        text: "JOB CARD FOR MUNICIPAL SERVICES",
+    //        style: "header",
+    //        fontSize: 10,
+    //      },
+    //      {
+    //        text: "(E.g Roads, water, sewerage reticulations/connections, and other repairs)",
+    //        alignment: "center", // Align the text to the center
+    //        style: "italic",
+    //        fontSize: 10,
+    //      },
+    //      {
+    //        columns: [
+    //          { width: "*", text: "" }, // Empty cell to push the next column to the right
+    //          {
+    //            text: "Job Card Tittle: " + jobCard.uniqueId,
+    //            fontSize: 9,
+    //            alignment: "center",
+    //          },
+    //          { width: "*", text: "" }, // Empty cell to push the next column to the right
+    //        ],
+    //      },
+    //      {
+    //        columns: [
+    //          { width: "*", text: "" }, // Empty cell to push the next column to the right
+    //          {
+    //            text: "Date Logged: " + dateFormat_YY_MM_DY(jobCard.dateIssued),
+    //            alignment: "center",
+    //            fontSize: 9,
+    //          },
+    //          { width: "*", text: "" }, // Empty cell to push the next column to the right
+    //        ],
+    //      },
+    //      "\n",
+    //      {
+    //        columns: [
+    //          {
+    //            width: "100%",
+    //            table: {
+    //              widths: ["30%", "70%"],
+    //              body: [
+    //                [
+    //                  {
+    //                    text: "JOB CARD DETAILS",
+    //                    colSpan: 2,
+    //                    bold: true,
+    //                    alignment: "center",
+    //                    fillColor: "#EEEB57",
+    //                    fontSize: 10,
+    //                  },
+    //                  {}, // Empty cell for colSpan
+    //                ],
+    //                [
+    //                  { text: "Assigned To:", fontSize: 9 },
+    //                  { text: getDisplayName(jobCard.assignedTo), fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Section:", fontSize: 9 },
+    //                  { text: getSectionName(jobCard.section), fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Division:", fontSize: 9 },
+    //                  { text: getDivisionName(jobCard.division), fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Urgency:", fontSize: 9 },
+    //                  { text: jobCard.urgency, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Task Description:", fontSize: 9 },
+    //                  { text: jobCard.taskDescription, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Due Date:", fontSize: 9 },
+    //                  {
+    //                    text: dateFormat_YY_MM_DD(jobCard.dueDate),
+    //                    fontSize: 9,
+    //                  },
+    //                ],
+    //              ],
+    //            },
+    //            fontSize: 8,
+    //            margin: [0, 10, 0, 0],
+    //            headerRows: 1,
+    //            dontBreakRows: true,
+    //          },
+    //        ],
+    //      },
+    //      "\n",
+    //      {
+    //        columns: [
+    //          // First Table: Team Details
+    //          {
+    //            width: "50%",
+    //            table: {
+    //              widths: ["30%", "60%"],
+    //              body: [
+    //                [
+    //                  {
+    //                    text: "CLIENT DETAILS",
+    //                    colSpan: 2,
+    //                    bold: true,
+    //                    alignment: "center",
+    //                    fillColor: "#EEEB57",
+    //                    fontSize: 10,
+    //                  },
+    //                  {}, // Empty cell for colSpan
+    //                ],
+    //                [
+    //                  { text: "Full Name:", fontSize: 9 },
+    //                  { text: client.name, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Address:", fontSize: 9 },
+    //                  { text: client.address, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Phone No.:", fontSize: 9 },
+    //                  { text: client.mobileNumber, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Email:", fontSize: 9 },
+    //                  { text: client.email, fontSize: 9 },
+    //                ],
+    //              ],
+    //            },
+    //            fontSize: 8,
+    //            margin: [0, 10, 0, 0],
+    //            headerRows: 1,
+    //            dontBreakRows: true,
+    //          },
+    //          {
+    //            width: "50%",
+    //            table: {
+    //              widths: ["30%", "70%"],
+    //              body: [
+    //                [
+    //                  {
+    //                    text: "TEAM DETAILS",
+    //                    colSpan: 2,
+    //                    bold: true,
+    //                    alignment: "center",
+    //                    fillColor: "#EEEB57",
+    //                    fontSize: 10,
+    //                  },
+    //                  {}, // Empty cell for colSpan
+    //                ],
+    //                [
+    //                  { text: "KPI Measure:", fontSize: 9 },
+    //                  { text: jobCard.measure, fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Team Leader:", fontSize: 9 },
+    //                  { text: getDisplayName(jobCard.teamLeader), fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Artesian:", fontSize: 9 },
+    //                  { text: getDisplayName(jobCard.artesian), fontSize: 9 },
+    //                ],
+    //                [
+    //                  { text: "Team Members:", fontSize: 9 },
+    //                  {
+    //                    ul: jobCard.teamMembers.map((member) => ({
+    //                      text: getDisplayName(member),
+    //                    })),
+    //                  },
+    //                ],
+    //              ],
+    //            },
+    //            fontSize: 8,
+    //            margin: [0, 10, 0, 0],
+    //            headerRows: 1,
+    //            dontBreakRows: true,
+    //          },
+    //        ],
+    //      },
+    //      "\n",
+    //      "\n",
+    //      {
+    //        width: "50%",
+    //        table: {
+    //          headerRows: 1,
+    //          widths: ["30%", "40%", "30%"], // Adjust column widths as needed
+    //          body: [
+    //            [
+    //              {
+    //                text: "MATERIAL DETAILS",
+    //                colSpan: 3,
+    //                bold: true,
+    //                alignment: "center",
+    //                fillColor: "#EEEB57",
+    //                fontSize: 10,
+    //              },
+    //              {}, // Empty cell for colSpan
+    //              {}, // Empty cell for colSpan
+    //            ],
+    //            [
+    //              { text: "Name", style: "", fontSize: 9 },
+    //              { text: "Quantity", style: "tableHeader", fontSize: 9 },
+    //              { text: "Unit Cost", style: "tableHeader", fontSize: 9 },
+    //            ],
+    //            ...currentMaterialList.map((material) => [
+    //              { text: material.name, fontSize: 9 },
+    //              { text: material.quantity, fontSize: 9 },
+    //              {
+    //                text: `N$${material.unitCost}`,
+    //                fontSize: 9,
+    //                alignment: "right",
+    //              },
+    //            ]),
+    //          ],
+    //        },
+    //        layout: {
+    //          hLineWidth: () => 0.1, // Adjust the thickness of horizontal lines
+    //          vLineWidth: () => 0.1, // Adjust the thickness of vertical lines
+    //        },
+    //        margin: [0, 10, 0, 10],
+    //        fontSize: 8,
+    //        style: "table",
+    //      },
+    //      "\n",
+    //      "\n",
+    //      {
+    //        text: "Head of Department: .............................................................................................          Date:.................................",
+    //        fontSize: 9,
+    //      },
+    //      "\n",
+    //      {
+    //        text: "Property owners Signature after Job Completion.........................................................        ",
+    //        fontSize: 9,
+    //      },
+    //      "\n",
+    //      "\n",
+    //      {
+    //        text: "Remark.....................................................................................................        ",
+    //        fontSize: 9,
+    //      },
+    //    ],
+
+    //    styles: {
+    //      header: {
+    //        fontSize: 10,
+    //        bold: true,
+    //        alignment: "center",
+    //        margin: [0, 0, 0, 10],
+    //      },
+    //      italic: {
+    //        fontStyle: "italic",
+    //        margin: [0, 0, 0, 10],
+    //      },
+    //      remarks: {
+    //        margin: [0, 10, 0, 0],
+    //      },
+    //      tableHeader: {
+    //        bold: true,
+    //      },
+    //    },
+    //  };
+   
+   
+   
     const docDefinition: any = {
+      pageSize: "A4", // Or any other page size
+      pageMargins: [40, 60, 40, 100], // Adjust the margins as needed
+      footer: function () {
+        return {
+          stack: [
+            {
+              canvas: [
+                {
+                  type: "line",
+                  x1: 0,
+                  y1: 0,
+                  x2: 595.28, // Assuming A4 paper size (595.28 points width)
+                  y2: 0,
+                  lineWidth: 1,
+                  color: "black",
+                },
+              ],
+              margin: [0, 0, 0, 0], // Increase bottom margin
+            },
+            {
+              text: "All official correspondence must be addressed to the Chief Executive Officer",
+              alignment: "center",
+              fontSize: 10,
+              bold: true,
+              margin: [0, 5, 0, 0], // Increase bottom margin
+              color: "black",
+            },
+            {
+              text: "Nkurenkuru Town Council\nTel: +264 66 258 089\nFax: +264 (0) 66 258 000 / +264 66 258 091\nE-mail: info@nkurenkurutc.com.na\nP. O. Box 6004, Nkurenkuru, Namibia",
+              alignment: "left",
+              fontSize: 10,
+              bold: true,
+              color: "black",
+              margin: [0, 10, 0, 0], // Increase bottom margin
+            },
+          ],
+          margin: [20, 20], // Adjust margins as needed
+          height: 100, // Set a fixed height for the footer
+        };
+      },
+
       content: [
         {
           columns: [
@@ -405,7 +469,6 @@ const ViewAllocatedJobCardModal = observer(() => {
           style: "italic",
           fontSize: 10,
         },
-
         {
           columns: [
             { width: "*", text: "" }, // Empty cell to push the next column to the right
@@ -414,20 +477,18 @@ const ViewAllocatedJobCardModal = observer(() => {
               fontSize: 9,
               alignment: "center",
             },
-
             { width: "*", text: "" }, // Empty cell to push the next column to the right
           ],
         },
         {
           columns: [
             { width: "*", text: "" }, // Empty cell to push the next column to the right
-
             {
               text: "Date Logged: " + dateFormat_YY_MM_DY(jobCard.dateIssued),
               alignment: "center",
               fontSize: 9,
             },
-            { width: "*", text: "" }, // Empty cell to push the next column to the right // Align date text to the right
+            { width: "*", text: "" }, // Empty cell to push the next column to the right
           ],
         },
         "\n",
@@ -486,11 +547,9 @@ const ViewAllocatedJobCardModal = observer(() => {
           ],
         },
         "\n",
-
         {
           columns: [
             // First Table: Team Details
-
             {
               width: "50%",
               table: {
@@ -577,7 +636,6 @@ const ViewAllocatedJobCardModal = observer(() => {
         },
         "\n",
         "\n",
-
         {
           width: "50%",
           table: {
@@ -604,7 +662,6 @@ const ViewAllocatedJobCardModal = observer(() => {
               ...currentMaterialList.map((material) => [
                 { text: material.name, fontSize: 9 },
                 { text: material.quantity, fontSize: 9 },
-
                 {
                   text: `N$${material.unitCost}`,
                   fontSize: 9,
@@ -620,6 +677,23 @@ const ViewAllocatedJobCardModal = observer(() => {
           margin: [0, 10, 0, 10],
           fontSize: 8,
           style: "table",
+        },
+        "\n",
+        "\n",
+        {
+          text: "Head of Department: ...............................................................................................          Date:....................................",
+          fontSize: 9,
+        },
+        "\n",
+        {
+          text: "Property owners Signature after Job Completion...................................................................            Date:....................................",
+          fontSize: 9,
+        },
+        "\n",
+        "\n",
+        {
+          text: "Remark.............................................................................................................................        ",
+          fontSize: 9,
         },
       ],
       styles: {
@@ -642,8 +716,12 @@ const ViewAllocatedJobCardModal = observer(() => {
       },
     };
 
+    // Now you can use this docDefinition to generate your PDF document
+
     pdfMake.createPdf(docDefinition).download("job_card.pdf");
   };
+
+
 
   const onCancel = () => {
     store.jobcard.jobcard.clearSelected();

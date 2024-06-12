@@ -160,6 +160,7 @@ const AllocateJobCardMain = observer(() => {
 
     const duplicatedJobCard = {
       ...selectedJobCard,
+      dateIssued: Date.now(),
       status: "In Progress",
       uniqueId: newUniqueId,
     };

@@ -3,10 +3,11 @@ import React from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 
 import { IClient } from "../../../../shared/models/job-card-model/Client";
+import { ITeamMember } from "../../../../shared/models/job-card-model/TeamMember";
 
 
 interface IProps {
-  member: IClient;
+  member: ITeamMember;
   setMember: React.Dispatch<React.SetStateAction<IClient>>;
 }
 const MemberForm = observer((props: IProps) => {
@@ -35,7 +36,7 @@ const MemberForm = observer((props: IProps) => {
     <>
       <div className="uk-width-1-1">
         {" "}
-        <h4 className="uk-text-bold">Client Details</h4>
+        <h4 className="uk-text-bold">Member Details</h4>
       </div>
       <div className="uk-width-1-1">
         <label className="uk-form-label" htmlFor="user-fname">

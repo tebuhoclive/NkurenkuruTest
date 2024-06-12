@@ -270,12 +270,14 @@ const CompletedJobCardTable = ({
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
+                <td>&nbsp;</td>
+               
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-     
+
       {/* Pagination */}
       <div className="pagination">
         <button

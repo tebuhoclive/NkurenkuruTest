@@ -8,12 +8,13 @@ import ClientAccountForm from "./ClientAcountForm";
 import { IClient, defaultClient } from "../../../../shared/models/job-card-model/Client";
 import MemberForm from "./MemberForm";
 import { IMember, defaultMember } from "../../../../shared/models/job-card-model/Members";
+import { ITeamMember, defaultTeamMember } from "../../../../shared/models/job-card-model/TeamMember";
 
 
 const MemberModal = observer(() => {
   const { api, store, ui } = useAppContext();
 
-  const [member, setMember] = useState({ ...defaultMember });
+  const [member, setMember] = useState({ ...defaultTeamMember });
   const [loading, setLoading] = useState(false);
 
  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -37,7 +38,7 @@ const MemberModal = observer(() => {
    }
  };
 
-  const update = async (member: IMember) => {
+  const update = async (member: ITeamMember) => {
     try {
       await api.jobcard.teamMember.update(member);
     } catch (error) {

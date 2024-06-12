@@ -128,7 +128,7 @@ const AllocatedJobCardTable = ({
                 <td>{formatDate(jobCard.dateIssued)}</td>
                 <td>{formatTime(jobCard.dateIssued)}</td>
                 <td>{formatDate(jobCard.dueDate)}</td>
-                <td>{formatTime(jobCard.dueDate)}</td>
+                <td>{formatTime(jobCard.dateIssued)}</td>
                 <td>{getDisplayName(jobCard.assignedTo)}</td>
                 <td>{getDisplayName(jobCard.artesian)}</td>
                 <td>{jobCard.status}</td>
@@ -164,7 +164,6 @@ const AllocatedJobCardTable = ({
           </tbody>
         </table>
       </div>
-   
 
       <div className="pagination">
         <button

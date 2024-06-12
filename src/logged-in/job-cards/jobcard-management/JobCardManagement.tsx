@@ -7,26 +7,22 @@ import useTitle from "../../../shared/hooks/useTitle";
 import { LoadingEllipsis } from "../../../shared/components/loading/Loading";
 import useBackButton from "../../../shared/hooks/useBack";
 import ErrorBoundary from "../../../shared/components/error-boundary/ErrorBoundary";
-
 import Toolbar from "../../shared/components/toolbar/Toolbar";
 import Dropdown from "../../../shared/components/dropdown/Dropdown";
 import Modal from "../../../shared/components/Modal";
 import JobCardManagemntTabs from "./JobCardManagemntTabs";
-import ClientAccountDetailsList from "./ClientAccountDetailsList";
-import DivisionList from "./DivisionList";
-import SectionList from "./SectionList";
-
 import ClientAccountModal from "./dialogs/ClientAccountModal";
 import SectionModal from "./dialogs/SectionModal";
 import DivisionModal from "./dialogs/DivisionModal";
-import MemberList from "./MemberList";
-import MemberModal from "./dialogs/MemberModal";
 import TeamMemberJobCardTable from "./grids/TeamMemberJobCardTable";
 import { ITeamMember } from "../../../shared/models/job-card-model/TeamMember";
 import SectionJobCardTable from "./grids/SectionJobCardTable";
 import DivisionJobCardTable from "./grids/DivisionJobCardTable";
 import BlueButton from "../create-jobcard/Button";
-
+import { ISection } from "../../../shared/models/job-card-model/Section";
+import { IClient } from "../../../shared/models/job-card-model/Client";
+import MemberModal from "./dialogs/MemberModal";
+import { IDivision } from "../../../shared/models/job-card-model/Division";
 
 
 const JobCardManagement = observer(() => {
@@ -60,18 +56,25 @@ const JobCardManagement = observer(() => {
     store.businessUnit.clearSelected(); // clear selected business unit
     showModalFromId(MODAL_NAMES.ADMIN.BUSINESS_UNIT_MODAL); // show modal
   };
-  const onViewCreated = (selectedJobCard: ITeamMember) => {
-    console.log("selected job card", selectedJobCard);
-    // store.jobcard.jobcard.select(selectedJobCard);
+  const onViewCreatedClient = (selectedClient: IClient) => {
+    console.log("selected job card", selectedClient);
+    store.jobcard.client.select(selectedClient);
 
-    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+    showModalFromId(MODAL_NAMES.ADMIN.USER_MODAL);
   };
-  const onView = (selectedJobCard: ITeamMember) => {
-    console.log("selected job card", selectedJobCard);
-    // store.jobcard.jobcard.select(selectedJobCard);
+  const onViewTeamMember = (selectedTeamMember: ITeamMember) => {
+    console.log("selected job card", selectedTeamMember);
+    store.jobcard.teamMember.select(selectedTeamMember);
 
-    showModalFromId(MODAL_NAMES.EXECUTION.ALLOCATEJOBCARD_MODAL);
+    showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
   };
+ const onViewDivision = (selectedDivision: IDivision) => {
+   console.log("selected job card", selectedDivision);
+   store.jobcard.division.select(selectedDivision);
+
+   showModalFromId(MODAL_NAMES.ADMIN.BUSINESS_UNIT_MODAL);
+ };
+
 
    const teamMemberList = store.jobcard.teamMember.all.map(
      (teamMember) => teamMember.asJson
@@ -84,6 +87,8 @@ const JobCardManagement = observer(() => {
        );
    
    const clients = store.jobcard.client.all.map((clients) => clients.asJson);
+
+
   useEffect(() => {
     // load data from db
     const loadAll = async () => {
@@ -104,6 +109,31 @@ const JobCardManagement = observer(() => {
     loadAll();
   }, [api.businessUnit, api.department, api.user, api.jobcard.division, api.jobcard.section, api.jobcard.client, api.jobcard.teamMember]);
 
+
+
+  
+  // new handling function 
+
+   const handleEditSection = (section:ISection) => {
+     store.jobcard.section.select(section); // set selected department
+     showModalFromId(MODAL_NAMES.ADMIN.DEPARTMENT_MODAL); // show modal
+   };
+
+   const handleDeleteSection = async (section: ISection) => {
+     if (!window.confirm("Remove department?")) return; // TODO: confirmation dialog
+     api.jobcard.section.delete(section); // remove department
+   };
+
+    const handleEditTeamMember = (teamMember:ITeamMember) => {
+      store.jobcard.teamMember.select(teamMember); // set selected user
+      showModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL); // show modal
+    };
+
+    const handleArchive = (teamMember) => {
+      // Your logic to archive the team member
+      console.log(`Archiving team member: ${teamMember.name}`);
+      // Add your archive functionality here
+    };
   return (
     <ErrorBoundary>
       <div className="admin-settings uk-section uk-section-small">
@@ -123,7 +153,7 @@ const JobCardManagement = observer(() => {
                       <span data-uk-icon="icon: plus-circle; ratio:.8"></span>{" "}
                       Add
                     </button>
-                   
+
                     <Dropdown pos="bottom-right">
                       <li>
                         <button
@@ -171,8 +201,8 @@ const JobCardManagement = observer(() => {
                 {selectedTab === "team-members-tab" && (
                   <TeamMemberJobCardTable
                     teamMembers={teamMemberList}
-                    handleEdit={onViewCreated}
-                    onView={onView}
+                    handleEdit={handleEditTeamMember}
+                    handleArchive={handleArchive}
                     defaultPage={1} // Specify the default page number
                     defaultItemsPerPage={5} // Specify the default items per page
                   />
@@ -180,8 +210,8 @@ const JobCardManagement = observer(() => {
                 {selectedTab === "sections-tab" && (
                   <SectionJobCardTable
                     section={sectionList}
-                    handleEdit={onViewCreated}
-                    onView={onView}
+                    handleEdit={handleEditSection}
+                    onView={handleDeleteSection}
                     defaultPage={1} // Specify the default page number
                     defaultItemsPerPage={5} // Specify the default items per page
                   />
@@ -189,8 +219,8 @@ const JobCardManagement = observer(() => {
                 {selectedTab === "client-tab" && (
                   <TeamMemberJobCardTable
                     teamMembers={clients}
-                    handleEdit={onViewCreated}
-                    onView={onView}
+                    handleEdit={onViewCreatedClient}
+                    handleArchive={handleArchive}
                     defaultPage={1} // Specify the default page number
                     defaultItemsPerPage={5} // Specify the default items per page
                   />
@@ -198,8 +228,8 @@ const JobCardManagement = observer(() => {
                 {selectedTab === "division-tab" && (
                   <DivisionJobCardTable
                     section={devisionList}
-                    handleEdit={onViewCreated}
-                    onView={onView}
+                    handleEdit={onViewDivision}
+                    onView={onViewDivision}
                     defaultPage={1} // Specify the default page number
                     defaultItemsPerPage={5} // Specify the default items per page
                   />

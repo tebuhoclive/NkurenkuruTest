@@ -2036,12 +2036,12 @@ const EMPLOYEE_USER_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="job-cards/allocated" className="navlink">
+              <NavLink to="job-cards/allocate" className="navlink">
                 <FontAwesomeIcon
                   icon={faAngleRight}
                   className="icon uk-margin-small-right"
                 />
-                Create Job Card
+                Allocate Job Card
               </NavLink>
             </li>
             <li>

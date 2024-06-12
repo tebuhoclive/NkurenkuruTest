@@ -93,7 +93,7 @@ const DivisionJobCardTable = ({
               <tr key={section.id}>
                 <td>{section.name}</td>
                 <td>
-                  <IconButton
+                  {/* <IconButton
                     aria-label="view"
                     data-uk-tooltip="Allocate Job Card"
                     onClick={() => onView(section)}
@@ -103,6 +103,17 @@ const DivisionJobCardTable = ({
                       fontSize: "1rem",
                     }}>
                     <FontAwesomeIcon icon={faExternalLinkAlt} />
+                  </IconButton> */}
+                  <IconButton
+                    aria-label="view"
+                    data-uk-tooltip="Edit"
+                    onClick={() => onView(section)}
+                    style={{
+                      color: "black",
+                      padding: "8px",
+                      fontSize: "1rem",
+                    }}>
+                    <span uk-icon="pencil"></span>
                   </IconButton>
                 </td>
               </tr>

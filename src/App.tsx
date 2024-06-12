@@ -54,10 +54,11 @@ import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinat
 
 import JobDashboard from "./logged-in/job-cards/dashboard/JobCardDashboard";
 import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
-import AllocateJobCardMain from "./logged-in/job-cards/allocate-jobcard/AllocateJobCardMain";
+
 
 import JobCardManagement from "./logged-in/job-cards/jobcard-management/JobCardManagement";
 import CreatedJoCardMain from "./logged-in/job-cards/create-jobcard/CreateJobCardMain";
+import AllocateJobCardMain from "./logged-in/job-cards/allocate-jobcard/AllocateJobCardMain";
 
 // Lazy load components
 const LoggedIn = lazy(() => import("./logged-in/LoggedIn"));
@@ -312,8 +313,8 @@ const SUPER_USER_ROUTES = () => {
           />
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<AllocateJobCardMain />} />
-          <Route path="job-cards/allocate" element={<MoreJobCards />} />
+          <Route path="job-cards/create" element={<CreatedJoCardMain />} />
+          <Route path="job-cards/allocate" element={<AllocateJobCardMain />} />
           <Route path="job-cards/management" element={<JobCardManagement />} />
 
           <Route
@@ -492,10 +493,11 @@ const ADMIN_USER_ROUTES = () => {
           <Route path="drive" element={<Drive />} />
           <Route path="drive/:id" element={<Drive />} />
 
+         
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<AllocateJobCardMain />} />
-          <Route path="job-cards/allocate" element={<MoreJobCards />} />
+          <Route path="job-cards/create" element={<CreatedJoCardMain />} />
+          <Route path="job-cards/allocate" element={<AllocateJobCardMain />} />
           <Route path="job-cards/management" element={<JobCardManagement />} />
 
           {/* ADMIN */}
@@ -654,7 +656,7 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="strategy/company/:fyid/:objectiveId"
             element={<CompanyScorecardObjective />}
           />
-          {/*JOBCARD*/}
+         
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
           <Route path="job-cards/create" element={<CreatedJoCardMain />} />

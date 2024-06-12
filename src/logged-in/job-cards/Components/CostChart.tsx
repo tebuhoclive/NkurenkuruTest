@@ -32,7 +32,7 @@ const CostChart = ({ totalCost }) => {
   };
 
   return (
-    <div className="cost-chart-container uk-card uk-card-default uk-card-body uk-border-radius">
+    <div className="cost-chart-container">
       <div className="doughnut-chart" >
         <Doughnut data={data} options={options} />
         <div className="chart-middle-text ">

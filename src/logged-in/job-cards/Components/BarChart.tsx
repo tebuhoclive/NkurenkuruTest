@@ -49,7 +49,11 @@ const BarChart = ({ title, data, labels, backgroundColors }) => {
 
   return (
     <div className="chart-container uk-card uk-card-default uk-card-body uk-border-radius">
-      <h2>{title}</h2>
+      <div className="tittle">
+        {" "}
+        <h2 className="uk-text-bold">{title}</h2>
+      </div>
+
       <Bar data={chartData} options={options} />
     </div>
   );
