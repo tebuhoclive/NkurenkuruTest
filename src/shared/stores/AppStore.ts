@@ -36,15 +36,15 @@ import GeneralTaskStore from "./GeneralTaskStore";
 import SubordinateObjectiveStore from "./SubordinateObjectiveStore";
 import JobCardStore from "./JobCardStore";
 
-import ClientStore from "./job-card-stores/Client";
-import LabourStore from "./job-card-stores/Labour";
-import MaterialStore from "./job-card-stores/Material";
-import OtherExpenseStore from "./job-card-stores/OtherExpense";
-import StandardStore from "./job-card-stores/Section";
-import PrecautionStore from "./job-card-stores/Division";
-import TaskStore from "./job-card-stores/Task";
-import ToolStore from "./job-card-stores/Tool";
-import TeamMemberStore from "./job-card-stores/TeamMember";
+// import ClientStore from "./job-card-stores/Client";
+// import LabourStore from "./job-card-stores/Labour";
+// import MaterialStore from "./job-card-stores/Material";
+// import OtherExpenseStore from "./job-card-stores/OtherExpense";
+// import StandardStore from "./job-card-stores/Section";
+// import PrecautionStore from "./job-card-stores/Division";
+// import TaskStore from "./job-card-stores/Task";
+// import ToolStore from "./job-card-stores/Tool";
+// import TeamMemberStore from "./job-card-stores/TeamMember";
 
 export default class AppStore {
   auth = new AuthStore(this);
