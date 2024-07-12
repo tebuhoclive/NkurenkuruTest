@@ -30,6 +30,10 @@ const FolderGrid = observer((props: IProps) => {
 
   const currentFolder = store.folder.currentFolderJson;
 
+  console.log("my current folder", currentFolder);
+  
+console.log("parent",parent);
+
   const folders = store.folder.all.filter(
     (folder) => folder.asJson.parentId === parent
   );
@@ -45,6 +49,8 @@ const FolderGrid = observer((props: IProps) => {
     return a.asJson.name.localeCompare(b.asJson.name);
   };
 
+  console.log("all my folders");
+  
   // Sort folders by name, but sort perspective folder by F,C,I,L
   const sorted = useMemo(() => {
     if (currentFolder && currentFolder.type === "FY")
@@ -129,7 +135,7 @@ const FolderGrid = observer((props: IProps) => {
       setLoading(true); // start loading
 
       try {
-        store.folderFile.removeAll(); // remove all files everyting in store
+        store.folderFile.removeAll(); // remove all files everything in store
         await api.folder.getAll(parent); // load all folders from db
         await api.folderFile.getAll(parent); // load the files to store
       } catch (error) {
@@ -167,7 +173,7 @@ const FolderGrid = observer((props: IProps) => {
       <div className="uk-card uk-card-default uk-card-body uk-card-small uk-margin">
         <div className="section section__folders section section__files">
           <ErrorBoundary>
-            <FolderPath path={path} />
+            <FolderPath path={path}/>
           </ErrorBoundary>
           <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
           <ErrorBoundary>

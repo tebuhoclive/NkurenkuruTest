@@ -100,7 +100,7 @@ const AllocateJobCardMain = observer(() => {
 
   const onHandleRating = (selectedJobCard: IJobCard) => {
     console.log("selected job card", selectedJobCard);
-    store.jobcard.jobcard.select(selectedJobCard);
+    if (selectedJobCard) {store.jobcard.jobcard.select(selectedJobCard);}
 
     showModalFromId(MODAL_NAMES.EXECUTION.TEAM_RATING_MODAL);
   };

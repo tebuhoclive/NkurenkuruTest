@@ -7,8 +7,9 @@ import MODAL_NAMES from "../../../dialogs/ModalName";
 import ClientAccountForm from "./ClientAcountForm";
 import { IClient, defaultClient } from "../../../../shared/models/job-card-model/Client";
 import MemberForm from "./MemberForm";
-import { IMember, defaultMember } from "../../../../shared/models/job-card-model/Members";
+
 import { ITeamMember, defaultTeamMember } from "../../../../shared/models/job-card-model/TeamMember";
+import AlertDialog from "../../dialogs/Alert";
 
 
 const MemberModal = observer(() => {
@@ -17,26 +18,48 @@ const MemberModal = observer(() => {
   const [member, setMember] = useState({ ...defaultTeamMember });
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-   e.preventDefault();
-   setLoading(true);
-   const selected = store.jobcard.teamMember.selected;
+  const [alert, setAlert] = useState({
+    open: false,
+    message: "",
+    onConfirm: null,
+  });
 
-   try {
-     if (selected) {
-       await update(member);
-       alert("Member updated successfully!");
-     } else {
-       await create(member);
-       alert("Member created successfully!");
-     }
-   } catch (error) {
-     alert("An error occurred while processing your request.");
-   } finally {
-     setLoading(false);
-     onCancel();
-   }
- };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setAlert({
+      open: true,
+      message: "Are you sure you want to save this member?",
+      onConfirm: confirmSaveMember,
+    });
+  };
+
+  const confirmSaveMember = async () => {
+    setLoading(true);
+    handleCloseAlert();
+
+    const selected = store.jobcard.teamMember.selected;
+
+    try {
+      if (selected) {
+        await update(member);
+        // alert("Member updated successfully!");
+      } else {
+        await create(member);
+        // alert("Member created successfully!");
+      }
+    } catch (error) {
+      // alert("An error occurred while processing your request.");
+    } finally {
+      setLoading(false);
+      onCancel();
+    }
+  };
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
+
 
   const update = async (member: ITeamMember) => {
     try {
@@ -50,7 +73,7 @@ const MemberModal = observer(() => {
     }
   };
 
-  const create = async (member: IMember) => {
+  const create = async (member: ITeamMember) => {
     try {
       await api.jobcard.teamMember.create(member);
     } catch (error) {
@@ -66,7 +89,7 @@ const MemberModal = observer(() => {
     // clear selected user
     store.jobcard.member.clearSelected();
     // reset form
-    setMember({ ...defaultMember });
+    setMember({ ...defaultTeamMember });
     // hide modal
     hideModalFromId(MODAL_NAMES.ADMIN.TEAM_MEMBER_MODAL);
   };
@@ -75,7 +98,7 @@ const MemberModal = observer(() => {
   useEffect(() => {
     if (store.jobcard.teamMember.selected)
       setMember({ ...store.jobcard.teamMember.selected });
-    else setMember({ ...defaultMember });
+    else setMember({ ...defaultTeamMember });
   }, [store.jobcard.member.selected, store.jobcard.teamMember.selected]);
 
   return (
@@ -84,6 +107,12 @@ const MemberModal = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close></button>
+      <AlertDialog
+        open={alert.open}
+        onClose={handleCloseAlert}
+        onConfirm={alert.onConfirm}
+        message={alert.message}
+      />
 
       <h3 className="uk-modal-title">Member</h3>
 

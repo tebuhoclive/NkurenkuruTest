@@ -7,13 +7,14 @@ import { getFunctions } from "firebase/functions";
 // Your web app's Firebase configuration  *in production
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-//Jobcard Test
- apiKey: "AIzaSyCUghyqzwalQojYCJgnovBxM3-YnEgVd2s",
-  authDomain: "nkurenkuru-36978.firebaseapp.com",
-  projectId: "nkurenkuru-36978",
-  storageBucket: "nkurenkuru-36978.appspot.com",
-  messagingSenderId: "378590785803",
-  appId: "1:378590785803:web:ce211399e815b5901af20e"
+  // NKURENKURU
+  apiKey: "AIzaSyB00hqtzHHOH_3D3SMj9KhAGrG-gn4kmrs",
+  authDomain: "lots-pms.firebaseapp.com",
+  projectId: "lots-pms",
+  storageBucket: "lots-pms.appspot.com",
+  messagingSenderId: "507817531923",
+  appId: "1:507817531923:web:f6813ccf3db341eaa1fde6",
+  measurementId: "G-27F3J0Q8S7",
 };
 
 

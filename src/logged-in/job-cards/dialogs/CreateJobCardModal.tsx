@@ -23,6 +23,8 @@ import SingleSelect, {
 import { dateFormat_YY_MM_DY } from "../../shared/utils/utils";
 import { IClient, defaultClient } from "../../../shared/models/job-card-model/Client";
 import "./CreateModal.css"; // Import your custom styles
+import { Alert } from "@mui/material";
+import AlertDialog from "./Alert";
 const CreateJobCardModal = observer(() => {
   const [loading, setLoading] = useState(false);
   const { api, store } = useAppContext();
@@ -239,17 +241,160 @@ const CreateJobCardModal = observer(() => {
     event.preventDefault();
     setAddNewClient(true);
   };
-const handleAddClient  = async (event) => {
-  event.preventDefault(); // Prevent default form submission behavior
-  try
-  {await api.jobcard.client.create(client)
 
-  }
-  catch{}
-  // Add your logic for marking as completed here
-    setAddNewClient(false);
-};
+   const validateField = (name, value) => {
+     let errorMsg = "";
+     if (!value) {
+       switch (name) {
+         case "name":
+           errorMsg = "Full Name is required";
+           break;
+         case "mobileNumber":
+           errorMsg = "Cellphone Number is required";
+           break;
+         case "physicalAddress":
+           errorMsg = "Physical Address is required";
+           break;
+         case "email":
+           errorMsg = "Email is required";
+           break;
+         default:
+           break;
+       }
+     }
+     return errorMsg;
+   };
+
+    const handleChange = (e) => {
+      const { id, value } = e.target;
+      setClient((prevClient) => ({
+        ...prevClient,
+        [id]: value,
+      }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [id]: validateField(id, value),
+      }));
+    };
+
+   const [errors, setErrors] = useState({ ...defaultClient });
+  const [alert, setAlert] = useState({
+    open: false,
+    message: "",
+    onConfirm: null,
+  });
+// const handleAddClient  = async (event) => {
+//   event.preventDefault(); // Prevent default form submission behavior
+//    if (
+//      !client.name ||
+//      !client.mobileNumber ||
+//      !client.physicalAddress ||
+//      !client.email
+//    ) {
+//      alert("Please fill out all required fields.");
+//      return;
+//    }
+//   try
+//   {await api.jobcard.client.create(client)
+
+//   }
+//   catch{}
+//   // Add your logic for marking as completed here
+//     setAddNewClient(false);
+// };
  
+
+  // const handleAddClient = async (event) => {
+  //   event.preventDefault(); // Prevent default form submission behavior
+
+  //   const newErrors :IClient= {...client,
+  //     name: client.name ? "" : "Full Name is required",
+  //     mobileNumber: client.mobileNumber ? "" : "Cellphone Number is required",
+  //     secondaryMobile: "",
+  //     physicalAddress: client.physicalAddress
+  //       ? ""
+  //       : "Physical Address is required",
+  //     email: client.email ? "" : "Email is required",
+  //   };
+
+  //   setErrors(newErrors);
+
+  //   const hasErrors = Object.values(newErrors).some((error) => error !== "");
+
+  //   if (hasErrors) {
+  //     // alert("Please fill out all required fields.");
+  //     return;
+  //   }
+
+  //   try {
+  //     await api.jobcard.client.create(client);
+  //   } catch (error) {
+  //     console.error("Error saving client:", error);
+  //   }
+
+  //   // Add your logic for marking as completed here
+  //   setAddNewClient(false);
+  // };
+ const handleAddClient = async (event) => {
+   event.preventDefault(); // Prevent default form submission behavior
+
+   const newErrors :IClient = {...client,
+     name: client.name ? "" : "Full Name is required",
+     mobileNumber: client.mobileNumber ? "" : "Cellphone Number is required",
+     secondaryMobile: "",
+     physicalAddress: client.physicalAddress
+       ? ""
+       : "Physical Address is required",
+     email: client.email ? "" : "Email is required",
+   };
+
+   setErrors(newErrors);
+
+   const emptyFields = Object.entries(newErrors)
+     .filter(([key, value]) => value !== "")
+     .map(([key]) =>
+       key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+     )
+     .join(", ");
+
+   const hasErrors = Object.values(newErrors).some((error) => error !== "");
+
+   if (hasErrors) {
+     setAlert({
+       open: true,
+       message: `Please fill out the following required fields: ${emptyFields}.`,
+       onConfirm: handleCloseAlert,
+     });
+     return;
+   }
+
+   setAlert({
+     open: true,
+     message: "Are you sure you want to save this client?",
+     onConfirm: confirmSaveClient,
+   });
+ };
+
+
+  const confirmSaveClient = async () => {
+    handleCloseAlert();
+    try {
+      await api.jobcard.client.create(client);
+      setAddNewClient(false);
+    } catch (error) {
+      console.error("Error saving client:", error);
+      setAlert({
+        open: true,
+        message: "Error saving client. Please try again later.",
+        onConfirm: handleCloseAlert,
+      });
+    }
+  };
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
+
   return (
     <>
       <div className="view-modal custom-modal-style uk-modal-dialog uk-modal-body uk-width-1-2">
@@ -384,13 +529,16 @@ const handleAddClient  = async (event) => {
               </div>
             </div>
             <div className="uk-width-auto">
-              <button
-                className="btn btn-primary"
-                onClick={handleAddMaterialClient}>
-                Add New Client
-              </button>
+              <div className="uk-flex uk-flex-middle">
+                <button
+                  className="btn btn-primary"
+                  onClick={handleAddMaterialClient}>
+                  Add New Client
+                </button>
+              </div>
             </div>
           </div>
+
           {addNewClient === false && (
             <>
               <div className="uk-width-1-2 form-section">
@@ -484,126 +632,149 @@ const handleAddClient  = async (event) => {
           )}
           {addNewClient === true && (
             <>
-              <div className="uk-width-1-2 form-section">
-                <label htmlFor="issuedDate" className="form-label">
-                  Full Name<span className="uk-text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="uk-input uk-form-small"
-                  id="newClientFullName"
-                  placeholder="Full Name"
-                  value={client.name}
-                  onChange={(e) =>
-                    setClient({
-                      ...client,
-                      name: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-              <div className="uk-width-1-2 form-section">
-                <label htmlFor="issuedDate" className="form-label">
-                  Cellphone Number<span className="uk-text-danger">*</span>
-                </label>
-                <input
-                  type="tel"
-                  className="uk-input uk-form-small"
-                  id="newClientMobile"
-                  placeholder="Cellphone"
-                  value={client.mobileNumber}
-                  onChange={(e) => {
-                    const input = e.target.value;
-                    const sanitizedInput = input
-                      .replace(/\D/g, "")
-                      .slice(0, 10);
-                    const formattedInput = sanitizedInput.replace(
-                      /(\d{3})(\d{3})(\d{4})/,
-                      "$1-$2-$3"
-                    );
-                    setClient({
-                      ...client,
-                      mobileNumber: formattedInput,
-                    });
-                  }}
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                  title="Please enter a valid cellphone number (e.g., XXX-XXX-XXXX)"
-                  required
-                />
-              </div>
-              <div className="uk-width-1-2 form-section">
-                <label htmlFor="issuedDate" className="form-label">
-                  Cellphone Number (Secondary)
-                  <span className="uk-text-danger">*</span>
-                </label>
-                <input
-                  type="tel"
-                  className="uk-input uk-form-small"
-                  id="newClientSecondaryMobile"
-                  placeholder="Cellphone"
-                  value={client.secondaryMobile}
-                  onChange={(e) => {
-                    const input = e.target.value;
-                    const sanitizedInput = input
-                      .replace(/\D/g, "")
-                      .slice(0, 10);
-                    const formattedInput = sanitizedInput.replace(
-                      /(\d{3})(\d{3})(\d{4})/,
-                      "$1-$2-$3"
-                    );
-                    setClient({
-                      ...client,
-                      telephone: formattedInput,
-                    });
-                  }}
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                  title="Please enter a valid cellphone number (e.g., XXX-XXX-XXXX)"
-                />
-              </div>
-              <div className="uk-width-1-2 form-section">
-                <label htmlFor="issuedDate" className="form-label">
-                  Physical Address<span className="uk-text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="uk-input uk-form-small"
-                  id="newClientAddress"
-                  placeholder="Address"
-                  value={client.physicalAddress}
-                  onChange={(e) =>
-                    setClient({
-                      ...client,
-                      physicalAddress: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="uk-width-1-2 form-section">
-                <label htmlFor="issuedDate" className="form-label">
-                  Client Email<span className="uk-text-danger">*</span>
-                </label>
-                <input
-                  type="email"
-                  className="uk-input uk-form-small"
-                  id="newClientEmail"
-                  placeholder="Email"
-                  value={client.email}
-                  onChange={(e) =>
-                    setClient({
-                      ...client,
-                      email: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div
-                className="uk-width-1-1 uk-text-right"
-                style={{ marginTop: "10px" }}>
-                <button className="btn btn-primary" onClick={handleAddClient}>
-                  Save Client
-                </button>
-              </div>
+              {addNewClient && (
+                <>
+                  <AlertDialog
+                    open={alert.open}
+                    onClose={handleCloseAlert}
+                    onConfirm={alert.onConfirm}
+                    message={alert.message}
+                  />
+
+                  <div className="uk-width-1-1">
+                    <h4 className="section-title">
+                      Please enter new client details below
+                    </h4>
+                  </div>
+                  <div className="uk-width-1-2 form-section">
+                    <label htmlFor="name" className="form-label">
+                      Full Name<span className="uk-text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="uk-input uk-form-small"
+                      id="name"
+                      placeholder="Full Name"
+                      value={client.name}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.name && (
+                      <Alert severity="error">{errors.name}</Alert>
+                    )}
+                  </div>
+                  <div className="uk-width-1-2 form-section">
+                    <label htmlFor="mobileNumber" className="form-label">
+                      Cellphone Number<span className="uk-text-danger">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      className="uk-input uk-form-small"
+                      id="mobileNumber"
+                      placeholder="Cellphone"
+                      value={client.mobileNumber}
+                      onChange={(e) => {
+                        const input = e.target.value;
+                        const sanitizedInput = input
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        const formattedInput = sanitizedInput.replace(
+                          /(\d{3})(\d{3})(\d{4})/,
+                          "$1-$2-$3"
+                        );
+                        setClient((prevClient) => ({
+                          ...prevClient,
+                          mobileNumber: formattedInput,
+                        }));
+                        setErrors((prevErrors) => ({
+                          ...prevErrors,
+                          mobileNumber: validateField(
+                            "mobileNumber",
+                            formattedInput
+                          ),
+                        }));
+                      }}
+                      pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                      title="Please enter a valid cellphone number (e.g., XXX-XXX-XXXX)"
+                      required
+                    />
+                    {errors.mobileNumber && (
+                      <Alert severity="error">{errors.mobileNumber}</Alert>
+                    )}
+                  </div>
+                  <div className="uk-width-1-2 form-section">
+                    <label htmlFor="secondaryMobile" className="form-label">
+                      Cellphone Number (Secondary)
+                    </label>
+                    <input
+                      type="tel"
+                      className="uk-input uk-form-small"
+                      id="secondaryMobile"
+                      placeholder="Cellphone"
+                      value={client.secondaryMobile}
+                      onChange={(e) => {
+                        const input = e.target.value;
+                        const sanitizedInput = input
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        const formattedInput = sanitizedInput.replace(
+                          /(\d{3})(\d{3})(\d{4})/,
+                          "$1-$2-$3"
+                        );
+                        setClient((prevClient) => ({
+                          ...prevClient,
+                          secondaryMobile: formattedInput,
+                        }));
+                      }}
+                      pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                      title="Please enter a valid cellphone number (e.g., XXX-XXX-XXXX)"
+                    />
+                  </div>
+                  <div className="uk-width-1-2 form-section">
+                    <label htmlFor="physicalAddress" className="form-label">
+                      Physical Address<span className="uk-text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="uk-input uk-form-small"
+                      id="physicalAddress"
+                      placeholder="Address"
+                      value={client.physicalAddress}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.physicalAddress && (
+                      <Alert severity="error">{errors.physicalAddress}</Alert>
+                    )}
+                  </div>
+                  <div className="uk-width-1-2 form-section">
+                    <label htmlFor="email" className="form-label">
+                      Client Email<span className="uk-text-danger">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      className="uk-input uk-form-small"
+                      id="email"
+                      placeholder="Email"
+                      value={client.email}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.email && (
+                      <Alert severity="error">{errors.email}</Alert>
+                    )}
+                  </div>
+                  <div
+                    className="uk-width-1-1 uk-text-right"
+                    style={{ marginTop: "10px" }}>
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleAddClient}>
+                      Save Client
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
           <div className="uk-width-1-2 form-section">
@@ -622,7 +793,6 @@ const handleAddClient  = async (event) => {
                   typeOfWork: e.target.value,
                 })
               }
-           
             />
           </div>
           <div className="uk-form-controls uk-width-1-1">

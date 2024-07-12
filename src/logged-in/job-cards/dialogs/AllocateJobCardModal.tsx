@@ -71,11 +71,9 @@ const AllocateJobCardModal = observer(() => {
   };
 
   //Kpi measures here
-  const measure = store.measure.getByUid(jobCard.teamLeader);
+  const measure = store.measure.getByUid(jobCard.assignedTo);
 
   const materialCost = store.jobcard.material.all;
-
-
 
   // Calculate the total material cost
   const totalMaterialCost = materialCost.reduce((total, material) => {
@@ -83,22 +81,20 @@ const AllocateJobCardModal = observer(() => {
   }, 0);
 
   const users = store.user.all;
- 
-  const teamMemberList = store.jobcard.teamMember.all.filter(
-    (teamMember) => teamMember.asJson.status !== "Archived"
-  );
- 
 
- const optionsMember: IOption[] = useMemo(
-   () =>
-     teamMemberList.map((user) => {
-       return {
-         label: user.asJson.name || "",
-         value: user.asJson.id,
-       };
-     }),
-   [teamMemberList]
- );
+  const teamMemberList = store.jobcard.teamMember.all;
+  console.log(teamMemberList);
+
+  const optionsMember: IOption[] = useMemo(
+    () =>
+      teamMemberList.map((user) => {
+        return {
+          label: user.asJson.name || "",
+          value: user.asJson.id,
+        };
+      }),
+    [teamMemberList]
+  );
 
   const options: IOption[] = useMemo(
     () =>
@@ -129,8 +125,6 @@ const AllocateJobCardModal = observer(() => {
   const currentMaterialList = materialList.filter(
     (material) => material.jId === jobCard.id
   );
-
-  console.log("log current material list", currentMaterialList);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -186,10 +180,57 @@ const AllocateJobCardModal = observer(() => {
     setShowMaterialForm(true);
   };
 
+  // const handleMaterialAdded = async (e) => {
+  //   e.preventDefault();
+
+  //   // Validate if unit cost or quantity is negative or zero
+  //   if (newMaterial.unitCost <= 0 || isNaN(newMaterial.unitCost)) {
+  //     setUnitCostErrorMessage("Unit cost must be a positive number.");
+  //     return; // Exit function if validation fails
+  //   }
+
+  //   if (newMaterial.quantity <= 0 || isNaN(newMaterial.quantity)) {
+  //     setQuantityErrorMessage("Quantity must be a positive number.");
+  //     return; // Exit function if validation fails
+  //   }
+  //   const updatedMaterial = { ...newMaterial, jId: jobCard.id };
+  //   try {
+  //     // Create the material on the server
+  //     const id = jobCard.id;
+  //     await api.jobcard.material.create(
+  //       updatedMaterial,
+  //       id
+  //       // jobCard.id
+  //     );
+
+  //     // Clear the form
+  //     setNewMaterial({ ...defaultMaterial });
+  //   } catch (error) {
+  //     // Handle error appropriately
+  //     console.error("Error submitting form:", error);
+  //   } finally {
+  //     setLoading(false); // Make sure to reset loading state regardless of success or failure
+  //     // onCancel();
+  //   }
+  //   // Clear any previous error messages
+  //   setUnitCostErrorMessage("");
+  //   setQuantityErrorMessage("");
+
+  //   setShowMaterialForm(false);
+  // };
+
+  // Define function to handle changes in unit cost
+  // State variables
+  
   const handleMaterialAdded = async (e) => {
     e.preventDefault();
 
     // Validate if unit cost or quantity is negative or zero
+    if (!newMaterial.name) {
+      setMaterialNameErrorMessage("Material name is required.");
+      return; // Exit function if validation fails
+    }
+
     if (newMaterial.unitCost <= 0 || isNaN(newMaterial.unitCost)) {
       setUnitCostErrorMessage("Unit cost must be a positive number.");
       return; // Exit function if validation fails
@@ -199,15 +240,13 @@ const AllocateJobCardModal = observer(() => {
       setQuantityErrorMessage("Quantity must be a positive number.");
       return; // Exit function if validation fails
     }
+
     const updatedMaterial = { ...newMaterial, jId: jobCard.id };
+
     try {
       // Create the material on the server
       const id = jobCard.id;
-      await api.jobcard.material.create(
-        updatedMaterial,
-        id
-        // jobCard.id
-      );
+      await api.jobcard.material.create(updatedMaterial, id);
 
       // Clear the form
       setNewMaterial({ ...defaultMaterial });
@@ -218,18 +257,19 @@ const AllocateJobCardModal = observer(() => {
       setLoading(false); // Make sure to reset loading state regardless of success or failure
       // onCancel();
     }
+
     // Clear any previous error messages
+    setMaterialNameErrorMessage("");
     setUnitCostErrorMessage("");
     setQuantityErrorMessage("");
 
     setShowMaterialForm(false);
   };
-
-  // Define function to handle changes in unit cost
-  // State variables
   const [unitCostErrorMessage, setUnitCostErrorMessage] = useState("");
   const [quantityErrorMessage, setQuantityErrorMessage] = useState("");
   const [reworked, setReworked] = useState("No");
+  // Add a new state to handle the material name error message
+  const [materialNameErrorMessage, setMaterialNameErrorMessage] = useState("");
 
   // Define function to handle changes in unit cost
 
@@ -464,6 +504,8 @@ const AllocateJobCardModal = observer(() => {
         await api.jobcard.material.getAll(id);
       }
       await api.measure.getAll();
+
+      await api.jobcard.teamMember.getAll();
       await api.jobcard.client.getAll();
       await api.jobcard.division.getAll();
       await api.jobcard.section.getAll();
@@ -737,13 +779,15 @@ const AllocateJobCardModal = observer(() => {
                     </div>
                   </div>
                 )}
-                {showMaterialForm && (
+                {/* {showMaterialForm && (
                   <div>
                     <h4 className="section-title">Add New Material</h4>
                     <div>
                       <div className="uk-margin uk-width-1-1">
                         <label className="uk-form-label" htmlFor="materialName">
-                          Material Name:
+                       
+                          Material Name:{" "}
+                          <span className="uk-text-danger">*</span>
                         </label>
                         <input
                           type="text"
@@ -751,6 +795,7 @@ const AllocateJobCardModal = observer(() => {
                           name="name"
                           value={newMaterial.name}
                           onChange={handleMaterialNameChange}
+                          required
                           className="uk-input"
                         />
                       </div>
@@ -758,7 +803,8 @@ const AllocateJobCardModal = observer(() => {
                         <label
                           className="uk-form-label required"
                           htmlFor="amount">
-                          Cost Amount (min N$ 1 000.00)
+                          Cost Amount (min N$)
+                          <span className="uk-text-danger">*</span>
                         </label>
                         <NumberInput
                           id="amount"
@@ -767,6 +813,7 @@ const AllocateJobCardModal = observer(() => {
                           value={newMaterial.unitCost}
                           onChange={(value) => handleUnitCostChange(value)}
                           decimalScale={2}
+                          required
                         />
                         {unitCostErrorMessage && (
                           <div className="uk-alert-danger" data-uk-alert>
@@ -793,6 +840,80 @@ const AllocateJobCardModal = observer(() => {
                         )}
                       </div>
 
+                      <button
+                        onClick={handleMaterialAdded}
+                        className="btn btn-primary">
+                        Add Material
+                      </button>
+                    </div>
+                  </div>
+                )} */}
+
+                {showMaterialForm && (
+                  <div>
+                    <h4 className="section-title">Add New Material</h4>
+                    <div>
+                      <div className="uk-margin uk-width-1-1">
+                        <label className="uk-form-label" htmlFor="materialName">
+                          Material Name:{" "}
+                          <span className="uk-text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="materialName"
+                          name="name"
+                          value={newMaterial.name}
+                          onChange={handleMaterialNameChange}
+                          required
+                          className="uk-input"
+                        />
+                        {materialNameErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{materialNameErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="uk-form-controls uk-width-1-1 uk-margin-bottom">
+                        <label
+                          className="uk-form-label required"
+                          htmlFor="amount">
+                          Cost Amount (min N$){" "}
+                          <span className="uk-text-danger">*</span>
+                        </label>
+                        <NumberInput
+                          id="amount"
+                          className="auto-save uk-input purchase-input uk-form-small"
+                          placeholder="-"
+                          value={newMaterial.unitCost}
+                          onChange={(value) => handleUnitCostChange(value)}
+                          decimalScale={2}
+                          required
+                        />
+                        {unitCostErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{unitCostErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="uk-margin">
+                        <label
+                          className="uk-form-label"
+                          htmlFor="materialQuantity">
+                          Quantity: <span className="uk-text-danger">*</span>
+                        </label>
+                        <NumberInput
+                          id="materialQuantity"
+                          className="uk-input"
+                          value={newMaterial.quantity}
+                          onChange={(value) => handleQuantityChange(value)}
+                          required
+                        />
+                        {quantityErrorMessage && (
+                          <div className="uk-alert-danger" data-uk-alert>
+                            <p>{quantityErrorMessage}</p>
+                          </div>
+                        )}
+                      </div>
                       <button
                         onClick={handleMaterialAdded}
                         className="btn btn-primary">

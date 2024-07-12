@@ -7214,9 +7214,9 @@
     "whatwg-encoding" "^1.0.5"
 
 "html-entities@^2.1.0", "html-entities@^2.3.2":
-  "integrity" "sha512-igBTJcNNNhvZFRtm8uA6xMY6xYleeDwn3PeBCkDz7tHttv4F2hsDI2aPgNERWzvRcNYHNT3ymRaQzllmXj4YsQ=="
-  "resolved" "https://registry.npmjs.org/html-entities/-/html-entities-2.4.0.tgz"
-  "version" "2.4.0"
+  "integrity" "sha512-K//PSRMQk4FZ78Kyau+mZurHn3FH0Vwr+H36eE0rPbeYkRRi9YxceYPhuN60UwWorxyKHhqoAJl2OFKa4BVtaA=="
+  "resolved" "https://registry.npmjs.org/html-entities/-/html-entities-2.5.2.tgz"
+  "version" "2.5.2"
 
 "html-escaper@^2.0.0":
   "integrity" "sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg=="

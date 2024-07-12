@@ -27,7 +27,7 @@ export const defaultTeamMember: ITeamMember ={
   email: "",
   location: "",
   physicalAddress: "",
-  city: ""
+  city: "Nkurenkuru"
   
 }
 

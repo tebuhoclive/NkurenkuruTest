@@ -6,6 +6,7 @@ import { hideModalFromId } from "../../../../shared/functions/ModalShow";
 import MODAL_NAMES from "../../../dialogs/ModalName";
 import ClientAccountForm from "./ClientAcountForm";
 import { IClient, defaultClient } from "../../../../shared/models/job-card-model/Client";
+import AlertDialog from "../../dialogs/Alert";
 
 
 const ClientAccountModal = observer(() => {
@@ -13,42 +14,67 @@ const ClientAccountModal = observer(() => {
 
   const [client, setClient] = useState({ ...defaultClient });
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({ open: false, message: "", onConfirm: null });
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const selected = store.jobcard.client.selected;
 
-    if (selected) await update(client);
-    else await create(client);
-    setLoading(false);
-    onCancel();
+    setAlert({
+      open: true,
+      message: "Are you sure you want to save this client?",
+      onConfirm: confirmSaveClient,
+    });
   };
 
-  const update = async (client: IClient) => {
+  const confirmSaveClient = async () => {
+    setLoading(true);
+    handleCloseAlert();
+
+    const selected = store.jobcard.client.selected;
+
+    try {
+      if (selected) {
+        await update(client);
+        // alert("Client updated successfully!");
+      } else {
+        await create(client);
+        // alert("Client created successfully!");
+      }
+    } catch (error) {
+      // alert("An error occurred while processing your request.");
+    } finally {
+      setLoading(false);
+      onCancel();
+    }
+  };
+
+  const handleCloseAlert = () => {
+    setAlert({ ...alert, open: false });
+  };
+
+  const update = async (client) => {
     try {
       await api.jobcard.client.update(client);
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
-        message: "Failed to update user.",
+        message: "Failed to update client.",
         type: "warning",
       });
     }
   };
 
-  const create = async (client: IClient) => {
+  const create = async (client) => {
     try {
       await api.jobcard.client.create(client);
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
-        message: "Failed to create user.",
+        message: "Failed to create client.",
         type: "warning",
       });
     }
   };
-
   const onCancel = () => {
     // clear selected user
     store.jobcard.client.clearSelected();
@@ -71,6 +97,12 @@ const ClientAccountModal = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close></button>
+      <AlertDialog
+        open={alert.open}
+        onClose={handleCloseAlert}
+        onConfirm={alert.onConfirm}
+        message={alert.message}
+      />
 
       <h3 className="uk-modal-title">Client Account</h3>
 

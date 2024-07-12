@@ -1,8 +1,10 @@
 {
   "projects": {
     "default": "nkurenkuru-36978",
-    "staging": "nkurenkuru-36978"
+    "staging": "nkurenkuru-36978",
+    "stadging": "nkurenkuru-town-council"
   },
   "targets": {},
-  "etags": {}
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

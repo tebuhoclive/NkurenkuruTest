@@ -2,13 +2,13 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 
-import { IClient } from "../../../../shared/models/job-card-model/Client";
+
 import { ITeamMember } from "../../../../shared/models/job-card-model/TeamMember";
 
 
 interface IProps {
   member: ITeamMember;
-  setMember: React.Dispatch<React.SetStateAction<IClient>>;
+  setMember: React.Dispatch<React.SetStateAction<ITeamMember>>;
 }
 const MemberForm = observer((props: IProps) => {
   const { store } = useAppContext();
@@ -40,7 +40,7 @@ const MemberForm = observer((props: IProps) => {
       </div>
       <div className="uk-width-1-1">
         <label className="uk-form-label" htmlFor="user-fname">
-          Full name
+          Full name<span className="uk-text-danger">*</span>
         </label>
         <div className="uk-form-controls">
           <input
@@ -118,7 +118,7 @@ const MemberForm = observer((props: IProps) => {
       </div>
       <div className="uk-form-controls uk-width-1-2">
         <label className="uk-form-label" htmlFor="client-address">
-          City <span className="uk-text-danger">*</span>
+          Town <span className="uk-text-danger">*</span>
         </label>
         <input
           type="text" // Change type to "text" for address input
@@ -126,7 +126,6 @@ const MemberForm = observer((props: IProps) => {
           id="client-address"
           placeholder="Address"
           value={member.city || ""}
-          onChange={(e) => setMember({ ...member, city: e.target.value })}
         />
       </div>
       {/* Add margin-bottom to create spacing */}
@@ -139,6 +138,7 @@ const MemberForm = observer((props: IProps) => {
           className="uk-input uk-form-small"
           id="client-address"
           placeholder="Address"
+          required
           value={member.physicalAddress || ""}
           onChange={(e) =>
             setMember({ ...member, physicalAddress: e.target.value })

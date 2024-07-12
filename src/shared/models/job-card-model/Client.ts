@@ -27,7 +27,7 @@ export interface IClient {
     address: "",
     email: "",
     location: "",
-    city: "",
+    city: "Nkurenkuru",
     physicalAddress: ""
   }
 

@@ -35,12 +35,10 @@ const ClientAccountForm = observer((props: IProps) => {
 
   return (
     <>
-      <div className="uk-width-1-1">
-       
-      </div>
+      <div className="uk-width-1-1"></div>
       <div className="uk-width-1-1">
         <label className="uk-form-label" htmlFor="user-fname">
-          Full name
+          Full name<span className="uk-text-danger">*</span>
         </label>
         <div className="uk-form-controls">
           <input
@@ -118,7 +116,7 @@ const ClientAccountForm = observer((props: IProps) => {
       </div>
       <div className="uk-form-controls uk-width-1-2">
         <label className="uk-form-label" htmlFor="client-address">
-          City <span className="uk-text-danger">*</span>
+          Town<span className="uk-text-danger">*</span>
         </label>
         <input
           type="text" // Change type to "text" for address input
@@ -126,9 +124,7 @@ const ClientAccountForm = observer((props: IProps) => {
           id="client-address"
           placeholder="Address"
           value={client.city || ""}
-          onChange={(e) =>
-            setClient({ ...client, city: e.target.value })
-          }
+      
         />
       </div>
       {/* Add margin-bottom to create spacing */}
@@ -140,6 +136,7 @@ const ClientAccountForm = observer((props: IProps) => {
           type="text" // Change type to "text" for address input
           className="uk-input uk-form-small"
           id="client-address"
+          required
           placeholder="Address"
           value={client.physicalAddress || ""}
           onChange={(e) =>

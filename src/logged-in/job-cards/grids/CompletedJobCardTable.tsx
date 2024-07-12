@@ -159,12 +159,8 @@ const CompletedJobCardTable = ({
                   <td>{getDisplayName(jobCard.assignedTo)}</td>
                   <td>{getDisplayName(jobCard.artesian)}</td>
                   <td>
-                    <td>
-                      {" "}
-                      <RatingStars rating={jobCard.teamRating} />
-                    </td>
+                    <RatingStars rating={jobCard.teamRating} />
                   </td>
-
                   <td>{jobCard.status}</td>
                   <td>
                     {commentIndex === jobCard.id ? (
@@ -192,18 +188,11 @@ const CompletedJobCardTable = ({
                         </div>
                       </div>
                     ) : (
-                      <div style={{ position: "relative" }}>
-                        {jobCard.comments && (
-                          <FontAwesomeIcon
-                            icon={faBell}
-                            style={{
-                              position: "absolute",
-                              top: "50%",
-                              right: "8px",
-                              transform: "translateY(-50%)",
-                              color: "red",
-                            }}
-                          />
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        {jobCard.comment && (
+                          <span style={{ marginRight: "8px" }}>
+                            {jobCard.comment}
+                          </span>
                         )}
                         <IconButton
                           aria-label="comment"
@@ -219,8 +208,6 @@ const CompletedJobCardTable = ({
                       </div>
                     )}
                   </td>
-
-                  {/* Render time difference */}
                   <td>
                     <IconButton
                       aria-label="view"
@@ -252,12 +239,11 @@ const CompletedJobCardTable = ({
                         padding: "8px",
                         fontSize: "1rem",
                       }}>
-                      <FontAwesomeIcon icon={faStar} />{" "}
-                      {/* Use the star icon here */}
+                      <FontAwesomeIcon icon={faStar} />
                     </IconButton>
                   </td>
                 </tr>
-              ))}{" "}
+              ))}
             {Array.from({ length: emptyRowsCount }).map((_, index) => (
               <tr key={`empty-${index}`}>
                 <td>&nbsp;</td>
@@ -271,7 +257,6 @@ const CompletedJobCardTable = ({
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
-               
               </tr>
             ))}
           </tbody>
