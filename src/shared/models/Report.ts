@@ -22,7 +22,28 @@ export interface IUserPerformanceData {
   weightValidity: boolean;
   department: string;
   departmentName: string;
+  midtermAutoRating?: number; //midterm auto rating
+  midtermRating?: number; // supervisor midterm rating
+  autoRating?: number; //final auto rating
+  finalRating?: number; // supervisor final rating
 }
+// export interface IUserPerformanceData {
+//   uid: string;
+//   userName: string;
+//   measures: IMeasure[];
+//   // rating: number;
+//   // midtermRating: number;
+//   // finalRating: number;
+//   // midtermAutoRating: number; //midterm auto rating
+//   // midtermRating: number; // supervisor midterm rating
+
+
+
+//   weight: number;
+//   weightValidity: boolean;
+//   department: string;
+//   departmentName: string;
+// }
 
 export default class UserPerformanceData {
   private data: IUserPerformanceData;

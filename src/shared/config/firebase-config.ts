@@ -8,16 +8,14 @@ import { getFunctions } from "firebase/functions";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   // NKURENKURU
-  apiKey: "AIzaSyB00hqtzHHOH_3D3SMj9KhAGrG-gn4kmrs",
-  authDomain: "lots-pms.firebaseapp.com",
-  projectId: "lots-pms",
-  storageBucket: "lots-pms.appspot.com",
-  messagingSenderId: "507817531923",
-  appId: "1:507817531923:web:f6813ccf3db341eaa1fde6",
-  measurementId: "G-27F3J0Q8S7",
+  apiKey: "AIzaSyDasgXX3u3cLujb7rwGlJpqgXV2wwfmKS8",
+  authDomain: "nkurenkuru-town-council.firebaseapp.com",
+  projectId: "nkurenkuru-town-council",
+  storageBucket: "nkurenkuru-town-council.appspot.com",
+  messagingSenderId: "651659197779",
+  appId: "1:651659197779:web:122730299f6c30bbacf5a6",
+  measurementId: "G-N3BJ50MDSN"
 };
-
-
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -87,7 +85,6 @@ export const functions = getFunctions(app);
 // messagingSenderId: "243200800726",
 // appId: "1:243200800726:web:99c5f971572f9020325677",
 // measurementId: "G-36QVQJ5W8B"
-
 
 //Jobcard Test
 //  apiKey: "AIzaSyCUghyqzwalQojYCJgnovBxM3-YnEgVd2s",

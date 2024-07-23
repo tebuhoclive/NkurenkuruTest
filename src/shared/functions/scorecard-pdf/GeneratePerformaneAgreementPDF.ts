@@ -7,6 +7,8 @@ import { IObjective } from "../../models/Objective";
 import { CompanyPerformanceAgreementDocument } from "./CompanyPerformanceAgreementDocument ";
 import { DepartmentPerformanceAgreementDocument } from "./DepartmentPerformanceAgreementDocument";
 import { IndividualPerformanceAgreementDocument } from "./IndividualPerformanceAgreementDocument";
+import UserPerformanceData from "../../models/Report";
+import { ReportPDF } from "./ReportPDF";
 
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
@@ -80,6 +82,20 @@ export const generateIndividualPerformanceAgreementPDF = async (
         jobTilte,
         supervisor
       )) as any
+    )
+    .open({}, newWindow);
+};
+export const generateReportPDF = async (
+  vision: string,
+  mission: string,
+  chartsimage: HTMLAnchorElement,
+  best: UserPerformanceData[],
+  worst: UserPerformanceData[]
+) => {
+  const newWindow = window.open();
+  pdfMake
+    .createPdf(
+      (await ReportPDF(vision, mission, chartsimage, best, worst)) as any
     )
     .open({}, newWindow);
 };

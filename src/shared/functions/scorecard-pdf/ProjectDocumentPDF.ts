@@ -7,12 +7,8 @@ import { IProject } from "../../models/ProjectManagement";
 import { IProjectRisk } from "../../models/ProjectRisks";
 import { IProjectTask } from "../../models/ProjectTasks";
 import AppStore from "../../stores/AppStore";
-import {
-  marginTopBottom,
-  header,
-  sectionHeader,
-  projectMembers,
-} from "../jobcard-pdf/DocDefition";
+import { header, marginTopBottom, projectMembers, sectionHeader } from "./DocDefition";
+
 
 type RowSpan = {
   text: string | any;

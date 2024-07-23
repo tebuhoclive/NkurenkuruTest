@@ -1,24 +1,27 @@
 import { observer } from "mobx-react-lite";
 import BarGraph from "../../../shared/components/graph-components/BarGraph";
 import { useAppContext } from "../../../shared/functions/Context";
+import "./ExecutionTabContent.scss";
 
 const ExecutionTabContent = observer(() => {
   const { store } = useAppContext();
 
-  // analytics on people per rating.
-  const labels = ["Group 1", "Group 2", "Group 3", "Group 4", "Group 5"];
+  const labels = ["Rating 1", "Rating 2", "Rating 3", "Rating 4", "Rating 5"];
   // user data
   const userData = store.report.allUserPerformanceData;
+  console.log("User data", userData);
+  
 
-  const executionRate = userData.reduce(
-    (acc, user) => {
-      const rate = user.asJson.rating >= 1 ? user.asJson.rating : 1;
-      const rating = Math.floor(rate);
-      const pos = rating - 1;
 
-      acc[pos] = acc[pos] + 1; // increment
-      return acc;
-    },
+  const executionRate = userData.reduce((acc, user) => {
+    const rate = user.asJson.finalRating >= 1 ? user.asJson.finalRating : 1;
+    
+    
+    const finalRating = Math.floor(rate);
+    const pos = finalRating - 1;
+    acc[pos] = acc[pos] + 1; // increment
+    return acc;
+  },
     [0, 0, 0, 0, 0]
   );
 

@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../shared/functions/Context";
 import { IMeasure } from "../../../shared/models/Measure";
 import { IObjective } from "../../../shared/models/Objective";
@@ -7,7 +8,7 @@ import { totalFinalIndividualObjectiveRating } from "../../shared/functions/Scor
 interface IProps {
   objective: IObjective;
 }
-const ObjectiveItem = (props: IProps) => {
+const ObjectiveItem = observer((props: IProps) => {
   const { store } = useAppContext();
 
   const { objective } = props;
@@ -41,6 +42,6 @@ const ObjectiveItem = (props: IProps) => {
       </div>
     </li>
   );
-};
+});
 
 export default ObjectiveItem;

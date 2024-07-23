@@ -13,6 +13,8 @@ interface IProps {
 const MeasureTableItem = (props: IProps) => {
   const { store } = useAppContext();
   const { measure } = props;
+  console.log("ImeasureTableItem", measure);
+  
 
   const dataType = measure.dataType;
   const suffix = dataTypeSymbol(dataType).suffix;

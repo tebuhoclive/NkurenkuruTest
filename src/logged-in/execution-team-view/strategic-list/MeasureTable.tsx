@@ -16,6 +16,9 @@ const MeasureTable = observer((props: IProps) => {
     setisEmpty(measures.length === 0 ? true : false);
   }, [measures]);
 
+
+  console.log("ImeasureTable", measures);
+  
   return (
     <ErrorBoundary>
       <div className="measure-table">

@@ -11,7 +11,7 @@ const TabItem = (props: ITabItem) => {
 
   return (
     <li className={activeTab(label)} onClick={() => onClickTab(label)}>
-      <a href="void(0)">{name}</a>
+      <a href="#">{name}</a>
     </li>
   );
 };

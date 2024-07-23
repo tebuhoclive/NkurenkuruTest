@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { Fragment, useEffect, useState } from "react";
 import ObjectiveCompany from "../../../shared/models/ObjectiveCompany";
 import ObjectiveItem from "./ObjectiveItem";
@@ -5,13 +6,15 @@ import ObjectiveItem from "./ObjectiveItem";
 interface IProps {
   objectives: ObjectiveCompany[];
 }
-const Objectives = (props: IProps) => {
+
+const Objectives = observer((props: IProps) => {
   const { objectives } = props;
   const [count, setCount] = useState(5);
   const [filteredObjectives, setFilteredObjectives] = useState<ObjectiveCompany[]>([]);
 
   useEffect(() => {
-    const filtered = count === -1 ? objectives.slice() : objectives.slice(0, count);
+    const filtered =
+      count === -1 ? objectives.slice() : objectives.slice(0, count);
     setFilteredObjectives(filtered);
     return () => { };
   }, [objectives, count]);
@@ -20,6 +23,7 @@ const Objectives = (props: IProps) => {
     <div className="objectives-card uk-card uk-card-default uk-card-body uk-card-small">
       <div className="header uk-margin">
         <h4 className="title kit-title">Objectives ✓:</h4>
+
         <select
           id="count"
           className="uk-select uk-form-small uk-margin-left"
@@ -44,6 +48,6 @@ const Objectives = (props: IProps) => {
       </ul>
     </div>
   );
-};
+});
 
 export default Objectives;

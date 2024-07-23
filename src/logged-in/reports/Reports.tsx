@@ -11,8 +11,10 @@ import { IUserPerformanceData } from "../../shared/models/Report";
 import { IUser } from "../../shared/models/User";
 import { LoadingEllipsis } from "../../shared/components/loading/Loading";
 import useBackButton from "../../shared/hooks/useBack";
+import "./Reports.scss";
 import ErrorBoundary from "../../shared/components/error-boundary/ErrorBoundary";
 import ExecutionTabContent from "./execution-rate-tab-content/ExecutionTabContent";
+
 
 const Reports = observer(() => {
   const { api, store } = useAppContext();
@@ -78,10 +80,15 @@ const Reports = observer(() => {
   //   return department ? department.name : "";
   // };
 
-  const getDepartmentNameFromId = useCallback((departmentId: string) => {
-    const department = departments.find((department) => department.id === departmentId);
-    return department ? department.name : "";
-  }, [departments]);
+  const getDepartmentNameFromId = useCallback(
+    (departmentId: string) => {
+      const department = departments.find(
+        (department) => department.id === departmentId
+      );
+      return department ? department.name : "";
+    },
+    [departments]
+  );
 
   const userPerformanceData = useCallback(() => {
     const data: IUserPerformanceData[] = [];
@@ -114,11 +121,17 @@ const Reports = observer(() => {
 
     // load to report store
     store.report.loadUserPerformanceData(data);
-  }, [measures, users, getDepartmentNameFromId, store.report, verifyTotalWeight]);
+  }, [
+    measures,
+    users,
+    getDepartmentNameFromId,
+    store.report,
+    verifyTotalWeight,
+  ]);
 
   useEffect(() => {
     userPerformanceData();
-    return () => { };
+    return () => {};
   }, [userPerformanceData]);
 
   // load users from db
@@ -133,8 +146,7 @@ const Reports = observer(() => {
         await api.companyMeasure.getAll(fyid);
         await api.companyObjective.getAll(fyid);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
     setLoading(false); // stop loading
   }, [
     api.user,
@@ -148,7 +160,7 @@ const Reports = observer(() => {
 
   useEffect(() => {
     loadAll();
-    return () => { };
+    return () => {};
   }, [loadAll]);
 
   return (
@@ -163,15 +175,22 @@ const Reports = observer(() => {
           </ErrorBoundary>
           <ErrorBoundary>{loading && <LoadingEllipsis />}</ErrorBoundary>
           <ErrorBoundary>
-            {!loading && selectedTab === "strategy-tab" && (<StrategyTabContent />)}
-            {!loading && selectedTab === "department-tab" && (<DepartmentTabContent />)}
+            {!loading && selectedTab === "strategy-tab" && (
+              <StrategyTabContent />
+            )}
+            {!loading && selectedTab === "department-tab" && (
+              <DepartmentTabContent />
+            )}
             {!loading && selectedTab === "people-tab" && <PeopleTabContent />}
-            {!loading && selectedTab === "execution-tab" && (<ExecutionTabContent />)}
+            {!loading && selectedTab === "execution-tab" && (
+              <ExecutionTabContent />
+            )}
           </ErrorBoundary>
         </div>
       </div>
     </ErrorBoundary>
   );
 });
+
 
 export default Reports;

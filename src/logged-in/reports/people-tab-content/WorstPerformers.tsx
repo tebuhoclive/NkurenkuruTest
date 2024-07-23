@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { observer } from "mobx-react-lite";
+import React, { useCallback, useEffect, useState } from "react";
 import Department from "../../../shared/models/Department";
 import UserPerformanceData from "../../../shared/models/Report";
 

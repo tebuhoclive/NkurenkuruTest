@@ -1,3 +1,5 @@
+import React from "react";
+import BarGraph from "../../../shared/components/graph-components/BarGraph";
 import LineGraph from "../../../shared/components/graph-components/LineGraph";
 
 const DepartmentQ2Q = () => {

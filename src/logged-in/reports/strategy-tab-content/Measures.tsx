@@ -6,6 +6,7 @@ import MeasureItem from "./MeasureItem";
 interface IProps {
   measures: MeasureCompany[];
 }
+
 const Measures = observer((props: IProps) => {
   const { measures } = props;
 
@@ -16,25 +17,44 @@ const Measures = observer((props: IProps) => {
   const sortByRate = (data: MeasureCompany[], orderType: "asc" | "dsc") => {
     if (orderType === "asc")
       // order in ascending order
-      return data.sort((a, b) => a.asJson.q4AutoRating - b.asJson.q4AutoRating);
-    return data.sort((a, b) => b.asJson.q4AutoRating - a.asJson.q4AutoRating);
+      return data.sort((a, b) => (a.asJson.q4Rating || 1) - (b.asJson.q4Rating || 1));
+    return data.sort((a, b) => (b.asJson.q4Rating || 1) - (a.asJson.q4Rating || 1));
   };
 
   const filterByDepartment = useCallback(() => {
-    const filtered = measures.filter((measure) => {
+    const filtered = measures.filter((m) => {
       if (status === "all") return true;
-      if (status === "red") return measure.asJson.q4AutoRating < 2;
-      // if (status === "yellow") return measure.asJson.rating <= 2;
-      if (status === "green") return measure.asJson.q4AutoRating >= 3;
+      if (status === "red") return m.asJson.q4Rating || 1 < 2;
+      if (status === "green") return m.asJson.q4Rating || 1 >= 3;
       return false;
     });
 
-    const sorted =
-      count === -1
-        ? sortByRate(filtered.slice(), "dsc")
-        : sortByRate(filtered.slice(0, count), "dsc");
+    const sorted = count === -1 ? sortByRate(filtered.slice(), "dsc") : sortByRate(filtered.slice(0, count), "dsc");
     setFilteredMeasures(sorted);
   }, [count, measures, status]);
+
+  // const sortByRate = (data: MeasureCompany[], orderType: "asc" | "dsc") => {
+  //   if (orderType === "asc")
+  //     // order in ascending order
+  //     return data.sort((a, b) => a.asJson.q4AutoRating - b.asJson.q4AutoRating);
+  //   return data.sort((a, b) => b.asJson.q4AutoRating - a.asJson.q4AutoRating);
+  // };
+
+  // const filterByDepartment = useCallback(() => {
+  //   const filtered = measures.filter((measure) => {
+  //     if (status === "all") return true;
+  //     if (status === "red") return measure.asJson.q4AutoRating < 2;
+  //     // if (status === "yellow") return measure.asJson.rating <= 2;
+  //     if (status === "green") return measure.asJson.q4AutoRating >= 3;
+  //     return false;
+  //   });
+
+  //   const sorted =
+  //     count === -1
+  //       ? sortByRate(filtered.slice(), "dsc")
+  //       : sortByRate(filtered.slice(0, count), "dsc");
+  //   setFilteredMeasures(sorted);
+  // }, [count, measures, status]);
 
   useEffect(() => {
     filterByDepartment();

@@ -639,6 +639,125 @@ const SUPERVISOR_USER_ROUTES = () => {
     </BrowserRouter>
   );
 };
+// const EMPLOYEE_USER_ROUTES = () => {
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route path="c" element={<PrivateLoggedIn />}>
+//           {/* OVERVIEW */}
+//           <Route path="home/dashboard" element={<Dashboard />} />
+//           <Route path="home/strategy-map" element={<StrategyMapPage />} />
+
+//           {/* STRATEGY */}
+//           <Route path="strategy/themes" element={<StrategyThemes />} />
+//           <Route path="strategy/company" element={<CompanyScorecards />} />
+//           <Route path="strategy/company/:fyid" element={<CompanyScorecard />} />
+//           <Route
+//             path="strategy/company/:fyid/:objectiveId"
+//             element={<CompanyScorecardObjective />}
+//           />
+         
+//           {/*JOBCARD*/}
+//           <Route path="job-cards/dashboard" element={<JobDashboard />} />
+//           <Route path="job-cards/create" element={<CreatedJoCardMain />} />
+//           <Route path="job-cards/allocate" element={<AllocateJobCardMain />} />
+//           <Route path="job-cards/management" element={<JobCardManagement />} />
+
+//           <Route
+//             path="strategy/company-review"
+//             element={<CompanyScorecardReviews />}
+//           />
+//           <Route
+//             path="strategy/company-review/:fyid"
+//             element={<CompanyScorecardReviewView />}
+//           />
+
+//           <Route
+//             path="strategy/department"
+//             element={<DepartmentScorecards />}
+//           />
+//           <Route
+//             path="strategy/department/:fyid/:departmentId"
+//             element={<DepartmentScorecard />}
+//           />
+//           <Route
+//             path="strategy/department/:fyid/:departmentId/:objectiveId"
+//             element={<DepartmentScorecardObjective />}
+//           />
+
+//           <Route
+//             path="strategy/department-review"
+//             element={<DepartmentScorecardReviews />}
+//           />
+//           <Route
+//             path="strategy/department-review/:fyid/:departmentId"
+//             element={<DepartmentScorecardReviewView />}
+//           />
+
+//           {/* SCORECARDS */}
+//           {/* Executive & MD don't have personal/individual scorecard */}
+//           <Route path="scorecards/my" element={<IndividualScorecard />} />
+//           <Route
+//             path="scorecards/my/:id"
+//             element={<IndividualScorecardDraftObjective />}
+//           />
+//           <Route
+//             path="scorecards/supervision"
+//             element={<EmployeeScorecard />}
+//           />
+//           <Route
+//             path="scorecards/supervision/:uid"
+//             element={<EmployeeScorecardView />}
+//           />
+
+//           <Route
+//             path="scorecards/subordinate"
+//             element={<SubordinateScorecard />}
+//           />
+
+//           <Route path="scorecards/people" element={<People />} />
+//           <Route path="scorecards/people/:uid" element={<PeopleView />} />
+//           <Route path="scorecards/reviews" element={<PerformanceReviews />} />
+
+//           {/* Projects */}
+//           <Route path="projects" element={<UserProjects />} />
+//           <Route path="projects/:id" element={<PortfolioProjects />} />
+//           <Route path="project/:projectId" element={<ProjectView />} />
+//           <Route path="portfolio" element={<PortfolioPage />} />
+//           <Route path="tasks" element={<Tasks />} />
+//           <Route path="checkin" element={<CheckIn />} />
+//           <Route path="checkin/:yearId" element={<CheckInYearView />} />
+//           <Route
+//             path="checkin/:yearId/:monthId"
+//             element={<CheckInMonthView />}
+//           />
+//           <Route
+//             path="checkin/:yearId/:monthId/:uid"
+//             element={<CheckInMonthUserView />}
+//           />
+
+//           <Route path="statistics" element={<Statistics />} />
+
+//           {/* PORTFOLIO OF EVIDENCE */}
+//           <Route path="drive" element={<Drive />} />
+//           <Route path="drive/:id" element={<Drive />} />
+
+//           {/* REPORTS */}
+//           <Route path="reports/kpis" element={<Reports />} />
+
+//           {/* ADMIN */}
+//           <Route path="admin/settings" element={<AdminSettings />} />
+//           <Route path="*" element={<Navigate to="home/dashboard" />} />
+//         </Route>
+
+//         <Route path="/" element={<LoggedOut />} />
+//         <Route path="/*" element={<Navigate to="/" />} />
+//       </Routes>
+//     </BrowserRouter>
+//   );
+// };
+
+
 const EMPLOYEE_USER_ROUTES = () => {
   return (
     <BrowserRouter>
@@ -649,29 +768,12 @@ const EMPLOYEE_USER_ROUTES = () => {
           <Route path="home/strategy-map" element={<StrategyMapPage />} />
 
           {/* STRATEGY */}
-          <Route path="strategy/themes" element={<StrategyThemes />} />
           <Route path="strategy/company" element={<CompanyScorecards />} />
           <Route path="strategy/company/:fyid" element={<CompanyScorecard />} />
           <Route
             path="strategy/company/:fyid/:objectiveId"
             element={<CompanyScorecardObjective />}
           />
-         
-          {/*JOBCARD*/}
-          <Route path="job-cards/dashboard" element={<JobDashboard />} />
-          <Route path="job-cards/create" element={<CreatedJoCardMain />} />
-          <Route path="job-cards/allocate" element={<AllocateJobCardMain />} />
-          <Route path="job-cards/management" element={<JobCardManagement />} />
-
-          <Route
-            path="strategy/company-review"
-            element={<CompanyScorecardReviews />}
-          />
-          <Route
-            path="strategy/company-review/:fyid"
-            element={<CompanyScorecardReviewView />}
-          />
-
           <Route
             path="strategy/department"
             element={<DepartmentScorecards />}
@@ -684,15 +786,11 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="strategy/department/:fyid/:departmentId/:objectiveId"
             element={<DepartmentScorecardObjective />}
           />
-
-          <Route
-            path="strategy/department-review"
-            element={<DepartmentScorecardReviews />}
-          />
-          <Route
-            path="strategy/department-review/:fyid/:departmentId"
-            element={<DepartmentScorecardReviewView />}
-          />
+          {/*JOBCARD*/}
+          <Route path="job-cards/dashboard" element={<JobDashboard />} />
+          <Route path="job-cards/create" element={<CreatedJoCardMain />} />
+          <Route path="job-cards/allocate" element={<AllocateJobCardMain />} />
+          <Route path="job-cards/management" element={<JobCardManagement />} />
 
           {/* SCORECARDS */}
           {/* Executive & MD don't have personal/individual scorecard */}
@@ -701,52 +799,11 @@ const EMPLOYEE_USER_ROUTES = () => {
             path="scorecards/my/:id"
             element={<IndividualScorecardDraftObjective />}
           />
-          <Route
-            path="scorecards/supervision"
-            element={<EmployeeScorecard />}
-          />
-          <Route
-            path="scorecards/supervision/:uid"
-            element={<EmployeeScorecardView />}
-          />
-
-          <Route
-            path="scorecards/subordinate"
-            element={<SubordinateScorecard />}
-          />
-
-          <Route path="scorecards/people" element={<People />} />
-          <Route path="scorecards/people/:uid" element={<PeopleView />} />
-          <Route path="scorecards/reviews" element={<PerformanceReviews />} />
-
-          {/* Projects */}
-          <Route path="projects" element={<UserProjects />} />
-          <Route path="projects/:id" element={<PortfolioProjects />} />
-          <Route path="project/:projectId" element={<ProjectView />} />
-          <Route path="portfolio" element={<PortfolioPage />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="checkin" element={<CheckIn />} />
-          <Route path="checkin/:yearId" element={<CheckInYearView />} />
-          <Route
-            path="checkin/:yearId/:monthId"
-            element={<CheckInMonthView />}
-          />
-          <Route
-            path="checkin/:yearId/:monthId/:uid"
-            element={<CheckInMonthUserView />}
-          />
-
-          <Route path="statistics" element={<Statistics />} />
 
           {/* PORTFOLIO OF EVIDENCE */}
           <Route path="drive" element={<Drive />} />
           <Route path="drive/:id" element={<Drive />} />
 
-          {/* REPORTS */}
-          <Route path="reports/kpis" element={<Reports />} />
-
-          {/* ADMIN */}
-          <Route path="admin/settings" element={<AdminSettings />} />
           <Route path="*" element={<Navigate to="home/dashboard" />} />
         </Route>
 
