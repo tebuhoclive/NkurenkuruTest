@@ -33,11 +33,19 @@ const Reports = observer(() => {
   // get all users
   const users = store.user.all.map((user) => user.asJson);
 
-  // calculate the rating for each user
+  // calculate the rating for each user//Employee rating??
   const totalRating = (measures: IMeasure[]) => {
     const rating =
       measures.reduce((acc, measure) => {
         return acc + (measure.autoRating || 1);
+      }, 0) / measures.length;
+    return Math.round((rating || 1) * 10) / 10;
+  };
+    // calculate the supervisor for each user supervisor rating
+  const totalSupervisorRating = (measures: IMeasure[]) => {
+    const rating =
+      measures.reduce((acc, measure) => {
+        return acc + (measure.midtermRating || measure.midtermAutoRating || 1);
       }, 0) / measures.length;
     return Math.round((rating || 1) * 10) / 10;
   };
@@ -100,6 +108,8 @@ const Reports = observer(() => {
       const departmentName = getDepartmentNameFromId(user.department);
       // calculate the rating for each user
       const rating = totalRating($measures);
+
+      const supervisorMidtermRating = totalSupervisorRating($measures);
       // verify the measures weight per user add up to 100
       const weightValidity = verifyTotalWeight($measures);
       // weight value
@@ -111,6 +121,7 @@ const Reports = observer(() => {
         weightValidity,
         departmentName,
         rating,
+        supervisorMidtermRating,
         uid: user.uid,
         userName: user.displayName || "",
         weight,

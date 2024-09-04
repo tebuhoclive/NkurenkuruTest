@@ -18,6 +18,8 @@ export interface IUserPerformanceData {
   userName: string;
   measures: IMeasure[];
   rating: number;
+  supervisorMidtermRating:number;
+  
   weight: number;
   weightValidity: boolean;
   department: string;

@@ -305,9 +305,9 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
                 <th>Rate 4</th>
                 <th>Rate 5</th>
                 <th>Progress</th>
-                <th>Rating</th>
+                <th>Midterm E-Rating</th>
                 {canUpdate && <th></th>}
-                {isApproved && <th>Midterm Rating</th>}
+                {isApproved && <th>Midterm S-Rating</th>}
               </tr>
             </thead>
 
@@ -334,9 +334,10 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
 interface IObjectiveItemProps {
   objective: Objective;
   children?: React.ReactNode;
+  measures: Measure[];
 }
 const ObjectiveItem = observer((props: IObjectiveItemProps) => {
-  const { objective, children } = props;
+  const { objective, children, measures } = props;
   const { weight, description, perspective } = objective.asJson;
   // const { rate, isUpdated } = objective.rating;
   const { rate, isUpdated } = objective.midtermRating;
@@ -408,7 +409,11 @@ const StrategicList = observer((props: IStrategicListProps) => {
     <ErrorBoundary>
       <div className="objective-table uk-margin">
         {objectives.map((objective) => (
-          <ObjectiveItem key={objective.asJson.id} objective={objective}>
+          <ObjectiveItem
+            key={objective.asJson.id}
+            objective={objective}
+            measures={objective.measures}
+          >
             <MeasureTable
               measures={objective.measures}
               gotoPortofolio={() =>
@@ -460,13 +465,27 @@ const IndividualScorecardQ2Cycle = observer(() => {
         allMeasures,
         "",
         "",
-        "",
+        ""
       );
     } catch (error) {
       console.log(error);
     }
   };
-
+ 
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.midtermAutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+  
+  const rating =getOverall()
   const handleExportExcel = async () => {
     const me = store.auth.me;
     if (!me || !scorecard) return;
@@ -612,7 +631,20 @@ const IndividualScorecardQ2Cycle = observer(() => {
               }
             />
           </ErrorBoundary>
-
+          <ErrorBoundary>
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
           <ErrorBoundary>
             <div className="uk-margin">
               {tab === MAP_TAB.id && <StrategicMap />}

@@ -173,14 +173,14 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
               <th>Baseline</th>
               <th>Annual Target</th>
               <th>Progress</th>
-              <th>Rating</th>
+              <th>Q2 E-Rating</th>
               {canUpdate && (
                 <>
-                  <th>Q2 Rating</th>
+                  <th>Q2 S-Rating</th>
                   <th></th>
                 </>
               )}
-              {isApproved && <th>Q2 Rating</th>}
+              {isApproved && <th>Q2 S-Rating</th>}
             </tr>
           </thead>
           <tbody>

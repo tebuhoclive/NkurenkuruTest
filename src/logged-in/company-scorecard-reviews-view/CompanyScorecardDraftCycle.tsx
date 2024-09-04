@@ -214,7 +214,7 @@ const CompanyScorecardDraftCycle = observer((props: IProps) => {
                       className="btn btn-primary"
                       title="Submit your draft for aproval, View past scorecards, and Export to PDF."
                     >
-                      More <span data-uk-icon="icon: more; ratio:.8"></span>
+                      More  <span data-uk-icon="icon: more; ratio:.8"></span>
                     </button>
 
                     <Dropdown pos="bottom-right">

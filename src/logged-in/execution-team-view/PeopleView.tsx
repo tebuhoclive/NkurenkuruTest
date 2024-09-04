@@ -27,6 +27,7 @@ const PeopleView = observer(() => {
 
   const [loading, setLoading] = useState(false);
   const [_, setTitle] = useTitle("People"); // set page title
+  const measures = store.measure.getByUid(uid!);
 
   const navigate = useNavigate();
   useBackButton("/c/scorecards/people/");
@@ -34,6 +35,11 @@ const PeopleView = observer(() => {
   const user = store.user.selected;
   const scorecard = store.scorecard.active;
   const allUsers = store.user.all;
+
+  const validMeasures = measures.filter(
+    (measure) => measure.asJson.finalRating !== null
+  );
+
 
   const loadCompanyAndDepartmnBeforeExport = async (
     scorecard: IScorecardBatch,
@@ -115,7 +121,21 @@ const PeopleView = observer(() => {
       );
     } catch (error) {}
   };
-
+ 
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.midtermAutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+  
+  const rating =getOverall()
   useEffect(() => {
     const setPageTitle = () => {
       if (!user) navigate("/c/scorecards/people/");
@@ -143,6 +163,11 @@ const PeopleView = observer(() => {
         <div className="uk-container uk-container-xlarge">
           <ErrorBoundary>
             <Toolbar
+             leftControls={
+              <ErrorBoundary>
+                <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+              </ErrorBoundary>
+            }
               rightControls={
                 <ErrorBoundary>
                   <button

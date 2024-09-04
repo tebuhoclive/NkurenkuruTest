@@ -63,10 +63,10 @@ const tableWidths: Row = ["auto", "auto", 100, 100, 100, 100];
 const tableHeader: Row = [
   "Employee Name",
   "Department",
-  "Midterm Rating",
-  "Midterm Supervisor Rating",
-  "Final Rating",
-  "Final Supervisor Rating",
+  "Midterm E-Rating",
+  "Midterm S-Rating",
+  "Final E-Rating",
+  "Final S-Rating",
 ];
 
 export interface IReportTableRowItem {
@@ -77,6 +77,7 @@ export interface IReportTableRowItem {
   autoRating: number;
   finalRating: number;
   rating:number;
+  supervisorMidtermRating:number;
 }
 
 const q2DocumentDefinition = (data: UserPerformanceData[]) => {
@@ -88,6 +89,7 @@ const q2DocumentDefinition = (data: UserPerformanceData[]) => {
       userName: d.asJson.userName,
       department: d.asJson.departmentName,
       midtermAutoRating: d.asJson.midtermRating,
+      supervisorMidtermRating:d.asJson.supervisorMidtermRating,
       midtermRating: d.asJson.midtermRating,
       autoRating: d.asJson.autoRating,
       finalRating: d.asJson.finalRating,
@@ -117,7 +119,7 @@ export const ReportPDF = async (
       row.userName,
       row.department,
       { text: row.rating, fillColor: "#fcecec" },
-      { text: row.midtermAutoRating, fillColor: "#fcecec" },
+      { text: row.supervisorMidtermRating, fillColor: "#fcecec" },
       { text: row.autoRating, fillColor: "#caf1de" },
       { text: row.finalRating, fillColor: "#caf1de" },
     ];
@@ -127,7 +129,7 @@ export const ReportPDF = async (
       row.userName,
       row.department,
       { text: row.rating, fillColor: "#fcecec" },
-      { text: row.midtermAutoRating, fillColor: "#fcecec" },
+      { text: row.supervisorMidtermRating, fillColor: "#fcecec" },
       { text: row.autoRating, fillColor: "#caf1de" },
       { text: row.finalRating, fillColor: "#caf1de" },
     ];
@@ -151,7 +153,7 @@ export const ReportPDF = async (
       sectionHeader(vision),
       marginTopBottom(),
       sectionHeader(
-        "NOTE: This data iS categorized according to the final supervisor rating."
+        "NOTE: This data is categorized according to the final supervisor rating."
       ),
       marginTopBottom(),
       header("Charts and analytics"),
@@ -170,7 +172,7 @@ export const ReportPDF = async (
       },
       marginTopBottom(),
       marginTopBottom(),
-      header("Worst Performers"),
+      // header("Worst Performers"),
       {
         layout: "lightHorizontalLines", // optional
         table: {

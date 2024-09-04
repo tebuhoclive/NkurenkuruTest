@@ -296,9 +296,9 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
                 <th>Rate 4</th>
                 <th>Rate 5</th>
                 <th>Progress</th>
-                <th>Rating</th>
+                <th>Final E-Rating</th>
                 {canUpdate && <th></th>}
-                {isApproved && <th>Final Rating</th>}
+                {isApproved && <th>Final S-Rating</th>}
               </tr>
             </thead>
 
@@ -450,7 +450,7 @@ const IndividualScorecardQ4Cycle = observer(() => {
         allMeasures,
         "",
         "",
-        "",
+        ""
       );
     } catch (error) {
       console.log(error);
@@ -482,7 +482,21 @@ const IndividualScorecardQ4Cycle = observer(() => {
       console.log(error);
     }
   };
-
+ 
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.finalRating|| 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+  
+  const rating =getOverall()
   const handleScorecards = () => {
     showModalFromId(MODAL_NAMES.EXECUTION.SCORECARD_MODAL);
   };
@@ -589,6 +603,20 @@ const IndividualScorecardQ4Cycle = observer(() => {
                       </li>
                     </Dropdown>
                   </div>
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
                 </ErrorBoundary>
               }
             />

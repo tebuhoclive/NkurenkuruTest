@@ -14,7 +14,11 @@ import Modal from "../../shared/components/Modal";
 import { useAppContext } from "../../shared/functions/Context";
 import { dataFormat } from "../../shared/functions/Directives";
 import showModalFromId from "../../shared/functions/ModalShow";
-import {ALL_TAB,fullPerspectiveName, MAP_TAB} from "../../shared/interfaces/IPerspectiveTabs";
+import {
+  ALL_TAB,
+  fullPerspectiveName,
+  MAP_TAB,
+} from "../../shared/interfaces/IPerspectiveTabs";
 import MeasureDepartment from "../../shared/models/MeasureDepartment";
 import ObjectiveDepartment from "../../shared/models/ObjectiveDepartment";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
@@ -231,7 +235,7 @@ const MeasureTableItem = (props: IMeasureTableItemProps) => {
               onClick={handleUpdateMeasureProgress}
               title="Update progress"
             >
-             <span data-uk-icon="pencil"></span>
+              <span data-uk-icon="pencil"></span>
             </button>
           </div>
         </td>
@@ -278,9 +282,9 @@ const MeasureTable = (props: IMeasureTableProps) => {
               <th>Q3 Target</th>
               <th>Q4 Target</th>
               <th>Progress</th>
-              <th>Rating</th>
+              <th>Q1 E-Rating</th>
               {canUpdate && <th></th>}
-              {isApproved && <th>Q1 Rating</th>}
+              {isApproved && <th>Q1 S-Rating</th>}
             </tr>
           </thead>
           <tbody>
@@ -377,14 +381,29 @@ const DepartmentScorecardQ1Cycle = observer((props: IProps) => {
   } = props;
 
   const [tab, setTab] = useState(ALL_TAB.id);
-
+  const { api, ui, store } = useAppContext();
+  const measures = store.companyMeasure.all;
   const filteredObjectivesByPerspective = useMemo(() => {
     const sorted = objectives.sort(sortByPerspective);
     return tab === ALL_TAB.id
       ? sorted
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
-
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+  
+  const rating =getOverall()
+  
   if (agreement.agreementDraft.status !== "approved")
     return (
       <ErrorBoundary>
@@ -466,7 +485,20 @@ const DepartmentScorecardQ1Cycle = observer((props: IProps) => {
               }
             />
           </ErrorBoundary>
-
+          <ErrorBoundary>
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
           <ErrorBoundary>
             <div className="uk-margin">
               {tab === MAP_TAB.id && <StrategicMap />}

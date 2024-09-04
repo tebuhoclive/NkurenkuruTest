@@ -22,7 +22,7 @@ const MeasureTableItem = (props: IProps) => {
   const rateCss = rateColor(measure.autoRating, measure.isUpdated);
 
   const rateCssSupervisor = rateColor(
-    measure.finalRating || 0,
+    measure.midtermAutoRating || 0,
     measure.isUpdated
   );
 
@@ -77,9 +77,9 @@ const MeasureTableItem = (props: IProps) => {
           </td>
         </Fragment>
       )}
-      <td className={`actual-value ${rateCss}`}>{measure.autoRating}</td>
+      <td className={`actual-value ${rateCss}`}>{measure.midtermRating ||1}</td>
         <td className={`actual-value ${rateCssSupervisor}`}>
-        {measure.finalRating}
+        {measure.midtermAutoRating || 1}
       </td>
     </tr>
   );

@@ -11,7 +11,10 @@ import { useAppContext } from "../../shared/functions/Context";
 import { dataFormat } from "../../shared/functions/Directives";
 import showModalFromId from "../../shared/functions/ModalShow";
 import useIndividualScorecard from "../../shared/hooks/useIndividualScorecard";
-import { ALL_TAB, fullPerspectiveName } from "../../shared/interfaces/IPerspectiveTabs";
+import {
+  ALL_TAB,
+  fullPerspectiveName,
+} from "../../shared/interfaces/IPerspectiveTabs";
 import Measure from "../../shared/models/Measure";
 import Objective from "../../shared/models/Objective";
 import { IUser } from "../../shared/models/User";
@@ -19,7 +22,9 @@ import EmptyError from "../admin-settings/EmptyError";
 import EmployeeScorecardQ4ApprovalModal from "../dialogs/employee-scorecard-q4-approval/EmployeeScorecardQ4ApprovalModal";
 import EmployeeScorecardQ4RejectionModal from "../dialogs/employee-scorecard-q4-rejection/EmployeeScorecardQ4RejectionModal";
 import MODAL_NAMES from "../dialogs/ModalName";
-import NumberInput, { NumberInputValue } from "../shared/components/number-input/NumberInput";
+import NumberInput, {
+  NumberInputValue,
+} from "../shared/components/number-input/NumberInput";
 import Rating from "../shared/components/rating/Rating";
 import Tabs from "../shared/components/tabs/Tabs";
 import Toolbar from "../shared/components/toolbar/Toolbar";
@@ -177,8 +182,8 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
                 <th>Rate 5</th>
                 <th>Annual Target</th>
                 <th>Progress Update</th>
-                <th>Rating</th>
-                <th>Final Rating</th>
+                <th>Final E-Rating</th>
+                <th>Final S-Rating</th>
                 {canUpdate && <th></th>}
               </tr>
             </thead>
@@ -281,8 +286,8 @@ const EmployeeReviewQ4Cycle = observer(() => {
   const { agreement, loading } = useIndividualScorecard(uid);
 
   const user = store.user.selected;
-  
 
+  const measures = store.measure.getByUid(user.uid);
   const isDisabled = useMemo(
     () => !(agreement.quarter4Review.status === "submitted"),
     [agreement.quarter4Review.status]
@@ -302,6 +307,20 @@ const EmployeeReviewQ4Cycle = observer(() => {
     [agreement]
   );
 
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.midtermAutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+
+  const rating = getOverall();
   const handleApproval = () => {
     if (incompleteReviewError) {
       ui.snackbar.load({
@@ -390,7 +409,20 @@ const EmployeeReviewQ4Cycle = observer(() => {
               }
             />
           </ErrorBoundary>
-
+          <ErrorBoundary>
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
           <ErrorBoundary>
             {user && (
               <ObjectivesList tab={tab} user={user} canUpdate={canUpdate} />

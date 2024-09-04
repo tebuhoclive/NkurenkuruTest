@@ -282,9 +282,9 @@ const MeasureTable = (props: IMeasureTableProps) => {
               <th>Q3 Target</th>
               <th>Q4 Target</th>
               <th>Progress</th>
-              <th>Rating</th>
+              <th>Q1 E-Rating</th>
               {canUpdate && <th></th>}
-              {isApproved && <th>Q1 Rating</th>}
+              {isApproved && <th>Q1 S-Rating</th>}
             </tr>
           </thead>
           <tbody>
@@ -307,19 +307,50 @@ const MeasureTable = (props: IMeasureTableProps) => {
 
 interface IObjectiveItemProps {
   objective: ObjectiveCompany;
+  measures: MeasureCompany[];
+  agreement: IScorecardMetadata;
   children?: React.ReactNode;
 }
 const ObjectiveItem = (props: IObjectiveItemProps) => {
-  const { children, objective } = props;
-
+  const { children, objective,measures ,agreement} = props;
+  
+  // const getOverall = () => {
+  //   if (measures.length > 0) {
+  //     const overall = measures.reduce(
+  //       (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+  //       0
+  //     );
+  //     const averageRating = overall / measures.length;
+  //     return averageRating.toFixed(2);
+  //   } else {
+  //   }
+  //   return "";
+  // };
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+  
+  const rating =getOverall()
   const { description, perspective, weight } = objective.asJson;
-  const { rate, isUpdated } = objective.q1Rating;
+  const { rate, isUpdated } = objective.q2Rating;
+ 
+
+  
 
   return (
     <div className="objective uk-card uk-card-default uk-card-small uk-card-body uk-margin">
       <div className="uk-flex uk-flex-middle">
         <div className="uk-margin-right">
-          <Rating rate={rate} isUpdated={isUpdated} />
+          <Rating rate={rating} isUpdated={isUpdated} />
         </div>
         <h3 className="objective-name uk-width-1-1">
           {description}
@@ -346,7 +377,7 @@ const StrategicList = observer((props: IStrategicListProps) => {
     <div className="objective-table uk-margin">
       {objectives.map((objective) => (
         <ErrorBoundary key={objective.asJson.id}>
-          <ObjectiveItem objective={objective}>
+          <ObjectiveItem objective={objective} measures={objective.measures} agreement={agreement}>
             <MeasureTable measures={objective.measures} agreement={agreement} />
           </ObjectiveItem>
         </ErrorBoundary>
@@ -383,6 +414,12 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
       ? sorted
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
+  const { api, ui, store } = useAppContext();
+  const measures = store.companyMeasure.all;
+  const validMeasures = measures.filter(
+    (measure) => measure.asJson.q1AutoRating !== null
+  );
+ 
 
   if (agreement.agreementDraft.status !== "approved")
     return (
@@ -394,7 +431,21 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
         />
       </ErrorBoundary>
     );
-
+    const getOverall = (): number => {
+      if (measures.length > 0) {
+        const overall = measures.reduce(
+          (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+          0
+        );
+        const averageRating = overall / measures.length;
+        return parseFloat(averageRating.toFixed(2)); // Convert back to number
+      } else {
+        return 0; // Return 0 or any default value if measures is empty
+      }
+    };
+    
+    const rating =getOverall()
+    
   return (
     <ErrorBoundary>
       <div className="company-plan-view-page uk-section uk-section-small">
@@ -404,6 +455,8 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
               leftControls={<Tabs tab={tab} setTab={setTab} />}
               rightControls={
                 <ErrorBoundary>
+                
+            
                   <div className="uk-inline">
                     <button className="btn btn-primary">
                       More <span data-uk-icon="icon: more; ratio:.8"></span>
@@ -456,18 +509,44 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
                             size="lg"
                             className="icon uk-margin-small-right"
                           />
-                          Feedback
+                          Feedback 
                         </button>
                       </li>
                     </Dropdown>
 
                     
                   </div>
+                
                 </ErrorBoundary>
               }
             />
           </ErrorBoundary>
+          <ErrorBoundary>
+            <Toolbar
+            
+              leftControls={
+                <ErrorBoundary>
 
+           <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                   
+           
+                 
+                    
+    
+                
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                
+            
+                  <div className="uk-inline"> 
+                  </div>
+                
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
           <ErrorBoundary>
             {tab === MAP_TAB.id && <StrategicMap />}
             {tab !== MAP_TAB.id && (

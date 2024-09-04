@@ -12,8 +12,13 @@ import Modal from "../../shared/components/Modal";
 import { useAppContext } from "../../shared/functions/Context";
 import { dataFormat } from "../../shared/functions/Directives";
 import showModalFromId from "../../shared/functions/ModalShow";
-import { ALL_TAB, fullPerspectiveName, } from "../../shared/interfaces/IPerspectiveTabs";
-import MeasureCompany, { IMeasureCompany } from "../../shared/models/MeasureCompany";
+import {
+  ALL_TAB,
+  fullPerspectiveName,
+} from "../../shared/interfaces/IPerspectiveTabs";
+import MeasureCompany, {
+  IMeasureCompany,
+} from "../../shared/models/MeasureCompany";
 import ObjectiveCompany from "../../shared/models/ObjectiveCompany";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import EmptyError from "../admin-settings/EmptyError";
@@ -21,7 +26,9 @@ import CompanyScorecardQ1ApprovalModal from "../dialogs/company-scorecard-q1-app
 import CompanyScorecardQ1RejectionModal from "../dialogs/company-scorecard-q1-rejection/CompanyScorecardQ1RejectionModal";
 import MODAL_NAMES from "../dialogs/ModalName";
 import NoScorecardData from "../shared/components/no-scorecard-data/NoScorecardData";
-import NumberInput, { NumberInputValue } from "../shared/components/number-input/NumberInput";
+import NumberInput, {
+  NumberInputValue,
+} from "../shared/components/number-input/NumberInput";
 import Rating from "../shared/components/rating/Rating";
 import Tabs from "../shared/components/tabs/Tabs";
 import Toolbar from "../shared/components/toolbar/Toolbar";
@@ -165,14 +172,14 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
               <th>Baseline</th>
               <th>Annual Target</th>
               <th>Progress</th>
-              <th>Rating</th>
+              <th>Q1 E-Rating</th>
               {canUpdate && (
                 <>
-                  <th>Q1 Rating</th>
+                  <th>Q1 S-Rating</th>
                   <th></th>
                 </>
               )}
-              {isApproved && <th>Q1 Rating</th>}
+              {isApproved && <th>Q1 S-Rating</th>}
             </tr>
           </thead>
           <tbody>
@@ -196,9 +203,25 @@ const MeasureTable = observer((props: IMeasureTableProps) => {
 interface IObjectiveItemProps {
   objective: ObjectiveCompany;
   children?: React.ReactNode;
+  measures: MeasureCompany[];
+  agreement: IScorecardMetadata;
 }
 const ObjectiveItem = (props: IObjectiveItemProps) => {
-  const { children, objective } = props;
+  const { children, objective, measures } = props;
+  const getOverall = (): number => {
+    if (measures.length > 0) {
+      const overall = measures.reduce(
+        (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return parseFloat(averageRating.toFixed(2)); // Convert back to number
+    } else {
+      return 0; // Return 0 or any default value if measures is empty
+    }
+  };
+
+  const rating = getOverall();
 
   const { description, perspective, weight } = objective.asJson;
   const { rate, isUpdated } = objective.q1Rating;
@@ -207,7 +230,7 @@ const ObjectiveItem = (props: IObjectiveItemProps) => {
     <div className="objective uk-card uk-card-default uk-card-small uk-card-body uk-margin">
       <div className="uk-flex uk-flex-middle">
         <div className="uk-margin-right">
-          <Rating rate={rate} isUpdated={isUpdated} />
+          <Rating rate={rating} isUpdated={isUpdated} />
         </div>
         <h3 className="objective-name uk-width-1-1">
           {description}
@@ -234,7 +257,11 @@ const StrategicList = (props: IStrategicListProps) => {
     <div className="objective-table uk-margin">
       {objectives.map((objective) => (
         <ErrorBoundary key={objective.asJson.id}>
-          <ObjectiveItem objective={objective}>
+          <ObjectiveItem
+            objective={objective}
+            measures={objective.measures}
+            agreement={agreement}
+          >
             <MeasureTable measures={objective.measures} agreement={agreement} />
           </ObjectiveItem>
         </ErrorBoundary>
@@ -262,12 +289,28 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
   } = props;
 
   const [tab, setTab] = useState(ALL_TAB.id);
-
+  const { api, ui, store } = useAppContext();
+  const measures = store.companyMeasure.all;
+  const validMeasures = measures.filter(
+    (measure) => measure.asJson.q1AutoRating !== null
+  );
   const isActive = useMemo(
     () => agreement.quarter1Review.status === "submitted",
     [agreement.quarter1Review.status]
   );
 
+  const getOverall = () => {
+    if (validMeasures.length > 0) {
+      const overall = validMeasures.reduce(
+        (total, measure) => total + (measure.asJson.q1AutoRating || 0),
+        0
+      );
+      const averageRating = overall / measures.length;
+      return averageRating.toFixed(2);
+    } else {
+    }
+    return "";
+  };
   const filteredObjectivesByPerspective = useMemo(() => {
     const sorted = objectives.sort(sortByPerspective);
     return tab === ALL_TAB.id
@@ -275,17 +318,20 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
 
+
+  const rating =getOverall()
+  
   const handleApproval = () =>
     showModalFromId(MODAL_NAMES.EXECUTION.COMPANY_Q1_APPROVAL_MODAL);
 
   const handleRejection = () =>
     showModalFromId(MODAL_NAMES.EXECUTION.COMPANY_Q1_REJECTION_MODAL);
 
-
   if (
     agreement.quarter1Review.status === "pending" ||
     agreement.quarter1Review.status === "in-progress"
   )
+
     return (
       <ErrorBoundary>
         <NoScorecardData
@@ -379,7 +425,20 @@ const CompanyScorecardQ1Cycle = observer((props: IProps) => {
               }
             />
           </ErrorBoundary>
-
+          <ErrorBoundary>
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
+                </ErrorBoundary>
+              }
+            />
+          </ErrorBoundary>
           <ErrorBoundary>
             <div className="uk-margin">
               <StrategicList

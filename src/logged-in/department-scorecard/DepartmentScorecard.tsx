@@ -116,21 +116,18 @@ const ReviewCycleTabs = observer((props: IReviewStepProps) => {
     // Scorecard
     if (ads === "pending" || ads === "submitted") return "Scorecard";
     else if (
-      ads === "approved" &&
-      (q1r === "pending" || q1r === "in-progress" || q1r === "submitted")
+      ads === "approved" && (q1r === "pending" || q1r === "in-progress" || q1r === "submitted")
     )
       return "Q1 Reviews";
     else if (
-      q1r === "approved" &&
-      (q2r === "pending" || q2r === "in-progress" || q2r === "submitted")
-    )
+      q1r === "approved" && (q2r === "pending" || q2r === "in-progress" || q2r === "submitted") )
       return "Midterm Reviews";
     else if (
-      q2r === "approved" &&
-      (q3r === "pending" || q3r === "in-progress" || q3r === "submitted")
+      q2r === "approved" &&(q3r === "pending" || q3r === "in-progress" || q3r === "submitted")
     )
-      return "Q3 Reviews";
-    else if (q3r === "approved") return "Assessment";
+      return "Q3 Reviews"; 
+      
+      else if (q3r === "approved") return "Assessment";
     else return "Scorecard";
   }, [
     agreementDraft.status,

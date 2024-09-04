@@ -31,8 +31,8 @@ const MeasureTable = observer((props: IProps) => {
                 <th>Baseline</th>
                 <th>Target</th>
                 <th>Progress Update</th>
-                <th>Rating</th>
-                <th>Rating (Sup)</th>
+                <th>E-Rating</th>
+                <th>S-Rating</th>
               </tr>
             </thead>
             <tbody>
