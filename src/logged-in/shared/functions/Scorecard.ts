@@ -1,9 +1,12 @@
-import { IMeasure } from "../../../shared/models/Measure";
+import Measure, { IMeasure } from "../../../shared/models/Measure";
 import { IMeasureAudit } from "../../../shared/models/MeasureAudit";
 import { IMeasureAuditCompany } from "../../../shared/models/MeasureAuditCompany";
 import { IMeasureAuditDepartment } from "../../../shared/models/MeasureAuditDepartment";
-import { IMeasureCompany } from "../../../shared/models/MeasureCompany";
+import MeasureCompany, { IMeasureCompany } from "../../../shared/models/MeasureCompany";
 import { IMeasureDepartment } from "../../../shared/models/MeasureDepartment";
+import Objective, { IObjective } from "../../../shared/models/Objective";
+import ObjectiveCompany from "../../../shared/models/ObjectiveCompany";
+import { IScorecardMetadata } from "../../../shared/models/ScorecardMetadata";
 
 export const deriveCompanyNumberRating = (measure: IMeasureCompany) => {
   const { annualActual, annualTarget } = measure;
@@ -209,6 +212,217 @@ export const totalMidtermIndividualObjectiveRating = (
   rating = Math.round(rating * 10) / 10;
   return rating;
 };
+
+// export const CalculateOverallRatings = (
+//   measures: IMeasure[],
+//   objectives: IObjective[],
+//   metaData?: IScorecardMetadata
+// ) => {
+//   //kpis
+//   const kpiTotalScores: { [objectiveId: string]: number } = {};
+
+//   measures.forEach((measure) => {
+//     const objectiveId = measure.objective;
+//     const measureWeight = measure.weight;
+//     const finalRating2 = measure.finalRating;
+//     const totalScore = ((measureWeight || 0) / 100) * (finalRating2 || 0);
+
+//     if (!kpiTotalScores[objectiveId]) {
+//       kpiTotalScores[objectiveId] = 0;
+//     }
+
+//     kpiTotalScores[objectiveId] += totalScore;
+//   });
+
+//   //objectives
+//   const objectiveTotalScores: {
+//     [objectiveId: string]: {
+//       totalScore: number;
+//       perspective: string;
+//     };
+//   } = {};
+
+//   objectives.forEach((objective) => {
+//     const objectiveId = objective.id;
+//     const objectiveWeight = objective.weight;
+//     const perspective = objective.perspective;
+
+//     const totalMeasureScore = kpiTotalScores[objectiveId] || 0;
+//     const totalObjectiveScore =
+//       totalMeasureScore * ((objectiveWeight || 0) / 100);
+
+//     objectiveTotalScores[objectiveId] = {
+//       totalScore: totalObjectiveScore,
+//       perspective: perspective || "",
+//     };
+//   });
+
+
+//   // you will just add the objectrive to find the total score
+//   // Object to store the total scores grouped by perspective
+//   const totalScoresByPerspective: { [perspective: string]: number } = {};
+
+//   for (const objectiveId in objectiveTotalScores) {
+//     if (objectiveTotalScores.hasOwnProperty(objectiveId)) {
+//       const { totalScore, perspective } = objectiveTotalScores[objectiveId];
+
+//       if (!totalScoresByPerspective.hasOwnProperty(perspective)) {
+//         totalScoresByPerspective[perspective] = 0;
+//       }
+
+//       totalScoresByPerspective[perspective] += totalScore;
+//     }
+//   }
+
+ 
+ 
+// };
+export const CalculateOverallRatings = (
+  measures: IMeasure[],
+  objectives: IObjective[],
+  metaData?: IScorecardMetadata
+) => {
+  // Store total scores for each objective
+  const kpiTotalScores: { [objectiveId: string]: number } = {};
+
+  // Step 1: Calculate the weighted score for each measure
+  measures.forEach((measure) => {
+    const objectiveId = measure.objective;
+    const measureWeight = measure.weight || 0;
+    const finalRating2 = measure.finalRating || 0;
+
+    const totalScore = (measureWeight / 100) * finalRating2;
+
+    if (!kpiTotalScores[objectiveId]) {
+      kpiTotalScores[objectiveId] = 0;
+    }
+
+    kpiTotalScores[objectiveId] += totalScore;
+  });
+
+  // Step 2: Calculate the weighted score for each objective
+  const objectiveTotalScores: {
+    [objectiveId: string]: {
+      totalScore: number;
+      perspective: string;
+    };
+  } = {};
+
+  objectives.forEach((objective) => {
+    const objectiveId = objective.id;
+    const objectiveWeight = objective.weight || 0;
+    const perspective = objective.perspective || "";
+
+    const totalMeasureScore = kpiTotalScores[objectiveId] || 0;
+    const totalObjectiveScore = totalMeasureScore * (objectiveWeight / 100);
+
+    objectiveTotalScores[objectiveId] = {
+      totalScore: totalObjectiveScore,
+      perspective: perspective,
+    };
+  });
+
+  // Step 3: Sum up the scores by perspective
+  const totalScoresByPerspective: { [perspective: string]: number } = {};
+
+  for (const objectiveId in objectiveTotalScores) {
+    const { totalScore, perspective } = objectiveTotalScores[objectiveId];
+
+    if (!totalScoresByPerspective[perspective]) {
+      totalScoresByPerspective[perspective] = 0;
+    }
+
+    totalScoresByPerspective[perspective] += totalScore;
+  }
+
+  // Step 4: Calculate the overall score by summing all perspectives
+  let overallScore = 0;
+  for (const perspective in totalScoresByPerspective) {
+    overallScore += totalScoresByPerspective[perspective];
+  }
+
+  // Step 5: Return the overall score
+  return overallScore;
+};
+
+
+export const CalculateOverallCompanyRatings = (
+  measures: MeasureCompany[],
+  objectives: ObjectiveCompany[]
+) => {
+  // Store total scores for each objective
+  const kpiTotalScores: { [objectiveId: string]: number } = {};
+  console.log("KPI:", measures);
+  // Step 1: Calculate the weighted score for each measure
+  measures.forEach((measure) => {
+    const objectiveId = measure.asJson.objective;
+    const measureWeight = measure.asJson.weight || 0;
+    const finalRating2 = measure.asJson.q4AutoRating || 0;
+
+    const totalScore = (measureWeight / 100) * finalRating2;
+
+    if (!kpiTotalScores[objectiveId]) {
+      kpiTotalScores[objectiveId] = 0;
+    }
+
+    kpiTotalScores[objectiveId] += totalScore;
+  });
+
+  console.log("KPI Total Scores:", kpiTotalScores);
+
+  // Step 2: Calculate the weighted score for each objective
+  const objectiveTotalScores: {
+    [objectiveId: string]: {
+      totalScore: number;
+      perspective: string;
+    };
+  } = {};
+
+  objectives.forEach((objective) => {
+    const objectiveId = objective.asJson.id;
+    const objectiveWeight = objective.asJson.weight || 0;
+    const perspective = objective.asJson.perspective || "";
+
+    const totalMeasureScore = kpiTotalScores[objectiveId] || 0;
+    const totalObjectiveScore = totalMeasureScore * (objectiveWeight / 100);
+
+    objectiveTotalScores[objectiveId] = {
+      totalScore: totalObjectiveScore,
+      perspective: perspective,
+    };
+  });
+
+  console.log("Objective Total Scores:", objectiveTotalScores);
+
+  // Step 3: Sum up the scores by perspective
+  const totalScoresByPerspective: { [perspective: string]: number } = {};
+
+  for (const objectiveId in objectiveTotalScores) {
+    const { totalScore, perspective } = objectiveTotalScores[objectiveId];
+
+    if (!totalScoresByPerspective[perspective]) {
+      totalScoresByPerspective[perspective] = 0;
+    }
+
+    totalScoresByPerspective[perspective] += totalScore;
+  }
+
+  console.log("Total Scores by Perspective:", totalScoresByPerspective);
+
+  // Step 4: Calculate the overall score by summing all perspectives
+  let overallScore = 0;
+  for (const perspective in totalScoresByPerspective) {
+    overallScore += totalScoresByPerspective[perspective];
+  }
+
+  console.log("Overall Score:", overallScore);
+
+  // Step 5: Return the overall score
+  return overallScore;
+};
+
+
+
 
 export const statusClass = (status: string): string => {
   switch (status) {

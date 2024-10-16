@@ -19,6 +19,8 @@ export interface IUserPerformanceData {
   measures: IMeasure[];
   rating: number;
   supervisorMidtermRating:number;
+  supervisorFinalAssesmentRating:number;
+  employeeFinalAssesmentRating:number;
   
   weight: number;
   weightValidity: boolean;

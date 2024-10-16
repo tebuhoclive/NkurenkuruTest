@@ -19,7 +19,7 @@ import {
 import MeasureCompany, {
   IMeasureCompany,
 } from "../../shared/models/MeasureCompany";
-import ObjectiveCompany from "../../shared/models/ObjectiveCompany";
+import ObjectiveCompany, { IObjectiveCompany } from "../../shared/models/ObjectiveCompany";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import EmptyError from "../admin-settings/EmptyError";
 import CompanyScorecardQ3ApprovalModal from "../dialogs/company-scorecard-q3-approval/CompanyScorecardQ3ApprovalModal";
@@ -301,21 +301,53 @@ const CompanyScorecardQ3Cycle = observer((props: IProps) => {
       ? sorted
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
-  const getOverall = (): number => {
-    if (measures.length > 0) {
-      const overall = measures.reduce(
-        (total, measure) => total + (measure.asJson.q3AutoRating || 0),
-        0
+
+    
+  const allObjectives = objectives.map((o) => o.asJson);
+
+  const allMeasures = measures.map((o) => o.asJson);
+
+  const CalculateOverallRatingsCompany = (
+    measures: IMeasureCompany[],
+    objectives: IObjectiveCompany[]
+  ): number => {
+    // Store the total weighted score
+    let totalWeightedScore = 0;
+
+    objectives.forEach((objective) => {
+      const objectiveId = objective.id;
+      const objectiveWeight = objective.weight || 0; // Objective weight
+
+      // Get all measures related to the current objective
+      const objectiveMeasures = measures.filter(
+        (measure) => measure.objective === objectiveId
       );
-      const averageRating = overall / measures.length;
-      return parseFloat(averageRating.toFixed(2)); // Convert back to number
-    } else {
-      return 0; // Return 0 or any default value if measures is empty
-    }
+
+
+      // Step 1: Calculate the average of the measure ratings for the objective
+      const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
+        const finalRating = measure.q3AutoRating || 0;
+        return sum + finalRating;
+      }, 0);
+
+      // If no measures, the average is 0
+      const averageMeasureScore =
+        objectiveMeasures.length > 0
+          ? totalMeasureRating / objectiveMeasures.length
+          : 0;
+
+      // Step 2: Calculate the weighted score for the objective
+      const weightedScore = averageMeasureScore * (objectiveWeight / 100);
+    
+
+      // Accumulate the weighted score to the total
+      totalWeightedScore += weightedScore;
+    });
+
+    return parseFloat(totalWeightedScore.toFixed(2)) // Return the total weighted score
+    
   };
-  
-  const rating =getOverall()
-  
+
   const handleApproval = () =>
     showModalFromId(MODAL_NAMES.EXECUTION.COMPANY_Q3_APPROVAL_MODAL);
 
@@ -423,7 +455,7 @@ const CompanyScorecardQ3Cycle = observer((props: IProps) => {
             <Toolbar
               leftControls={
                 <ErrorBoundary>
-                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                  <h6 className="uk-title">OVERALL RATING:  {CalculateOverallRatingsCompany(allMeasures,allObjectives)}</h6>
                 </ErrorBoundary>
               }
               rightControls={

@@ -84,8 +84,27 @@ const UserForm = observer((props: IProps) => {
       </div>
 
       <div className="uk-width-1-1">
+        <label className="uk-form-label" htmlFor="add-to-reports">
+          Add to reports
+        </label>
+        <div className="uk-form-controls">
+          <label className="uk-switch">
+            <input
+              type="checkbox"
+              id="add-to-reports"
+              checked={user.onReports} // Ensure onReports is boolean
+              onChange={(e) =>
+                setUser({ ...user, onReports: e.target.checked })
+              }
+            />
+            <span className="uk-switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div className="uk-width-1-1">
         <label className="uk-form-label" htmlFor="user-reporting-to">
-          Reporting to
+          Add to reports
         </label>
         <div className="uk-form-controls">
           <SingleSelect

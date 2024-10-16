@@ -55,7 +55,6 @@ import { SubordinateScorecard } from "./logged-in/execution-scorecard/subordinat
 import JobDashboard from "./logged-in/job-cards/dashboard/JobCardDashboard";
 import MoreJobCards from "./logged-in/job-cards/MoreJobCards";
 
-
 import JobCardManagement from "./logged-in/job-cards/jobcard-management/JobCardManagement";
 import CreatedJoCardMain from "./logged-in/job-cards/create-jobcard/CreateJobCardMain";
 import AllocateJobCardMain from "./logged-in/job-cards/allocate-jobcard/AllocateJobCardMain";
@@ -493,7 +492,6 @@ const ADMIN_USER_ROUTES = () => {
           <Route path="drive" element={<Drive />} />
           <Route path="drive/:id" element={<Drive />} />
 
-         
           {/*JOBCARD*/}
           <Route path="job-cards/dashboard" element={<JobDashboard />} />
           <Route path="job-cards/create" element={<CreatedJoCardMain />} />
@@ -656,7 +654,7 @@ const SUPERVISOR_USER_ROUTES = () => {
 //             path="strategy/company/:fyid/:objectiveId"
 //             element={<CompanyScorecardObjective />}
 //           />
-         
+
 //           {/*JOBCARD*/}
 //           <Route path="job-cards/dashboard" element={<JobDashboard />} />
 //           <Route path="job-cards/create" element={<CreatedJoCardMain />} />
@@ -756,7 +754,6 @@ const SUPERVISOR_USER_ROUTES = () => {
 //     </BrowserRouter>
 //   );
 // };
-
 
 const EMPLOYEE_USER_ROUTES = () => {
   return (

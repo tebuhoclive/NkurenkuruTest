@@ -22,7 +22,8 @@ const PeopleTabContent = observer(() => {
   const labels = ["Rating 1", "Rating 2", "Rating 3", "Rating 4", "Rating 5"];
   // user data
   const userData = store.report.allUserPerformanceData;
-  console.log("userData", userData);
+console.log("User data",userData);
+
 
   // group finalRating
    const groupRating = userData.reduce(

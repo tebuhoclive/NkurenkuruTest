@@ -78,6 +78,8 @@ export interface IReportTableRowItem {
   finalRating: number;
   rating:number;
   supervisorMidtermRating:number;
+  supervisorFinalAssesmentRating:number;
+  employeeFinalAssesmentRating:number
 }
 
 const q2DocumentDefinition = (data: UserPerformanceData[]) => {
@@ -90,6 +92,8 @@ const q2DocumentDefinition = (data: UserPerformanceData[]) => {
       department: d.asJson.departmentName,
       midtermAutoRating: d.asJson.midtermRating,
       supervisorMidtermRating:d.asJson.supervisorMidtermRating,
+      supervisorFinalAssesmentRating:d.asJson.supervisorFinalAssesmentRating,
+      employeeFinalAssesmentRating:d.asJson.employeeFinalAssesmentRating,
       midtermRating: d.asJson.midtermRating,
       autoRating: d.asJson.autoRating,
       finalRating: d.asJson.finalRating,
@@ -109,8 +113,7 @@ export const ReportPDF = async (
 ) => {
   const logo = await brandLogo();
   const _charts = await charts(chartsimage);
-  console.log("here is my user best  data", best);
-    console.log("here is my user worst data", best);
+ 
   const bestrows: IReportTableRowItem[] = q2DocumentDefinition(best);
   const worstrows: IReportTableRowItem[] = q2DocumentDefinition(worst);
 
@@ -120,8 +123,8 @@ export const ReportPDF = async (
       row.department,
       { text: row.rating, fillColor: "#fcecec" },
       { text: row.supervisorMidtermRating, fillColor: "#fcecec" },
-      { text: row.autoRating, fillColor: "#caf1de" },
-      { text: row.finalRating, fillColor: "#caf1de" },
+      { text: row.employeeFinalAssesmentRating, fillColor: "#caf1de" },
+      { text: row.supervisorFinalAssesmentRating, fillColor: "#caf1de" },
     ];
   });
   const worstmappedRows: Row[] = worstrows.map((row) => {
@@ -130,8 +133,8 @@ export const ReportPDF = async (
       row.department,
       { text: row.rating, fillColor: "#fcecec" },
       { text: row.supervisorMidtermRating, fillColor: "#fcecec" },
-      { text: row.autoRating, fillColor: "#caf1de" },
-      { text: row.finalRating, fillColor: "#caf1de" },
+      { text: row.employeeFinalAssesmentRating, fillColor: "#caf1de" },
+      { text: row.supervisorFinalAssesmentRating, fillColor: "#caf1de" },
     ];
   });
 

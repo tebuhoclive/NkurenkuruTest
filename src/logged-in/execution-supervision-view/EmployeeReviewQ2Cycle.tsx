@@ -15,8 +15,8 @@ import {
   ALL_TAB,
   fullPerspectiveName,
 } from "../../shared/interfaces/IPerspectiveTabs";
-import Measure from "../../shared/models/Measure";
-import Objective from "../../shared/models/Objective";
+import Measure, { IMeasure } from "../../shared/models/Measure";
+import Objective, { IObjective } from "../../shared/models/Objective";
 import { IUser } from "../../shared/models/User";
 import EmptyError from "../admin-settings/EmptyError";
 import EmployeeScorecardQ2ApprovalModal from "../dialogs/employee-scorecard-q2-approval/EmployeeScorecardQ2ApprovalModal";
@@ -148,7 +148,7 @@ const MeasureTableItem = (props: IMeasureTableItemProps) => {
           </>
         ) : (
           <td className={`no-whitespace actual-value ${rateCss}`}>
-            {measure.midtermRating || measure.midtermAutoRating || "-"}
+            {measure.midtermRating || "-"}
           </td>
         )}
       </tr>
@@ -277,6 +277,17 @@ const ObjectivesList = observer((props: IObjectivesListProps) => {
   );
 });
 
+// interface IMeasure {
+//   objective: string; // Linked objective ID
+//   weight: number;
+//   finalRating: number;
+// }
+
+// interface IObjective {
+//   id: string;
+//   weight: number;
+//   perspective: string;
+// }
 // Midterm Scorecard Content
 const EmployeeReviewQ2Cycle = observer(() => {
   const { store, ui } = useAppContext();
@@ -285,27 +296,59 @@ const EmployeeReviewQ2Cycle = observer(() => {
   const { agreement, loading } = useIndividualScorecard(uid);
 
   const user = store.user.selected;
-  const allUsers = store.user.all;
-const measures =store.measure.getByUid(user.uid)
+
+  const myMeasures = store.measure.getByUid(uid);
+  const myObjectives = store.objective.getByUid(uid);
+
+  const AllMyObjectives = myObjectives.map((o) => o.asJson);
+  const measures = myMeasures.map((o) => o.asJson);
+
   const isDisabled = useMemo(
     () => !(agreement.quarter2Review.status === "submitted"),
     [agreement.quarter2Review.status]
   );
- 
-  const getOverall = (): number => {
-    if (measures.length > 0) {
-      const overall = measures.reduce(
-        (total, measure) => total + (measure.asJson.midtermAutoRating || 0),
-        0
+
+
+  const CalculateOverallRatingsEmployee = (
+    measures: IMeasure[],
+    objectives: IObjective[]
+  ): number => {
+    // Store the total weighted score
+    let totalWeightedScore = 0;
+
+    objectives.forEach((objective) => {
+      const objectiveId = objective.id;
+      const objectiveWeight = objective.weight || 0; // Objective weight
+
+      // Get all measures related to the current objective
+      const objectiveMeasures = measures.filter(
+        (measure) => measure.objective === objectiveId
       );
-      const averageRating = overall / measures.length;
-      return parseFloat(averageRating.toFixed(2)); // Convert back to number
-    } else {
-      return 0; // Return 0 or any default value if measures is empty
-    }
+      console.log("all measures", objectiveMeasures);
+
+      // Step 1: Calculate the average of the measure ratings for the objective
+      const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
+        const finalRating = measure.midtermRating || 0;
+        return sum + finalRating;
+      }, 0);
+
+      // If no measures, the average is 0
+      const averageMeasureScore =
+        objectiveMeasures.length > 0
+          ? totalMeasureRating / objectiveMeasures.length
+          : 0;
+
+      // Step 2: Calculate the weighted score for the objective
+      const weightedScore = averageMeasureScore * (objectiveWeight / 100);
+      console.log("Scores for each ", weightedScore);
+
+      // Accumulate the weighted score to the total
+      totalWeightedScore += weightedScore;
+    });
+
+    return totalWeightedScore; // Return the total weighted score
   };
-  
-  const rating =getOverall()
+
   const incompleteReviewError = useMemo(
     () =>
       user &&
@@ -412,7 +455,11 @@ const measures =store.measure.getByUid(user.uid)
             <Toolbar
               leftControls={
                 <ErrorBoundary>
-                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                  <h6 className="uk-title">
+                    OVERALL RATING:
+                 
+                    {CalculateOverallRatingsEmployee(measures, AllMyObjectives)}
+                  </h6>
                 </ErrorBoundary>
               }
               rightControls={

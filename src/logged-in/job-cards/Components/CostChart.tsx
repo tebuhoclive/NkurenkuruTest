@@ -33,15 +33,12 @@ const CostChart = ({ totalCost }) => {
 
   return (
     <div className="cost-chart-container">
-      <div className="doughnut-chart" >
+      <div className="doughnut-chart">
         <Doughnut data={data} options={options} />
-        <div className="chart-middle-text ">
+        <div className="chart-middle-text">
           <div>Total Cost</div>
           <div>N$ {totalCost.toLocaleString()}</div>
-          <div>
-            Yearly 
-            {/* <br /> {Math.round((yearlyCost / totalCost) * 100)}% */}
-          </div>
+          <div>Yearly</div>
         </div>
       </div>
     </div>

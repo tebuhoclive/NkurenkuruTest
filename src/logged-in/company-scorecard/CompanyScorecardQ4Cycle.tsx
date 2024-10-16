@@ -20,8 +20,8 @@ import {
   fullPerspectiveName,
   MAP_TAB,
 } from "../../shared/interfaces/IPerspectiveTabs";
-import MeasureCompany from "../../shared/models/MeasureCompany";
-import ObjectiveCompany from "../../shared/models/ObjectiveCompany";
+import MeasureCompany, { IMeasureCompany } from "../../shared/models/MeasureCompany";
+import ObjectiveCompany, { IObjectiveCompany } from "../../shared/models/ObjectiveCompany";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import { IScorecardReview } from "../../shared/models/ScorecardReview";
 import EmptyError from "../admin-settings/EmptyError";
@@ -424,6 +424,53 @@ const CompanyScorecardQ4Cycle = observer((props: IProps) => {
   
   const rating =getOverall()
   
+  
+  const allObjectives = objectives.map((o) => o.asJson);
+
+  const allMeasures = measures.map((o) => o.asJson);
+
+  const CalculateOverallRatingsEmployee = (
+    measures: IMeasureCompany[],
+    objectives: IObjectiveCompany[]
+  ): number => {
+    // Store the total weighted score
+    let totalWeightedScore = 0;
+
+    objectives.forEach((objective) => {
+      const objectiveId = objective.id;
+      const objectiveWeight = objective.weight || 0; // Objective weight
+
+      // Get all measures related to the current objective
+      const objectiveMeasures = measures.filter(
+        (measure) => measure.objective === objectiveId
+      );
+
+
+      // Step 1: Calculate the average of the measure ratings for the objective
+      const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
+        const finalRating = measure.q4AutoRating || 0;
+        return sum + finalRating;
+      }, 0);
+
+      // If no measures, the average is 0
+      const averageMeasureScore =
+        objectiveMeasures.length > 0
+          ? totalMeasureRating / objectiveMeasures.length
+          : 0;
+
+      // Step 2: Calculate the weighted score for the objective
+      const weightedScore = averageMeasureScore * (objectiveWeight / 100);
+    
+
+      // Accumulate the weighted score to the total
+      totalWeightedScore += weightedScore;
+    });
+
+    return parseFloat(totalWeightedScore.toFixed(2)) // Return the total weighted score
+    
+  };
+
+
   if (agreement.quarter3Review.status !== "approved")
     return (
       <ErrorBoundary>
@@ -509,7 +556,7 @@ const CompanyScorecardQ4Cycle = observer((props: IProps) => {
             <Toolbar
               leftControls={
                 <ErrorBoundary>
-                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                  <h6 className="uk-title">OVERALL RATING:  {CalculateOverallRatingsEmployee(allMeasures,allObjectives)}</h6>
                 </ErrorBoundary>
               }
               rightControls={

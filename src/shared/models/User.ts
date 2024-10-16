@@ -19,6 +19,7 @@ export const defaultUser: IUser = {
   supervisor: "none",
   role: "Employee",
   disabled: false,
+
 };
 
 export interface IUser {
@@ -40,6 +41,7 @@ export interface IUser {
   jobTitle: string | null;
   devUser?: boolean;
   disabled?: boolean;
+  onReports?: boolean,
 }
 
 export default class User {

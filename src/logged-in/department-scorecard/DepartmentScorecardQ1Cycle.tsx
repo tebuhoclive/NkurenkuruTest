@@ -19,8 +19,8 @@ import {
   fullPerspectiveName,
   MAP_TAB,
 } from "../../shared/interfaces/IPerspectiveTabs";
-import MeasureDepartment from "../../shared/models/MeasureDepartment";
-import ObjectiveDepartment from "../../shared/models/ObjectiveDepartment";
+import MeasureDepartment, { IMeasureDepartment } from "../../shared/models/MeasureDepartment";
+import ObjectiveDepartment, { IObjectiveDepartment } from "../../shared/models/ObjectiveDepartment";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import { IScorecardReview } from "../../shared/models/ScorecardReview";
 import EmptyError from "../admin-settings/EmptyError";
@@ -382,27 +382,63 @@ const DepartmentScorecardQ1Cycle = observer((props: IProps) => {
 
   const [tab, setTab] = useState(ALL_TAB.id);
   const { api, ui, store } = useAppContext();
-  const measures = store.companyMeasure.all;
+
+
+  const measures = store.departmentMeasure.getByDepartment(agreement.department)
   const filteredObjectivesByPerspective = useMemo(() => {
     const sorted = objectives.sort(sortByPerspective);
     return tab === ALL_TAB.id
       ? sorted
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
-  const getOverall = (): number => {
-    if (measures.length > 0) {
-      const overall = measures.reduce(
-        (total, measure) => total + (measure.asJson.q1AutoRating || 0),
-        0
-      );
-      const averageRating = overall / measures.length;
-      return parseFloat(averageRating.toFixed(2)); // Convert back to number
-    } else {
-      return 0; // Return 0 or any default value if measures is empty
-    }
-  };
+
+
+ 
   
-  const rating =getOverall()
+  const allObjectives = objectives.map((o) => o.asJson);
+
+  const allMeasures = measures.map((o) => o.asJson);
+
+  const CalculateOverallRatingsEmployee = (
+    measures:IMeasureDepartment[],
+    objectives:  IObjectiveDepartment[]
+  ): number => {
+    // Store the total weighted score
+    let totalWeightedScore = 0;
+
+    objectives.forEach((objective) => {
+      const objectiveId = objective.id;
+      const objectiveWeight = objective.weight || 0; // Objective weight
+
+      // Get all measures related to the current objective
+      const objectiveMeasures = measures.filter(
+        (measure) => measure.objective === objectiveId
+      );
+
+
+      // Step 1: Calculate the average of the measure ratings for the objective
+      const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
+        const finalRating = measure.q3AutoRating || 0;
+        return sum + finalRating;
+      }, 0);
+
+      // If no measures, the average is 0
+      const averageMeasureScore =
+        objectiveMeasures.length > 0
+          ? totalMeasureRating / objectiveMeasures.length
+          : 0;
+
+      // Step 2: Calculate the weighted score for the objective
+      const weightedScore = averageMeasureScore * (objectiveWeight / 100);
+    
+
+      // Accumulate the weighted score to the total
+      totalWeightedScore += weightedScore;
+    });
+
+    return parseFloat(totalWeightedScore.toFixed(2)) // Return the total weighted score
+    
+  };
   
   if (agreement.agreementDraft.status !== "approved")
     return (
@@ -489,7 +525,7 @@ const DepartmentScorecardQ1Cycle = observer((props: IProps) => {
             <Toolbar
               leftControls={
                 <ErrorBoundary>
-                  <h6 className="uk-title">OVERALL RATING: {rating}</h6>
+                  <h6 className="uk-title">OVERALL RATING:  {CalculateOverallRatingsEmployee(allMeasures,allObjectives)}</h6>
                 </ErrorBoundary>
               }
               rightControls={

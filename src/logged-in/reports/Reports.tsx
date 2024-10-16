@@ -49,14 +49,25 @@ const Reports = observer(() => {
       }, 0) / measures.length;
     return Math.round((rating || 1) * 10) / 10;
   };
+     // calculate the supervisor for each user supervisor rating
+     const totalSupervisorFinalAssesmentRating = (measures: IMeasure[]) => {
+      const rating =
+        measures.reduce((acc, measure) => {
+          return acc + (measure.finalRating || measure.autoRating || 1);
+        }, 0) / measures.length;
+      return Math.round((rating || 1) * 10) / 10;
+    };
+        // calculate the supervisor for each user supervisor rating
+        const totalEmployeeFinalAssesmentRating = (measures: IMeasure[]) => {
+          const rating =
+            measures.reduce((acc, measure) => {
+              return acc + (measure.autoRating || 1);
+            }, 0) / measures.length;
+          return Math.round((rating || 1) * 10) / 10;
+        };
+    
 
-  // verify the measures weight per user add up to 100
-  // const verifyTotalWeight = (measures: IMeasure[]) => {
-  //   const weight = totalWeight(measures);
-  //   if (weight !== 100) return false;
-  //   return true;
-  // };
-
+ 
   const verifyTotalWeight = useCallback((measures: IMeasure[]) => {
     const weight = totalWeight(measures);
     if (weight !== 100) return false;
@@ -101,7 +112,8 @@ const Reports = observer(() => {
   const userPerformanceData = useCallback(() => {
     const data: IUserPerformanceData[] = [];
     for (const user of users) {
-      if (user.devUser) continue;
+      if (user.devUser || user.onReports) continue;  // Skip if the user is a dev user or is on reports
+
       // get user measures
       const $measures = userMeasures(measures, user);
       // get department name from department id
@@ -110,7 +122,9 @@ const Reports = observer(() => {
       const rating = totalRating($measures);
 
       const supervisorMidtermRating = totalSupervisorRating($measures);
+      const supervisorFinalAssesmentRating = totalSupervisorFinalAssesmentRating($measures);
       // verify the measures weight per user add up to 100
+      const employeeFinalAssesmentRating= totalEmployeeFinalAssesmentRating($measures);
       const weightValidity = verifyTotalWeight($measures);
       // weight value
       const weight = totalWeight($measures);
@@ -122,6 +136,8 @@ const Reports = observer(() => {
         departmentName,
         rating,
         supervisorMidtermRating,
+        supervisorFinalAssesmentRating ,
+        employeeFinalAssesmentRating,
         uid: user.uid,
         userName: user.displayName || "",
         weight,
