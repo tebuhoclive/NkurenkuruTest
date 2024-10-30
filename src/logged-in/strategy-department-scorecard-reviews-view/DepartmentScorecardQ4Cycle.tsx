@@ -10,7 +10,7 @@ import { dataFormat } from "../../shared/functions/Directives";
 import showModalFromId from "../../shared/functions/ModalShow";
 import { ALL_TAB, fullPerspectiveName } from "../../shared/interfaces/IPerspectiveTabs";
 import MeasureDepartment, { IMeasureDepartment } from "../../shared/models/MeasureDepartment";
-import ObjectiveDepartment from "../../shared/models/ObjectiveDepartment";
+import ObjectiveDepartment, { IObjectiveDepartment } from "../../shared/models/ObjectiveDepartment";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import EmptyError from "../admin-settings/EmptyError";
 import DepartmentScorecardQ4ApprovalModal from "../dialogs/department-scorecard-q4-approval/DepartmentScorecardQ4ApprovalModal";
@@ -270,7 +270,52 @@ const DepartmentScorecardQ4Cycle = observer((props: IProps) => {
   } = props;
 
   const [tab, setTab] = useState(ALL_TAB.id);
+  const { store } = useAppContext();
+  const measures = store.departmentMeasure.all
+  const allObjectives = objectives.map((o) => o.asJson);
 
+  const allMeasures = measures.map((o) => o.asJson);
+
+  const CalculateOverallRatingsDepartment = (
+    measures:IMeasureDepartment[],
+    objectives:  IObjectiveDepartment[]
+  ): number => {
+    // Store the total weighted score
+    let totalWeightedScore = 0;
+
+    objectives.forEach((objective) => {
+      const objectiveId = objective.id;
+      const objectiveWeight = objective.weight || 0; // Objective weight
+
+      // Get all measures related to the current objective
+      const objectiveMeasures = measures.filter(
+        (measure) => measure.objective === objectiveId
+      );
+
+
+      // Step 1: Calculate the average of the measure ratings for the objective
+      const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
+        const finalRating = measure.q4AutoRating || 0;
+        return sum + finalRating;
+      }, 0);
+
+      // If no measures, the average is 0
+      const averageMeasureScore =
+        objectiveMeasures.length > 0
+          ? totalMeasureRating / objectiveMeasures.length
+          : 0;
+
+      // Step 2: Calculate the weighted score for the objective
+      const weightedScore = averageMeasureScore * (objectiveWeight / 100);
+    
+
+      // Accumulate the weighted score to the total
+      totalWeightedScore += weightedScore;
+    });
+
+    return parseFloat(totalWeightedScore.toFixed(2)) // Return the total weighted score
+    
+  };
   const isActive = useMemo(
     () => agreement.quarter4Review.status === "submitted",
     [agreement.quarter4Review.status]
@@ -389,6 +434,24 @@ const DepartmentScorecardQ4Cycle = observer((props: IProps) => {
 
           <ErrorBoundary>
             <div className="uk-margin">
+            <Toolbar
+              leftControls={
+                <ErrorBoundary>
+                  <h6 className="uk-title">
+                    OVERALL RATING:{" "}
+                    {CalculateOverallRatingsDepartment(
+                      allMeasures,
+                      allObjectives
+                    )}
+                  </h6>
+                </ErrorBoundary>
+              }
+              rightControls={
+                <ErrorBoundary>
+                  <div className="uk-inline"></div>
+                </ErrorBoundary>
+              }
+            />
               <StrategicList
                 agreement={agreement}
                 objectives={filteredObjectivesByPerspective}

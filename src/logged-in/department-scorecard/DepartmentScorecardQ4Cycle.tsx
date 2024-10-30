@@ -242,7 +242,7 @@ const MeasureTableItem = (props: IMeasureTableItemProps) => {
       )}
       {isApproved && (
         <td className={`no-whitespace actual-value ${rateCss}`}>
-          {measure.q4Rating || measure.q4AutoRating || "-"}
+          { measure.q4AutoRating || "-"}
         </td>
       )}
     </tr>
@@ -307,19 +307,27 @@ const MeasureTable = (props: IMeasureTableProps) => {
 
 interface IObjectiveItemProps {
   objective: ObjectiveDepartment;
+  measures: MeasureDepartment[];
   children?: React.ReactNode;
 }
 const ObjectiveItem = (props: IObjectiveItemProps) => {
-  const { children, objective } = props;
+  const { children, objective ,measures} = props;
 
   const { description, perspective, weight } = objective.asJson;
   const { rate, isUpdated } = objective.q4Rating;
+  console.log("My measures in this objective", measures);
 
+  const sumMeasures = measures.reduce((acc, measure) => acc + measure.asJson.q4AutoRating, 0);  // Summing up all measures
+  const averageMeasure = sumMeasures / measures.length;  // Calculating the average measure
+  
+  // Assuming objectiveWeight is a value between 0 and 1, representing the percentage weight of this objective
+  const objectiveRating = averageMeasure * (objective.asJson.weight/100);  // Applying the weight to the average
+  
   return (
     <div className="objective uk-card uk-card-default uk-card-small uk-card-body uk-margin">
       <div className="uk-flex uk-flex-middle">
         <div className="uk-margin-right">
-          <Rating rate={rate} isUpdated={isUpdated} />
+          <Rating rate={averageMeasure} isUpdated={isUpdated} />
         </div>
         <h3 className="objective-name uk-width-1-1">
           {description}
@@ -347,7 +355,7 @@ const StrategicList = observer((props: IStrategicListProps) => {
     <div className="objective-table uk-margin">
       {objectives.map((objective) => (
         <ErrorBoundary key={objective.asJson.id}>
-          <ObjectiveItem objective={objective}>
+         <ObjectiveItem objective={objective} measures={objective.measures}>
             <MeasureTable
               measures={objective.measures}
               agreement={agreement}
@@ -390,7 +398,7 @@ const DepartmentScorecardQ4Cycle = observer((props: IProps) => {
       : sorted.filter((o) => o.asJson.perspective === tab);
   }, [objectives, tab]);
 
-  const measures = store.departmentMeasure.getByDepartment(agreement.department)
+  const measures = store.departmentMeasure.all
   const allObjectives = objectives.map((o) => o.asJson);
 
   const allMeasures = measures.map((o) => o.asJson);
@@ -413,7 +421,7 @@ const DepartmentScorecardQ4Cycle = observer((props: IProps) => {
 
       // Step 1: Calculate the average of the measure ratings for the objective
       const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
-        const finalRating = measure.q3AutoRating || 0;
+        const finalRating = measure.q4AutoRating || 0;
         return sum + finalRating;
       }, 0);
 

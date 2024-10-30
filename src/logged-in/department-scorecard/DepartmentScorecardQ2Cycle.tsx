@@ -19,8 +19,12 @@ import {
   fullPerspectiveName,
   MAP_TAB,
 } from "../../shared/interfaces/IPerspectiveTabs";
-import MeasureDepartment, { IMeasureDepartment } from "../../shared/models/MeasureDepartment";
-import ObjectiveDepartment, { IObjectiveDepartment } from "../../shared/models/ObjectiveDepartment";
+import MeasureDepartment, {
+  IMeasureDepartment,
+} from "../../shared/models/MeasureDepartment";
+import ObjectiveDepartment, {
+  IObjectiveDepartment,
+} from "../../shared/models/ObjectiveDepartment";
 import { IScorecardMetadata } from "../../shared/models/ScorecardMetadata";
 import { IScorecardReview } from "../../shared/models/ScorecardReview";
 import EmptyError from "../admin-settings/EmptyError";
@@ -308,26 +312,31 @@ const MeasureTable = (props: IMeasureTableProps) => {
 
 interface IObjectiveItemProps {
   objective: ObjectiveDepartment;
+  measures: MeasureDepartment[];
   children?: React.ReactNode;
 }
 const ObjectiveItem = (props: IObjectiveItemProps) => {
-  const { children, objective } = props;
+  const { children, objective, measures } = props;
 
   const { description, perspective, weight } = objective.asJson;
-  const { rate, isUpdated } = objective.q4Rating;
-
+  const { isUpdated } = objective.q4Rating;
+  const sumMeasures = measures.reduce(
+    (acc, measure) => acc + measure.asJson.q2AutoRating,
+    0
+  ); // Summing up all measures
+  const averageMeasure = sumMeasures / measures.length;
   return (
     <div className="objective uk-card uk-card-default uk-card-small uk-card-body uk-margin">
       <div className="uk-flex uk-flex-middle">
         <div className="uk-margin-right">
-          <Rating rate={rate} isUpdated={isUpdated} />
+          <Rating rate={averageMeasure} isUpdated={isUpdated} />
         </div>
         <h3 className="objective-name uk-width-1-1">
           {description}
           <span className="objective-persepctive uk-margin-small-left">
             {fullPerspectiveName(perspective)}
           </span>
-          <span className="objective-weight">Weight: {weight || 0}%</span>
+          <span className="objective-weight">Weight: {weight ||0}%</span>
         </h3>
       </div>
 
@@ -348,7 +357,7 @@ const StrategicList = observer((props: IStrategicListProps) => {
     <div className="objective-table uk-margin">
       {objectives.map((objective) => (
         <ErrorBoundary key={objective.asJson.id}>
-          <ObjectiveItem objective={objective}>
+          <ObjectiveItem objective={objective} measures={objective.measures}>
             <MeasureTable
               measures={objective.measures}
               agreement={agreement}
@@ -383,7 +392,7 @@ const DepartmentScorecardQ2Cycle = observer((props: IProps) => {
 
   const [tab, setTab] = useState(ALL_TAB.id);
   const { api, ui, store } = useAppContext();
-  const measures = store.departmentMeasure.getByDepartment(agreement.department)
+  const measures = store.departmentMeasure.all;
   const filteredObjectivesByPerspective = useMemo(() => {
     const sorted = objectives.sort(sortByPerspective);
     return tab === ALL_TAB.id
@@ -395,8 +404,8 @@ const DepartmentScorecardQ2Cycle = observer((props: IProps) => {
 
   const allMeasures = measures.map((o) => o.asJson);
   const CalculateOverallRatingsDepartment = (
-    measures:IMeasureDepartment[],
-    objectives:  IObjectiveDepartment[]
+    measures: IMeasureDepartment[],
+    objectives: IObjectiveDepartment[]
   ): number => {
     // Store the total weighted score
     let totalWeightedScore = 0;
@@ -410,10 +419,9 @@ const DepartmentScorecardQ2Cycle = observer((props: IProps) => {
         (measure) => measure.objective === objectiveId
       );
 
-
       // Step 1: Calculate the average of the measure ratings for the objective
       const totalMeasureRating = objectiveMeasures.reduce((sum, measure) => {
-        const finalRating = measure.q3AutoRating || 0;
+        const finalRating = measure.q2AutoRating || 0;
         return sum + finalRating;
       }, 0);
 
@@ -425,18 +433,14 @@ const DepartmentScorecardQ2Cycle = observer((props: IProps) => {
 
       // Step 2: Calculate the weighted score for the objective
       const weightedScore = averageMeasureScore * (objectiveWeight / 100);
-    
 
       // Accumulate the weighted score to the total
       totalWeightedScore += weightedScore;
     });
 
-    return parseFloat(totalWeightedScore.toFixed(2)) // Return the total weighted score
-    
+    return parseFloat(totalWeightedScore.toFixed(2)); // Return the total weighted score
   };
-   
 
-  
   if (agreement.quarter1Review.status !== "approved")
     return (
       <ErrorBoundary>
@@ -522,7 +526,13 @@ const DepartmentScorecardQ2Cycle = observer((props: IProps) => {
             <Toolbar
               leftControls={
                 <ErrorBoundary>
-                 <h6 className="uk-title">OVERALL RATING: {CalculateOverallRatingsDepartment(allMeasures,allObjectives)}</h6>
+                  <h6 className="uk-title">
+                    OVERALL RATING:{" "}
+                    {CalculateOverallRatingsDepartment(
+                      allMeasures,
+                      allObjectives
+                    )}
+                  </h6>
                 </ErrorBoundary>
               }
               rightControls={
